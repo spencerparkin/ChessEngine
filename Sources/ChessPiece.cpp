@@ -18,11 +18,38 @@ ChessPiece::ChessPiece(ChessGame* game, const ChessVector& location, ChessColor 
 {
 }
 
+void ChessPiece::GenerateMovesWithRayCast(const ChessVector& rayDirection, ChessMoveArray& moveArray, int maxLength /*= INT_MAX*/) const
+{
+	ChessColor opponentColor = (this->color == ChessColor::White) ? ChessColor::Black : ChessColor::White;
+	for(int i = 1; i <= maxLength; i++)
+	{
+		ChessVector rayLocation = this->location + rayDirection * i;
+		if (!this->game->IsLocationValid(rayLocation))
+			break;
+
+		ChessPiece* piece = this->game->GetSquareOccupant(rayLocation);
+		if (!piece)
+		{
+			Travel* travel = new Travel();
+			travel->sourceLocation = this->location;
+			travel->destinationLocation = rayLocation;
+			moveArray.push_back(travel);
+		}
+		else if (piece->color == opponentColor)
+		{
+			Capture* capture = new Capture();
+			capture->sourceLocation = this->location;
+			capture->destinationLocation = rayLocation;
+			moveArray.push_back(capture);
+			break;
+		}
+	}
+}
+
 //---------------------------------------- Pawn ----------------------------------------
 
 Pawn::Pawn(ChessGame* game, const ChessVector& location, ChessColor color) : ChessPiece(game, location, color)
 {
-
 }
 
 /*virtual*/ Pawn::~Pawn()
@@ -123,7 +150,6 @@ Pawn::Pawn(ChessGame* game, const ChessVector& location, ChessColor color) : Che
 
 Knight::Knight(ChessGame* game, const ChessVector& location, ChessColor color) : ChessPiece(game, location, color)
 {
-
 }
 
 /*virtual*/ Knight::~Knight()
@@ -172,7 +198,6 @@ Knight::Knight(ChessGame* game, const ChessVector& location, ChessColor color) :
 
 Bishop::Bishop(ChessGame* game, const ChessVector& location, ChessColor color) : ChessPiece(game, location, color)
 {
-
 }
 
 /*virtual*/ Bishop::~Bishop()
@@ -181,6 +206,10 @@ Bishop::Bishop(ChessGame* game, const ChessVector& location, ChessColor color) :
 
 /*virtual*/ void Bishop::GenerateAllPossibleMoves(ChessMoveArray& moveArray) const
 {
+	this->GenerateMovesWithRayCast(ChessVector(1, 1), moveArray);
+	this->GenerateMovesWithRayCast(ChessVector(-1, 1), moveArray);
+	this->GenerateMovesWithRayCast(ChessVector(1, -1), moveArray);
+	this->GenerateMovesWithRayCast(ChessVector(-1, -1), moveArray);
 }
 
 //---------------------------------------- Rook ----------------------------------------
@@ -195,6 +224,10 @@ Rook::Rook(ChessGame* game, const ChessVector& location, ChessColor color) : Che
 
 /*virtual*/ void Rook::GenerateAllPossibleMoves(ChessMoveArray& moveArray) const
 {
+	this->GenerateMovesWithRayCast(ChessVector(1, 0), moveArray);
+	this->GenerateMovesWithRayCast(ChessVector(0, 1), moveArray);
+	this->GenerateMovesWithRayCast(ChessVector(-1, 0), moveArray);
+	this->GenerateMovesWithRayCast(ChessVector(0, -1), moveArray);
 }
 
 //---------------------------------------- Queen ----------------------------------------
@@ -209,6 +242,14 @@ Queen::Queen(ChessGame* game, const ChessVector& location, ChessColor color) : C
 
 /*virtual*/ void Queen::GenerateAllPossibleMoves(ChessMoveArray& moveArray) const
 {
+	this->GenerateMovesWithRayCast(ChessVector(1, 1), moveArray);
+	this->GenerateMovesWithRayCast(ChessVector(-1, 1), moveArray);
+	this->GenerateMovesWithRayCast(ChessVector(1, -1), moveArray);
+	this->GenerateMovesWithRayCast(ChessVector(-1, -1), moveArray);
+	this->GenerateMovesWithRayCast(ChessVector(1, 0), moveArray);
+	this->GenerateMovesWithRayCast(ChessVector(0, 1), moveArray);
+	this->GenerateMovesWithRayCast(ChessVector(-1, 0), moveArray);
+	this->GenerateMovesWithRayCast(ChessVector(0, -1), moveArray);
 }
 
 //---------------------------------------- King ----------------------------------------
@@ -223,5 +264,14 @@ King::King(ChessGame* game, const ChessVector& location, ChessColor color) : Che
 
 /*virtual*/ void King::GenerateAllPossibleMoves(ChessMoveArray& moveArray) const
 {
+	this->GenerateMovesWithRayCast(ChessVector(1, 1), moveArray, 1);
+	this->GenerateMovesWithRayCast(ChessVector(-1, 1), moveArray, 1);
+	this->GenerateMovesWithRayCast(ChessVector(1, -1), moveArray, 1);
+	this->GenerateMovesWithRayCast(ChessVector(-1, -1), moveArray, 1);
+	this->GenerateMovesWithRayCast(ChessVector(1, 0), moveArray, 1);
+	this->GenerateMovesWithRayCast(ChessVector(0, 1), moveArray, 1);
+	this->GenerateMovesWithRayCast(ChessVector(-1, 0), moveArray, 1);
+	this->GenerateMovesWithRayCast(ChessVector(0, -1), moveArray, 1);
+
 	// Note that we can look at the entire game's move history to determine if castling is possible.
 }

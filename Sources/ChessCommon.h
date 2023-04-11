@@ -11,6 +11,7 @@
 #include <vector>
 #include <list>
 #include <math.h>
+#include <limits.h>
 
 #define CHESS_BOARD_RANKS		8
 #define CHESS_BOARD_FILES		8
@@ -34,11 +35,12 @@ namespace ChessEngine
 	{
 	public:
 		ChessVector();
+		ChessVector(const ChessVector& vector);
 		ChessVector(int file, int rank);
 		virtual ~ChessVector();
 
 		void operator=(const ChessVector& vector);
-		ChessVector operator*(int scalar);
+		ChessVector operator*(int scalar) const;
 
 		int file, rank;
 	};

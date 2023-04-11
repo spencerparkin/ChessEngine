@@ -18,6 +18,8 @@ namespace ChessEngine
 		// to these things are handled at a higher level of the software.
 		virtual void GenerateAllPossibleMoves(ChessMoveArray& moveArray) const = 0;
 
+		void GenerateMovesWithRayCast(const ChessVector& rayDirection, ChessMoveArray& moveArray, int maxLength = INT_MAX) const;
+
 		ChessGame* game;
 		ChessVector location;
 		ChessColor color;

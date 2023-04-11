@@ -9,6 +9,12 @@ ChessVector::ChessVector()
 	this->rank = 0;
 }
 
+ChessVector::ChessVector(const ChessVector& vector)
+{
+	this->file = vector.file;
+	this->rank = vector.rank;
+}
+
 ChessVector::ChessVector(int file, int rank)
 {
 	this->file = file;
@@ -25,7 +31,7 @@ void ChessVector::operator=(const ChessVector& vector)
 	this->rank = vector.rank;
 }
 
-ChessVector ChessVector::operator*(int scalar)
+ChessVector ChessVector::operator*(int scalar) const
 {
 	return ChessVector(this->file * scalar, this->rank * scalar);
 }
