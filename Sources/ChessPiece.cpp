@@ -273,5 +273,57 @@ King::King(ChessGame* game, const ChessVector& location, ChessColor color) : Che
 	this->GenerateMovesWithRayCast(ChessVector(-1, 0), moveArray, 1);
 	this->GenerateMovesWithRayCast(ChessVector(0, -1), moveArray, 1);
 
-	// Note that we can look at the entire game's move history to determine if castling is possible.
+	ChessVector initialKingLocation;
+	ChessVector initialKingSideRookLocation;
+	ChessVector initialQueenSideRookLocation;
+	ChessVector kingSideDirection;
+	ChessVector queenSideDirection;
+
+	switch (this->color)
+	{
+		case ChessColor::White:
+		{
+			initialKingLocation = ChessVector(4, 0);
+			initialKingSideRookLocation = ChessVector(7, 0);
+			initialQueenSideRookLocation = ChessVector(0, 0);
+			kingSideDirection = ChessVector(1, 0);
+			queenSideDirection = ChessVector(-1, 0);
+			break;
+		}
+		case ChessColor::Black:
+		{
+			initialKingLocation = ChessVector(4, 7);
+			initialKingSideRookLocation = ChessVector(7, 7);
+			initialQueenSideRookLocation = ChessVector(0, 7);
+			kingSideDirection = ChessVector(1, 7);
+			queenSideDirection = ChessVector(-1, 7);
+			break;
+		}
+	}
+
+	if (this->location == initialKingLocation && !this->game->PieceEverMovedFromLocation(initialKingLocation))
+	{
+		Rook* kingSideRook = dynamic_cast<Rook*>(this->game->GetSquareOccupant(initialKingSideRookLocation));
+		Rook* queenSideRook = dynamic_cast<Rook*>(this->game->GetSquareOccupant(initialQueenSideRookLocation));
+
+		if (kingSideRook && !this->game->PieceEverMovedFromLocation(initialKingSideRookLocation))
+		{
+			Castle* castle = new Castle();
+			castle->sourceLocation = this->location;
+			castle->destinationLocation = this->location + kingSideDirection * 2;
+			castle->rookSourceLocation = initialKingSideRookLocation;
+			castle->rookDestinationLocation = this->location + kingSideDirection;
+			moveArray.push_back(castle);
+		}
+
+		if (queenSideRook && !this->game->PieceEverMovedFromLocation(initialQueenSideRookLocation))
+		{
+			Castle* castle = new Castle();
+			castle->sourceLocation = this->location;
+			castle->destinationLocation = this->location + queenSideDirection * 2;
+			castle->rookSourceLocation = initialQueenSideRookLocation;
+			castle->rookDestinationLocation = this->location + queenSideDirection;
+			moveArray.push_back(castle);
+		}
+	}
 }

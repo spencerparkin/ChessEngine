@@ -193,3 +193,15 @@ const ChessMove* ChessGame::GetMove(int i) const
 
 	return (*this->chessMoveStack)[i];
 }
+
+bool ChessGame::PieceEverMovedFromLocation(const ChessVector& location) const
+{
+	for (int i = 0; i < (signed)this->chessMoveStack->size(); i++)
+	{
+		const ChessMove* move = (*this->chessMoveStack)[i];
+		if (move->sourceLocation == location)
+			return true;
+	}
+
+	return false;
+}

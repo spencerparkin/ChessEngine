@@ -29,6 +29,8 @@ namespace ChessEngine
 		const ChessMove* GetMove(int i) const;
 		int GetNumMoves() const { return this->chessMoveStack->size(); }
 
+		bool PieceEverMovedFromLocation(const ChessVector& location) const;
+
 	protected:
 
 		void Clear();
