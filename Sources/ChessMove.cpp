@@ -48,19 +48,15 @@ Capture::Capture()
 
 /*virtual*/ bool Capture::Do(ChessGame* game)
 {
-	ChessPiece* piece = nullptr;
-	if (!game->GetSquareOccupant(this->sourceLocation, piece))
+	ChessPiece* piece = game->GetSquareOccupant(this->sourceLocation);
+	if (!piece)
 		return false;
 
-	if (!game->GetSquareOccupant(this->destinationLocation, this->capturedPiece))
-		return false;
-
+	this->capturedPiece = game->GetSquareOccupant(this->destinationLocation);
 	if (!this->capturedPiece)
 		return false;
 
-	if (!game->SetSquareOccupant(this->destinationLocation, piece))
-		return false;
-
+	game->SetSquareOccupant(this->destinationLocation, piece);
 	return true;
 }
 
@@ -69,19 +65,15 @@ Capture::Capture()
 	if (!this->capturedPiece)
 		return false;
 
-	ChessPiece* piece = nullptr;
-	if (!game->GetSquareOccupant(this->destinationLocation, piece))
-		return false;
-
+	ChessPiece* piece = game->GetSquareOccupant(this->destinationLocation);
 	if (!piece)
 		return false;
 
-	if (!game->SetSquareOccupant(this->sourceLocation, piece))	// TODO: Really should check that it's empty first.
+	if (game->GetSquareOccupant(this->sourceLocation) != nullptr)
 		return false;
 
-	if (!game->SetSquareOccupant(this->destinationLocation, this->capturedPiece))
-		return false;
-
+	game->SetSquareOccupant(this->sourceLocation, piece);
+	game->SetSquareOccupant(this->destinationLocation, this->capturedPiece);
 	this->capturedPiece = nullptr;
 	return true;
 }

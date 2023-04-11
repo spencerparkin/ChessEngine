@@ -1,4 +1,5 @@
 #include "ChessCommon.h"
+#include "ChessMove.h"
 
 using namespace ChessEngine;
 
@@ -32,4 +33,15 @@ ChessVector operator+(const ChessVector& vectorA, const ChessVector& vectorB)
 ChessVector operator-(const ChessVector& vectorA, const ChessVector& vectorB)
 {
 	return ChessVector(vectorA.file - vectorB.file, vectorA.rank - vectorB.rank);
+}
+
+namespace ChessEngine
+{
+	void DeleteMoveArray(ChessMoveArray& moveArray)
+	{
+		for (int i = 0; i < (signed)moveArray.size(); i++)
+			delete moveArray[i];
+
+		moveArray.clear();
+	}
 }

@@ -79,22 +79,18 @@ bool ChessGame::IsLocationValid(const ChessVector& location) const
 	return true;
 }
 
-bool ChessGame::GetSquareOccupant(const ChessVector& location, ChessPiece*& piece) const
+ChessPiece* ChessGame::GetSquareOccupant(const ChessVector& location) const
 {
-	if (!this->IsLocationValid(location))
-		return false;
-
-	piece = this->boardMatrix[location.file][location.rank];
-	return true;
+	if (this->IsLocationValid(location))
+		return this->boardMatrix[location.file][location.rank];
+	
+	return nullptr;
 }
 
-bool ChessGame::SetSquareOccupant(const ChessVector& location, ChessPiece* piece)
+void ChessGame::SetSquareOccupant(const ChessVector& location, ChessPiece* piece)
 {
-	if (!this->IsLocationValid(location))
-		return false;
-
-	this->boardMatrix[location.file][location.rank] = piece;
-	return true;
+	if (this->IsLocationValid(location))
+		this->boardMatrix[location.file][location.rank] = piece;
 }
 
 bool ChessGame::PushMove(ChessMove* move)
@@ -117,4 +113,72 @@ bool ChessGame::PopMove()
 
 	delete move;
 	return true;
+}
+
+GameResult ChessGame::GenerateAllPossibleMovesForColor(ChessColor color, ChessMoveArray& moveArray)
+{
+	DeleteMoveArray(moveArray);
+
+	ChessMoveArray tentativeMoveArray;
+	this->GatherAllMovesForColor(color, tentativeMoveArray);
+	for (ChessMove* move : tentativeMoveArray)
+	{
+		bool canDoMove = true;
+
+		this->PushMove(move);
+
+		// We cannot make a move that puts us in check.
+		if (this->IsColorInCheck(color))
+			canDoMove = false;
+
+		this->PopMove();
+
+		if (canDoMove)
+			moveArray.push_back(move);
+		else
+			delete move;
+	}
+
+	if (moveArray.size() == 0)
+	{
+		if (this->IsColorInCheck(color))
+			return GameResult::CheckMate;
+		else
+			return GameResult::StaleMate;
+	}
+
+	return GameResult::None;
+}
+
+bool ChessGame::IsColorInCheck(ChessColor color)
+{
+	bool inCheck = false;
+	ChessColor opposingColor = (color == ChessColor::White) ? ChessColor::Black : ChessColor::White;
+	ChessMoveArray moveArray;
+	this->GenerateAllPossibleMovesForColor(opposingColor, moveArray);
+	for (ChessMove* move : moveArray)
+	{
+		Capture* capture = dynamic_cast<Capture*>(move);
+		if (capture && capture->capturedPiece->color == color && dynamic_cast<King*>(capture->capturedPiece))
+		{
+			inCheck = true;
+			break;
+		}
+	}
+
+	DeleteMoveArray(moveArray);
+	return inCheck;
+}
+
+void ChessGame::GatherAllMovesForColor(ChessColor color, ChessMoveArray& moveArray)
+{
+	for (int i = 0; i < CHESS_BOARD_FILES; i++)
+	{
+		for (int j = 0; j < CHESS_BOARD_RANKS; j++)
+		{
+			ChessPiece* piece = this->boardMatrix[i][j];
+			if (piece)
+				piece->GenerateAllPossibleMoves(moveArray);
+		}
+	}
 }

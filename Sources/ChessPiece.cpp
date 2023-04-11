@@ -28,7 +28,7 @@ Pawn::Pawn(ChessGame* game, const ChessVector& location, ChessColor color) : Che
 {
 }
 
-/*virtual*/ void Pawn::GenerateAllPossibleMoves(ChessMoveArray& chessMoveArray) const
+/*virtual*/ void Pawn::GenerateAllPossibleMoves(ChessMoveArray& moveArray) const
 {
 	// Note that determining if en-passant here is possible is easy, because we not only have access to the board,
 	// but we also have access to the board history, and that's exactly what we need in order to figure it out.
@@ -48,7 +48,7 @@ Knight::Knight(ChessGame* game, const ChessVector& location, ChessColor color) :
 {
 }
 
-/*virtual*/ void Knight::GenerateAllPossibleMoves(ChessMoveArray& chessMoveArray) const
+/*virtual*/ void Knight::GenerateAllPossibleMoves(ChessMoveArray& moveArray) const
 {
 }
 
@@ -63,7 +63,7 @@ Bishop::Bishop(ChessGame* game, const ChessVector& location, ChessColor color) :
 {
 }
 
-/*virtual*/ void Bishop::GenerateAllPossibleMoves(ChessMoveArray& chessMoveArray) const
+/*virtual*/ void Bishop::GenerateAllPossibleMoves(ChessMoveArray& moveArray) const
 {
 }
 
@@ -77,7 +77,7 @@ Rook::Rook(ChessGame* game, const ChessVector& location, ChessColor color) : Che
 {
 }
 
-/*virtual*/ void Rook::GenerateAllPossibleMoves(ChessMoveArray& chessMoveArray) const
+/*virtual*/ void Rook::GenerateAllPossibleMoves(ChessMoveArray& moveArray) const
 {
 }
 
@@ -91,7 +91,7 @@ Queen::Queen(ChessGame* game, const ChessVector& location, ChessColor color) : C
 {
 }
 
-/*virtual*/ void Queen::GenerateAllPossibleMoves(ChessMoveArray& chessMoveArray) const
+/*virtual*/ void Queen::GenerateAllPossibleMoves(ChessMoveArray& moveArray) const
 {
 }
 
@@ -105,7 +105,7 @@ King::King(ChessGame* game, const ChessVector& location, ChessColor color) : Che
 {
 }
 
-/*virtual*/ void King::GenerateAllPossibleMoves(ChessMoveArray& chessMoveArray) const
+/*virtual*/ void King::GenerateAllPossibleMoves(ChessMoveArray& moveArray) const
 {
 	// Note that we can look at the entire game's move history to determine if castling is possible.
 }

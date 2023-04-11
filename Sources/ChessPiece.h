@@ -12,7 +12,11 @@ namespace ChessEngine
 		ChessPiece(ChessGame* game, const ChessVector& location, ChessColor color);
 		virtual ~ChessPiece();
 
-		virtual void GenerateAllPossibleMoves(ChessMoveArray& chessMoveArray) const = 0;
+		// Note that overrides of this method should generate all possible moves for the chess
+		// piece regardless of who's turn it is, check, check-mate, stale mate, or even the
+		// idea of capturing the king which, of course, is illegal in chess.  Rules with regard
+		// to these things are handled at a higher level of the software.
+		virtual void GenerateAllPossibleMoves(ChessMoveArray& moveArray) const = 0;
 
 		ChessGame* game;
 		ChessVector location;
@@ -25,7 +29,7 @@ namespace ChessEngine
 		Pawn(ChessGame* game, const ChessVector& location, ChessColor color);
 		virtual ~Pawn();
 
-		virtual void GenerateAllPossibleMoves(ChessMoveArray& chessMoveArray) const override;
+		virtual void GenerateAllPossibleMoves(ChessMoveArray& moveArray) const override;
 	};
 
 	class CHESS_ENGINE_API Knight : public ChessPiece
@@ -34,7 +38,7 @@ namespace ChessEngine
 		Knight(ChessGame* game, const ChessVector& location, ChessColor color);
 		virtual ~Knight();
 
-		virtual void GenerateAllPossibleMoves(ChessMoveArray& chessMoveArray) const override;
+		virtual void GenerateAllPossibleMoves(ChessMoveArray& moveArray) const override;
 	};
 
 	class CHESS_ENGINE_API Bishop : public ChessPiece
@@ -43,7 +47,7 @@ namespace ChessEngine
 		Bishop(ChessGame* game, const ChessVector& location, ChessColor color);
 		virtual ~Bishop();
 
-		virtual void GenerateAllPossibleMoves(ChessMoveArray& chessMoveArray) const override;
+		virtual void GenerateAllPossibleMoves(ChessMoveArray& moveArray) const override;
 	};
 
 	class CHESS_ENGINE_API Rook : public ChessPiece
@@ -52,7 +56,7 @@ namespace ChessEngine
 		Rook(ChessGame* game, const ChessVector& location, ChessColor color);
 		virtual ~Rook();
 
-		virtual void GenerateAllPossibleMoves(ChessMoveArray& chessMoveArray) const override;
+		virtual void GenerateAllPossibleMoves(ChessMoveArray& moveArray) const override;
 	};
 
 	class CHESS_ENGINE_API Queen : public ChessPiece
@@ -61,7 +65,7 @@ namespace ChessEngine
 		Queen(ChessGame* game, const ChessVector& location, ChessColor color);
 		virtual ~Queen();
 
-		virtual void GenerateAllPossibleMoves(ChessMoveArray& chessMoveArray) const override;
+		virtual void GenerateAllPossibleMoves(ChessMoveArray& moveArray) const override;
 	};
 
 	class CHESS_ENGINE_API King : public ChessPiece
@@ -70,6 +74,6 @@ namespace ChessEngine
 		King(ChessGame* game, const ChessVector& location, ChessColor color);
 		virtual ~King();
 
-		virtual void GenerateAllPossibleMoves(ChessMoveArray& chessMoveArray) const override;
+		virtual void GenerateAllPossibleMoves(ChessMoveArray& moveArray) const override;
 	};
 }

@@ -23,6 +23,13 @@ namespace ChessEngine
 		White
 	};
 
+	enum class GameResult
+	{
+		None,
+		CheckMate,
+		StaleMate
+	};
+
 	class CHESS_ENGINE_API ChessVector
 	{
 	public:
@@ -40,4 +47,6 @@ namespace ChessEngine
 
 	class ChessMove;
 	typedef std::vector<ChessMove*> ChessMoveArray;
+
+	CHESS_ENGINE_API void DeleteMoveArray(ChessMoveArray& moveArray);
 }
