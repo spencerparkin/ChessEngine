@@ -118,7 +118,7 @@ bool ChessGame::PopMove()
 	return true;
 }
 
-GameResult ChessGame::GenerateAllPossibleMovesForColor(ChessColor color, ChessMoveArray& moveArray)
+GameResult ChessGame::GenerateAllLegalMovesForColor(ChessColor color, ChessMoveArray& moveArray)
 {
 	DeleteMoveArray(moveArray);
 
@@ -158,7 +158,7 @@ bool ChessGame::IsColorInCheck(ChessColor color)
 	bool inCheck = false;
 	ChessColor opposingColor = (color == ChessColor::White) ? ChessColor::Black : ChessColor::White;
 	ChessMoveArray moveArray;
-	this->GenerateAllPossibleMovesForColor(opposingColor, moveArray);
+	this->GatherAllMovesForColor(opposingColor, moveArray);
 	for (ChessMove* move : moveArray)
 	{
 		Capture* capture = dynamic_cast<Capture*>(move);

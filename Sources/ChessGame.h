@@ -24,7 +24,7 @@ namespace ChessEngine
 		bool PopMove();
 
 		// Assuming it is the given color's turn, generate all legal moves for that color.
-		GameResult GenerateAllPossibleMovesForColor(ChessColor color, ChessMoveArray& moveArray);
+		GameResult GenerateAllLegalMovesForColor(ChessColor color, ChessMoveArray& moveArray);
 
 	protected:
 
