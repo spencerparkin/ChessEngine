@@ -132,6 +132,40 @@ Knight::Knight(ChessGame* game, const ChessVector& location, ChessColor color) :
 
 /*virtual*/ void Knight::GenerateAllPossibleMoves(ChessMoveArray& moveArray) const
 {
+	ChessColor opponentColor = (this->color == ChessColor::White) ? ChessColor::Black : ChessColor::White;
+
+	ChessVector ellVectorArray[2];
+	ellVectorArray[0] = ChessVector(1, 2);
+	ellVectorArray[1] = ChessVector(2, 1);
+	for (int i = 0; i < 2; i++)
+	{
+		const ChessVector& ellVector = ellVectorArray[i];
+		for (int j = 0; j < 4; j++)
+		{
+			int fileScale = (j & 0x1) ? 1 : -1;
+			int rankScale = (j & 0x2) ? 1 : -1;
+			ChessVector moveVector(ellVector.file * fileScale, ellVector.rank * rankScale);
+
+			if (this->game->IsLocationValid(this->location + ellVector))
+			{
+				ChessPiece* piece = this->game->GetSquareOccupant(this->location + ellVector);
+				if (!piece)
+				{
+					Travel* travel = new Travel();
+					travel->sourceLocation = this->location;
+					travel->destinationLocation = this->location + ellVector;
+					moveArray.push_back(travel);
+				}
+				else if (piece->color == opponentColor)
+				{
+					Capture* capture = new Capture();
+					capture->sourceLocation = this->location;
+					capture->destinationLocation = this->location + ellVector;
+					moveArray.push_back(capture);
+				}
+			}
+		}
+	}
 }
 
 //---------------------------------------- Bishop ----------------------------------------
