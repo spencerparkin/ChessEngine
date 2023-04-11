@@ -38,12 +38,16 @@ namespace ChessEngine
 		virtual ~ChessVector();
 
 		void operator=(const ChessVector& vector);
+		ChessVector operator*(int scalar);
 
 		int file, rank;
 	};
 
 	ChessVector operator+(const ChessVector& vectorA, const ChessVector& vectorB);
 	ChessVector operator-(const ChessVector& vectorA, const ChessVector& vectorB);
+
+	bool operator==(const ChessVector& vectorA, const ChessVector& vectorB);
+	bool operator!=(const ChessVector& vectorA, const ChessVector& vectorB);
 
 	class ChessMove;
 	typedef std::vector<ChessMove*> ChessMoveArray;

@@ -185,3 +185,11 @@ void ChessGame::GatherAllMovesForColor(ChessColor color, ChessMoveArray& moveArr
 		}
 	}
 }
+
+const ChessMove* ChessGame::GetMove(int i) const
+{
+	if (i < 0 || i >= (signed)this->chessMoveStack->size())
+		return nullptr;
+
+	return (*this->chessMoveStack)[i];
+}

@@ -25,18 +25,33 @@ void ChessVector::operator=(const ChessVector& vector)
 	this->rank = vector.rank;
 }
 
-ChessVector operator+(const ChessVector& vectorA, const ChessVector& vectorB)
+ChessVector ChessVector::operator*(int scalar)
 {
-	return ChessVector(vectorA.file + vectorB.file, vectorA.rank + vectorB.rank);
-}
-
-ChessVector operator-(const ChessVector& vectorA, const ChessVector& vectorB)
-{
-	return ChessVector(vectorA.file - vectorB.file, vectorA.rank - vectorB.rank);
+	return ChessVector(this->file * scalar, this->rank * scalar);
 }
 
 namespace ChessEngine
 {
+	ChessVector operator+(const ChessVector& vectorA, const ChessVector& vectorB)
+	{
+		return ChessVector(vectorA.file + vectorB.file, vectorA.rank + vectorB.rank);
+	}
+
+	ChessVector operator-(const ChessVector& vectorA, const ChessVector& vectorB)
+	{
+		return ChessVector(vectorA.file - vectorB.file, vectorA.rank - vectorB.rank);
+	}
+
+	bool operator==(const ChessVector& vectorA, const ChessVector& vectorB)
+	{
+		return vectorA.file == vectorB.file && vectorA.rank == vectorB.rank;
+	}
+
+	bool operator!=(const ChessVector& vectorA, const ChessVector& vectorB)
+	{
+		return vectorA.file != vectorB.file || vectorA.rank != vectorB.rank;
+	}
+
 	void DeleteMoveArray(ChessMoveArray& moveArray)
 	{
 		for (int i = 0; i < (signed)moveArray.size(); i++)

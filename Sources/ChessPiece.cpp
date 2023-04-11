@@ -1,5 +1,6 @@
 #include "ChessPiece.h"
 #include "ChessGame.h"
+#include "ChessMove.h"
 
 using namespace ChessEngine;
 
@@ -30,11 +31,92 @@ Pawn::Pawn(ChessGame* game, const ChessVector& location, ChessColor color) : Che
 
 /*virtual*/ void Pawn::GenerateAllPossibleMoves(ChessMoveArray& moveArray) const
 {
-	// Note that determining if en-passant here is possible is easy, because we not only have access to the board,
-	// but we also have access to the board history, and that's exactly what we need in order to figure it out.
+	ChessColor opponentColor = (this->color == ChessColor::White) ? ChessColor::Black : ChessColor::White;
+	ChessVector forwardDirection(0, (this->color == ChessColor::White) ? 1 : -1);
+	int initialRank = (this->color == ChessColor::White) ? 1 : 6;
+	int finalRank = (this->color == ChessColor::White) ? 7 : 0;
 
-	// Note that we should report every kind of promotion possible here.  The caller can get further clarification
-	// from the user as to which promotion they want to take.
+	if (!this->game->GetSquareOccupant(this->location + forwardDirection))
+	{
+		if ((this->location + forwardDirection).rank == finalRank)
+		{
+			Promotion* promotion = new Promotion();
+			promotion->sourceLocation = this->location;
+			promotion->destinationLocation = this->location + forwardDirection;
+			promotion->newPiece = new Knight(this->game, ChessVector(), this->color);
+			moveArray.push_back(promotion);
+
+			promotion = new Promotion();
+			promotion->sourceLocation = this->location;
+			promotion->destinationLocation = this->location + forwardDirection;
+			promotion->newPiece = new Bishop(this->game, ChessVector(), this->color);
+			moveArray.push_back(promotion);
+
+			promotion = new Promotion();
+			promotion->sourceLocation = this->location;
+			promotion->destinationLocation = this->location + forwardDirection;
+			promotion->newPiece = new Rook(this->game, ChessVector(), this->color);
+			moveArray.push_back(promotion);
+
+			promotion = new Promotion();
+			promotion->sourceLocation = this->location;
+			promotion->destinationLocation = this->location + forwardDirection;
+			promotion->newPiece = new Queen(this->game, ChessVector(), this->color);
+			moveArray.push_back(promotion);
+		}
+		else
+		{
+			Travel* travel = new Travel();
+			travel->sourceLocation = this->location;
+			travel->destinationLocation = this->location + forwardDirection;
+			moveArray.push_back(travel);
+		}
+
+		if (this->location.rank == initialRank && !this->game->GetSquareOccupant(this->location + forwardDirection * 2))
+		{
+			Travel* travel = new Travel();
+			travel->sourceLocation = this->location;
+			travel->destinationLocation = this->location + forwardDirection * 2;
+			moveArray.push_back(travel);
+		}
+	}
+
+	ChessVector sideVector[2];
+	sideVector[0].file = -1;
+	sideVector[1].file = 1;
+	for (int i = 0; i < 2; i++)
+	{
+		if (!this->game->IsLocationValid(this->location + forwardDirection + sideVector[i]))
+			continue;
+
+		ChessPiece* piece = this->game->GetSquareOccupant(this->location + forwardDirection + sideVector[i]);
+		if (piece)
+		{
+			if (piece->color == opponentColor)
+			{
+				Capture* capture = new Capture();
+				capture->sourceLocation = this->location;
+				capture->destinationLocation = this->location + forwardDirection + sideVector[i];
+				moveArray.push_back(capture);
+			}
+		}
+		else
+		{
+			piece = this->game->GetSquareOccupant(this->location + sideVector[i]);
+			if (piece && piece->color == opponentColor && dynamic_cast<Pawn*>(piece) && this->game->GetNumMoves() > 0)
+			{
+				const Travel* travel = dynamic_cast<const Travel*>(this->game->GetMove(this->game->GetNumMoves() - 1));
+				if (travel && travel->sourceLocation == this->location + forwardDirection * 2 + sideVector[i] && travel->destinationLocation == this->location + sideVector[i])
+				{
+					EnPassant* enPassant = new EnPassant();
+					enPassant->sourceLocation = this->location;
+					enPassant->destinationLocation = this->location + forwardDirection + sideVector[i];
+					enPassant->captureLocation = this->location + sideVector[i];
+					moveArray.push_back(enPassant);
+				}
+			}
+		}
+	}
 }
 
 //---------------------------------------- Knight ----------------------------------------

@@ -26,6 +26,9 @@ namespace ChessEngine
 		// Assuming it is the given color's turn, generate all legal moves for that color.
 		GameResult GenerateAllLegalMovesForColor(ChessColor color, ChessMoveArray& moveArray);
 
+		const ChessMove* GetMove(int i) const;
+		int GetNumMoves() const { return this->chessMoveStack->size(); }
+
 	protected:
 
 		void Clear();
