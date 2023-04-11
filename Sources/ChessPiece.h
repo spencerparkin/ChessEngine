@@ -26,9 +26,6 @@ namespace ChessEngine
 		virtual ~Pawn();
 
 		virtual void GenerateAllPossibleMoves(ChessMoveArray& chessMoveArray) const override;
-
-		// TODO: Add info here indicating whether this pawn can be captured using en-passant?  This rule is tricky, because there is only a limited time when the move is available.
-		//       Similarly for castling, we have to know if a piece has ever moved.
 	};
 
 	class CHESS_ENGINE_API Knight : public ChessPiece

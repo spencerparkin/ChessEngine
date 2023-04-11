@@ -30,6 +30,11 @@ Pawn::Pawn(ChessGame* game, const ChessVector& location, ChessColor color) : Che
 
 /*virtual*/ void Pawn::GenerateAllPossibleMoves(ChessMoveArray& chessMoveArray) const
 {
+	// Note that determining if en-passant here is possible is easy, because we not only have access to the board,
+	// but we also have access to the board history, and that's exactly what we need in order to figure it out.
+
+	// Note that we should report every kind of promotion possible here.  The caller can get further clarification
+	// from the user as to which promotion they want to take.
 }
 
 //---------------------------------------- Knight ----------------------------------------
@@ -66,7 +71,6 @@ Bishop::Bishop(ChessGame* game, const ChessVector& location, ChessColor color) :
 
 Rook::Rook(ChessGame* game, const ChessVector& location, ChessColor color) : ChessPiece(game, location, color)
 {
-
 }
 
 /*virtual*/ Rook::~Rook()
@@ -81,7 +85,6 @@ Rook::Rook(ChessGame* game, const ChessVector& location, ChessColor color) : Che
 
 Queen::Queen(ChessGame* game, const ChessVector& location, ChessColor color) : ChessPiece(game, location, color)
 {
-
 }
 
 /*virtual*/ Queen::~Queen()
@@ -96,7 +99,6 @@ Queen::Queen(ChessGame* game, const ChessVector& location, ChessColor color) : C
 
 King::King(ChessGame* game, const ChessVector& location, ChessColor color) : ChessPiece(game, location, color)
 {
-
 }
 
 /*virtual*/ King::~King()
@@ -105,4 +107,5 @@ King::King(ChessGame* game, const ChessVector& location, ChessColor color) : Che
 
 /*virtual*/ void King::GenerateAllPossibleMoves(ChessMoveArray& chessMoveArray) const
 {
+	// Note that we can look at the entire game's move history to determine if castling is possible.
 }
