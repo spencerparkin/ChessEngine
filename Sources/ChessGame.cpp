@@ -90,7 +90,10 @@ ChessPiece* ChessGame::GetSquareOccupant(const ChessVector& location) const
 void ChessGame::SetSquareOccupant(const ChessVector& location, ChessPiece* piece)
 {
 	if (this->IsLocationValid(location))
+	{
 		this->boardMatrix[location.file][location.rank] = piece;
+		piece->location = location;
+	}
 }
 
 bool ChessGame::PushMove(ChessMove* move)

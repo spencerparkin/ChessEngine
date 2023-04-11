@@ -53,6 +53,9 @@ namespace ChessEngine
 
 		virtual bool Do(ChessGame* game) override;
 		virtual bool Undo(ChessGame* game) override;
+
+		ChessVector rookSourceLocation;
+		ChessVector rookDestinationLocation;
 	};
 
 	class CHESS_ENGINE_API Promotion : public ChessMove
@@ -64,7 +67,8 @@ namespace ChessEngine
 		virtual bool Do(ChessGame* game) override;
 		virtual bool Undo(ChessGame* game) override;
 
-		// TODO: Indicate what kind of promotion here.
+		ChessPiece* newPiece;
+		ChessPiece* oldPiece;
 	};
 
 	class CHESS_ENGINE_API EnPassant : public ChessMove
@@ -75,5 +79,8 @@ namespace ChessEngine
 
 		virtual bool Do(ChessGame* game) override;
 		virtual bool Undo(ChessGame* game) override;
+
+		ChessVector captureLocation;
+		ChessPiece* capturedPiece;
 	};
 }
