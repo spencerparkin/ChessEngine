@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ChessEngine", "ChessEngine.vcxproj", "{8BF12889-2A34-43D9-BB0B-9558B11F371E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ChessProgram", "ChessProgram\ChessProgram.vcxproj", "{54C1857B-A26C-4F08-9057-1A76F9FF902C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8BF12889-2A34-43D9-BB0B-9558B11F371E} = {8BF12889-2A34-43D9-BB0B-9558B11F371E}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

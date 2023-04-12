@@ -1,11 +1,29 @@
 #include "ChessApp.h"
+#include "ChessFrame.h"
 
 wxIMPLEMENT_APP(ChessApp);
 
 ChessApp::ChessApp()
 {
+	this->frame = nullptr;
 }
 
 /*virtual*/ ChessApp::~ChessApp()
 {
+}
+
+/*virtual*/ bool ChessApp::OnInit(void)
+{
+	if (!wxApp::OnInit())
+		return false;
+
+	this->frame = new ChessFrame(nullptr, wxDefaultPosition, wxSize(1000, 600));
+	this->frame->Show();
+
+	return true;
+}
+
+/*virtual*/ int ChessApp::OnExit(void)
+{
+	return 0;
 }

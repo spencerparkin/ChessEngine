@@ -10,9 +10,21 @@
     <ClInclude Include="Sources\ChessApp.h">
       <Filter>Sources</Filter>
     </ClInclude>
+    <ClInclude Include="Sources\ChessFrame.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\ChessCanvas.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Sources\ChessApp.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\ChessFrame.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\ChessCanvas.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
