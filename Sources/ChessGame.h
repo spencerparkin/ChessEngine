@@ -21,7 +21,7 @@ namespace ChessEngine
 		void SetSquareOccupant(const ChessVector& location, ChessPiece* piece);
 		
 		bool PushMove(ChessMove* move);
-		bool PopMove();
+		ChessMove* PopMove();
 
 		// Assuming it is the given color's turn, generate all legal moves for that color.
 		GameResult GenerateAllLegalMovesForColor(ChessColor color, ChessMoveArray& moveArray);

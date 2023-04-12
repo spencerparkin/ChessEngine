@@ -92,7 +92,9 @@ void ChessGame::SetSquareOccupant(const ChessVector& location, ChessPiece* piece
 	if (this->IsLocationValid(location))
 	{
 		this->boardMatrix[location.file][location.rank] = piece;
-		piece->location = location;
+		
+		if(piece)
+			piece->location = location;
 	}
 }
 
@@ -105,17 +107,17 @@ bool ChessGame::PushMove(ChessMove* move)
 	return true;
 }
 
-bool ChessGame::PopMove()
+ChessMove* ChessGame::PopMove()
 {
 	if (this->chessMoveStack->size() == 0)
-		return false;
+		return nullptr;
 
 	ChessMove* move = this->chessMoveStack->back();
 	if (!move->Undo(this))
-		return false;
+		return nullptr;
 
-	delete move;
-	return true;
+	this->chessMoveStack->pop_back();
+	return move;
 }
 
 GameResult ChessGame::GenerateAllLegalMovesForColor(ChessColor color, ChessMoveArray& moveArray)
@@ -162,10 +164,14 @@ bool ChessGame::IsColorInCheck(ChessColor color)
 	for (ChessMove* move : moveArray)
 	{
 		Capture* capture = dynamic_cast<Capture*>(move);
-		if (capture && capture->capturedPiece->color == color && dynamic_cast<King*>(capture->capturedPiece))
+		if (capture)
 		{
-			inCheck = true;
-			break;
+			ChessPiece* capturedPiece = this->GetSquareOccupant(capture->destinationLocation);
+			if (capturedPiece->color == color && dynamic_cast<King*>(capturedPiece))
+			{
+				inCheck = true;
+				break;
+			}
 		}
 	}
 
@@ -180,7 +186,7 @@ void ChessGame::GatherAllMovesForColor(ChessColor color, ChessMoveArray& moveArr
 		for (int j = 0; j < CHESS_BOARD_RANKS; j++)
 		{
 			ChessPiece* piece = this->boardMatrix[i][j];
-			if (piece)
+			if (piece && piece->color == color)
 				piece->GenerateAllPossibleMoves(moveArray);
 		}
 	}

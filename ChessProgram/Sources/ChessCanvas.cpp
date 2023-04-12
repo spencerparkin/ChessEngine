@@ -1,6 +1,7 @@
 #include "ChessCanvas.h"
 #include "ChessCommon.h"
 #include "ChessPiece.h"
+#include "ChessMove.h"
 #include "ChessApp.h"
 #include <wx/filename.h>
 #include <wx/image.h>
@@ -34,6 +35,8 @@ ChessCanvas::ChessCanvas(wxWindow* parent) : wxGLCanvas(parent, wxID_ANY, attrib
 /*virtual*/ ChessCanvas::~ChessCanvas()
 {
 	delete this->renderContext;
+
+	ChessEngine::DeleteMoveArray(this->legalMoveArray);
 }
 
 void ChessCanvas::OnPaint(wxPaintEvent& event)
@@ -100,7 +103,7 @@ void ChessCanvas::OnLeftMouseButtonDown(wxMouseEvent& event)
 		this->formulatingMove = true;
 		this->CaptureMouse();
 
-		// TODO: Generate the set of legal moves here for current player's turn.
+		wxGetApp().game->GenerateAllLegalMovesForColor(wxGetApp().whoseTurn, this->legalMoveArray);
 
 		this->Refresh();
 	}
@@ -118,7 +121,28 @@ void ChessCanvas::OnLeftMouseButtonUp(wxMouseEvent& event)
 
 		if (wxGetApp().game->IsLocationValid(targetLocation))
 		{
-			// TODO: Execute the move if it's in the set of legal moves.
+			ChessEngine::ChessMoveArray moveArray;
+			if (this->FindLegalMoves(this->selectedLocation, targetLocation, moveArray))
+			{
+				ChessEngine::ChessMove* move = nullptr;
+				if (moveArray.size() == 1)
+					move = moveArray[0];
+				else
+				{
+					// TODO: Let user pick which move they want to do.  Pawn promotions are the only case I'm aware of where this would happen.
+				}
+
+				if (move)
+				{
+					wxGetApp().game->PushMove(move);
+
+					for (int i = 0; i < (signed)this->legalMoveArray.size(); i++)
+						if (this->legalMoveArray[i] == move)
+							this->legalMoveArray[i] = nullptr;
+				}
+
+				ChessEngine::DeleteMoveArray(this->legalMoveArray);
+			}
 		}
 
 		this->selectedLocation.file = -1;
@@ -135,8 +159,24 @@ void ChessCanvas::OnCaptureLost(wxMouseCaptureLostEvent& event)
 		this->formulatingMove = false;
 		this->selectedLocation.file = -1;
 		this->selectedLocation.rank = -1;
+		ChessEngine::DeleteMoveArray(this->legalMoveArray);
 		this->Refresh();
 	}
+}
+
+bool ChessCanvas::FindLegalMoves(const ChessEngine::ChessVector& sourceLocation, const ChessEngine::ChessVector& destinationLocation, ChessEngine::ChessMoveArray& moveArray)
+{
+	for (int i = 0; i < (signed)this->legalMoveArray.size(); i++)
+	{
+		ChessEngine::ChessMove* move = this->legalMoveArray[i];
+		if (move->sourceLocation == sourceLocation && move->destinationLocation == destinationLocation)
+		{
+			moveArray.push_back(move);
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void ChessCanvas::CalculateWorldBox(Box& worldBox) const
@@ -345,8 +385,13 @@ void ChessCanvas::RenderBoardSquareHighlight(const ChessEngine::ChessVector& squ
 	{
 		if (this->formulatingMove)
 		{
-			// TODO: Choose red if illegal, green if legal.
-			glColor4f(1.0f, 1.0f, 0.0f, 1.0f);
+			ChessEngine::ChessMoveArray moveArray;
+			this->FindLegalMoves(this->selectedLocation, squareLocation, moveArray);
+
+			if (moveArray.size() > 0)
+				glColor4f(0.0f, 1.0f, 0.0f, 1.0f);
+			else
+				glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
 		}
 		else
 		{

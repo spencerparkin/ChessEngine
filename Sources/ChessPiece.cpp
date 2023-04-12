@@ -35,12 +35,16 @@ void ChessPiece::GenerateMovesWithRayCast(const ChessVector& rayDirection, Chess
 			travel->destinationLocation = rayLocation;
 			moveArray.push_back(travel);
 		}
-		else if (piece->color == opponentColor)
+		else
 		{
-			Capture* capture = new Capture();
-			capture->sourceLocation = this->location;
-			capture->destinationLocation = rayLocation;
-			moveArray.push_back(capture);
+			if (piece->color == opponentColor)
+			{
+				Capture* capture = new Capture();
+				capture->sourceLocation = this->location;
+				capture->destinationLocation = rayLocation;
+				moveArray.push_back(capture);
+			}
+
 			break;
 		}
 	}
@@ -338,22 +342,31 @@ King::King(ChessGame* game, const ChessVector& location, ChessColor color) : Che
 
 		if (kingSideRook && !this->game->PieceEverMovedFromLocation(initialKingSideRookLocation))
 		{
-			Castle* castle = new Castle();
-			castle->sourceLocation = this->location;
-			castle->destinationLocation = this->location + kingSideDirection * 2;
-			castle->rookSourceLocation = initialKingSideRookLocation;
-			castle->rookDestinationLocation = this->location + kingSideDirection;
-			moveArray.push_back(castle);
+			if (!this->game->GetSquareOccupant(this->location + kingSideDirection) &&
+				!this->game->GetSquareOccupant(this->location + kingSideDirection * 2))
+			{
+				Castle* castle = new Castle();
+				castle->sourceLocation = this->location;
+				castle->destinationLocation = this->location + kingSideDirection * 2;
+				castle->rookSourceLocation = initialKingSideRookLocation;
+				castle->rookDestinationLocation = this->location + kingSideDirection;
+				moveArray.push_back(castle);
+			}
 		}
 
 		if (queenSideRook && !this->game->PieceEverMovedFromLocation(initialQueenSideRookLocation))
 		{
-			Castle* castle = new Castle();
-			castle->sourceLocation = this->location;
-			castle->destinationLocation = this->location + queenSideDirection * 2;
-			castle->rookSourceLocation = initialQueenSideRookLocation;
-			castle->rookDestinationLocation = this->location + queenSideDirection;
-			moveArray.push_back(castle);
+			if (!this->game->GetSquareOccupant(this->location + queenSideDirection) &&
+				!this->game->GetSquareOccupant(this->location + queenSideDirection * 2) &&
+				!this->game->GetSquareOccupant(this->location + queenSideDirection * 3))
+			{
+				Castle* castle = new Castle();
+				castle->sourceLocation = this->location;
+				castle->destinationLocation = this->location + queenSideDirection * 2;
+				castle->rookSourceLocation = initialQueenSideRookLocation;
+				castle->rookDestinationLocation = this->location + queenSideDirection;
+				moveArray.push_back(castle);
+			}
 		}
 	}
 }

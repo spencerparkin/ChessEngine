@@ -53,11 +53,14 @@ private:
 	void CalculateWorldBox(Box& worldBox) const;
 	bool CalculateSquareLocation(const wxPoint& mousePoint, ChessEngine::ChessVector& squareLocation, float* worldX = nullptr, float* worldY = nullptr);
 
+	bool FindLegalMoves(const ChessEngine::ChessVector& sourceLocation, const ChessEngine::ChessVector& destinationLocation, ChessEngine::ChessMoveArray& moveArray);
+
 	wxGLContext* renderContext;
 	static int attributeList[];
 	TextureMap textureMap;
 	ChessEngine::ChessVector hoverLocation;
 	ChessEngine::ChessVector selectedLocation;
+	ChessEngine::ChessMoveArray legalMoveArray;
 	bool formulatingMove;
 	float hoverWorldX;
 	float hoverWorldY;
