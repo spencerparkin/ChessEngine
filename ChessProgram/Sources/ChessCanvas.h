@@ -40,6 +40,7 @@ private:
 
 	void RenderBoard();
 	void RenderBoardSquare(const ChessEngine::ChessVector& squareLocation, const Box& box);
+	void RenderBoardSquarePiece(const ChessEngine::ChessVector& squareLocation, const Box& box);
 	void RenderBoardSquareHighlight(const ChessEngine::ChessVector& squareLocation, const Box& box);
 
 	void ForEachBoardSquare(std::function<void(const ChessEngine::ChessVector&, const Box&)> renderFunc);

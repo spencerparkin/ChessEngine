@@ -29,8 +29,11 @@ void ChessCanvas::OnPaint(wxPaintEvent& event)
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glShadeModel(GL_SMOOTH);
+	glShadeModel(GL_FLAT);
 	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_ALPHA_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	Box worldBox;
 	this->CalculateWorldBox(worldBox);
@@ -139,6 +142,10 @@ void ChessCanvas::RenderBoard()
 	});
 
 	this->ForEachBoardSquare([=](const ChessEngine::ChessVector& squareLocation, const Box& box) {
+		this->RenderBoardSquarePiece(squareLocation, box);
+	});
+
+	this->ForEachBoardSquare([=](const ChessEngine::ChessVector& squareLocation, const Box& box) {
 		this->RenderBoardSquareHighlight(squareLocation, box);
 	});
 }
@@ -181,13 +188,12 @@ void ChessCanvas::ForEachBoardSquare(std::function<void(const ChessEngine::Chess
 void ChessCanvas::RenderBoardSquare(const ChessEngine::ChessVector& squareLocation, const Box& box)
 {
 	glDisable(GL_TEXTURE_2D);
-	glDisable(GL_BLEND);
 	glBegin(GL_QUADS);
 
 	if ((squareLocation.file + squareLocation.rank) % 2 == 0)
-		glColor3f(0.5f, 0.5f, 0.5f);
+		glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
 	else
-		glColor3f(1.0f, 0.0f, 0.0f);
+		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 	glVertex2f(box.xMin, box.yMin);
 	glVertex2f(box.xMax, box.yMin);
@@ -195,7 +201,10 @@ void ChessCanvas::RenderBoardSquare(const ChessEngine::ChessVector& squareLocati
 	glVertex2f(box.xMin, box.yMax);
 
 	glEnd();
+}
 
+void ChessCanvas::RenderBoardSquarePiece(const ChessEngine::ChessVector& squareLocation, const Box& box)
+{
 	ChessEngine::ChessGame* game = wxGetApp().game;
 	if (game)
 	{
@@ -206,10 +215,12 @@ void ChessCanvas::RenderBoardSquare(const ChessEngine::ChessVector& squareLocati
 			if (texture != GL_INVALID_VALUE)
 			{
 				glEnable(GL_TEXTURE_2D);
-				glEnable(GL_BLEND);
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				glBindTexture(GL_TEXTURE_2D, texture);
 				glBegin(GL_QUADS);
+
+				// I spent hours pulling my hair out wondering why the blending wasn't working until
+				// finally putting in the following line of code.  WTF?!  This fixes it?!
+				glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 				glTexCoord2f(0.0f, 0.0f);
 				glVertex2f(box.xMin, box.yMin);
