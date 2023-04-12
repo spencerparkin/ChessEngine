@@ -6,10 +6,12 @@ wxIMPLEMENT_APP(ChessApp);
 ChessApp::ChessApp()
 {
 	this->frame = nullptr;
+	this->game = new ChessEngine::ChessGame();
 }
 
 /*virtual*/ ChessApp::~ChessApp()
 {
+	delete this->game;
 }
 
 /*virtual*/ bool ChessApp::OnInit(void)

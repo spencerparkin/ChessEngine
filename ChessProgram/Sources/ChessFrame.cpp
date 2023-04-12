@@ -1,5 +1,6 @@
 #include "ChessFrame.h"
 #include "ChessCanvas.h"
+#include "ChessApp.h"
 #include <wx/menu.h>
 #include <wx/sizer.h>
 #include <wx/aboutdlg.h>
@@ -38,6 +39,10 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 
 void ChessFrame::OnNewGame(wxCommandEvent& event)
 {
+	delete wxGetApp().game;
+	wxGetApp().game = new ChessEngine::ChessGame();
+
+	this->Refresh();
 }
 
 void ChessFrame::OnAbout(wxCommandEvent& event)

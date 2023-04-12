@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ChessGame.h>
 #include <wx/setup.h>
 #include <wx/app.h>
 
@@ -15,6 +16,7 @@ public:
 	virtual int OnExit(void) override;
 
 	ChessFrame* frame;
+	ChessEngine::ChessGame* game;
 };
 
 wxDECLARE_APP(ChessApp);
