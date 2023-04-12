@@ -5,6 +5,12 @@
 #include <wx/sizer.h>
 #include <wx/aboutdlg.h>
 
+// TODO: Add undo/redo option.
+// TODO: add option to flip board around 180 degrees.
+// TODO: Show captures and move history, maybe in a list widget.
+// TODO: Implement pawn promotion dialog.
+// TODO: Implement computer-suggested move using mini-max algorithm.
+
 ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size) : wxFrame(parent, wxID_ANY, "Chess", pos, size)
 {
 	wxMenu* gameMenu = new wxMenu();

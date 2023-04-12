@@ -236,5 +236,6 @@ EnPassant::EnPassant()
 	game->SetSquareOccupant(this->destinationLocation, nullptr);
 	game->SetSquareOccupant(this->sourceLocation, piece);
 	game->SetSquareOccupant(this->captureLocation, this->capturedPiece);
+	this->capturedPiece = nullptr;
 	return true;
 }

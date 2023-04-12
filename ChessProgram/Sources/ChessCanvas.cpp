@@ -324,7 +324,7 @@ void ChessCanvas::RenderBoardSquare(const ChessEngine::ChessVector& squareLocati
 	glBegin(GL_QUADS);
 
 	if ((squareLocation.file + squareLocation.rank) % 2 == 0)
-		glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
+		glColor4f(0.7f, 0.7f, 0.7f, 1.0f);
 	else
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
