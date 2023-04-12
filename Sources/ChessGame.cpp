@@ -144,13 +144,18 @@ GameResult ChessGame::GenerateAllLegalMovesForColor(ChessColor color, ChessMoveA
 			delete move;
 	}
 
+	bool inCheck = this->IsColorInCheck(color);
+
 	if (moveArray.size() == 0)
 	{
-		if (this->IsColorInCheck(color))
+		if (inCheck)
 			return GameResult::CheckMate;
 		else
 			return GameResult::StaleMate;
 	}
+
+	if (inCheck)
+		return GameResult::Check;
 
 	return GameResult::None;
 }

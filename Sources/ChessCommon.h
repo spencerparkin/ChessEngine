@@ -27,6 +27,7 @@ namespace ChessEngine
 	enum class GameResult
 	{
 		None,
+		Check,
 		CheckMate,
 		StaleMate
 	};

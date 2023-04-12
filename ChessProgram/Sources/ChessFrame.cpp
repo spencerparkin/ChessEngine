@@ -54,6 +54,18 @@ void ChessFrame::UpdateStatusBar()
 	else
 		text = "Waiting for BLACK to move.";
 
+	ChessEngine::ChessMoveArray moveArray;
+	ChessEngine::GameResult result = wxGetApp().game->GenerateAllLegalMovesForColor(wxGetApp().whoseTurn, moveArray);
+	
+	if (result == ChessEngine::GameResult::CheckMate)
+		text += "  *** CHECK & MATE! ***";
+	else if (result == ChessEngine::GameResult::StaleMate)
+		text += "  *** STALE MATE! ***";
+	else if (result == ChessEngine::GameResult::Check)
+		text += "  *** You are in check! ***";
+
+	ChessEngine::DeleteMoveArray(moveArray);
+
 	this->GetStatusBar()->SetStatusText(text);
 }
 
