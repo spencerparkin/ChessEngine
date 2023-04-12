@@ -9,6 +9,7 @@ ChessApp::ChessApp()
 	this->frame = nullptr;
 	this->game = new ChessEngine::ChessGame();
 	this->game->Reset();
+	this->whoseTurn = ChessEngine::ChessColor::White;
 }
 
 /*virtual*/ ChessApp::~ChessApp()

@@ -17,6 +17,7 @@ public:
 
 	ChessFrame* frame;
 	ChessEngine::ChessGame* game;
+	ChessEngine::ChessColor whoseTurn;
 };
 
 wxDECLARE_APP(ChessApp);

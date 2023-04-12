@@ -16,6 +16,9 @@ public:
 	void OnPaint(wxPaintEvent& event);
 	void OnSize(wxSizeEvent& event);
 	void OnMouseMotion(wxMouseEvent& event);
+	void OnLeftMouseButtonDown(wxMouseEvent& event);
+	void OnLeftMouseButtonUp(wxMouseEvent& event);
+	void OnCaptureLost(wxMouseCaptureLostEvent& event);
 
 	struct Box
 	{
@@ -48,9 +51,14 @@ private:
 	GLuint GetTextureForChessPiece(const wxString& pieceName, ChessEngine::ChessColor color);
 
 	void CalculateWorldBox(Box& worldBox) const;
-	bool CalculateSquareLocation(const wxPoint& mousePoint, ChessEngine::ChessVector& squareLocation);
+	bool CalculateSquareLocation(const wxPoint& mousePoint, ChessEngine::ChessVector& squareLocation, float* worldX = nullptr, float* worldY = nullptr);
 
 	wxGLContext* renderContext;
 	static int attributeList[];
 	TextureMap textureMap;
+	ChessEngine::ChessVector hoverLocation;
+	ChessEngine::ChessVector selectedLocation;
+	bool formulatingMove;
+	float hoverWorldX;
+	float hoverWorldY;
 };

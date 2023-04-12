@@ -36,6 +36,16 @@ ChessVector ChessVector::operator*(int scalar) const
 	return ChessVector(this->file * scalar, this->rank * scalar);
 }
 
+bool ChessVector::operator==(const ChessVector& vector) const
+{
+	return this->file == vector.file && this->rank == vector.rank;
+}
+
+bool ChessVector::operator!=(const ChessVector& vector) const
+{
+	return this->file != vector.file || this->rank != vector.rank;
+}
+
 namespace ChessEngine
 {
 	ChessVector operator+(const ChessVector& vectorA, const ChessVector& vectorB)
@@ -46,16 +56,6 @@ namespace ChessEngine
 	ChessVector operator-(const ChessVector& vectorA, const ChessVector& vectorB)
 	{
 		return ChessVector(vectorA.file - vectorB.file, vectorA.rank - vectorB.rank);
-	}
-
-	bool operator==(const ChessVector& vectorA, const ChessVector& vectorB)
-	{
-		return vectorA.file == vectorB.file && vectorA.rank == vectorB.rank;
-	}
-
-	bool operator!=(const ChessVector& vectorA, const ChessVector& vectorB)
-	{
-		return vectorA.file != vectorB.file || vectorA.rank != vectorB.rank;
 	}
 
 	void DeleteMoveArray(ChessMoveArray& moveArray)

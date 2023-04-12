@@ -10,11 +10,25 @@ int ChessCanvas::attributeList[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, 0 };
 
 ChessCanvas::ChessCanvas(wxWindow* parent) : wxGLCanvas(parent, wxID_ANY, attributeList, wxDefaultPosition, wxDefaultSize)
 {
+	this->formulatingMove = false;
+
 	this->renderContext = new wxGLContext(this);
 
 	this->Bind(wxEVT_PAINT, &ChessCanvas::OnPaint, this);
 	this->Bind(wxEVT_SIZE, &ChessCanvas::OnSize, this);
 	this->Bind(wxEVT_MOTION, &ChessCanvas::OnMouseMotion, this);
+	this->Bind(wxEVT_LEFT_DOWN, &ChessCanvas::OnLeftMouseButtonDown, this);
+	this->Bind(wxEVT_LEFT_UP, &ChessCanvas::OnLeftMouseButtonUp, this);
+	this->Bind(wxEVT_MOUSE_CAPTURE_LOST, &ChessCanvas::OnCaptureLost, this);
+
+	this->hoverLocation.file = -1;
+	this->hoverLocation.rank = -1;
+
+	this->selectedLocation.file = -1;
+	this->selectedLocation.rank = -1;
+
+	this->hoverWorldX = 0.0f;
+	this->hoverWorldY = 0.0f;
 }
 
 /*virtual*/ ChessCanvas::~ChessCanvas()
@@ -64,9 +78,65 @@ void ChessCanvas::OnSize(wxSizeEvent& event)
 
 void ChessCanvas::OnMouseMotion(wxMouseEvent& event)
 {
-	ChessEngine::ChessVector squareLocation;
-	
-	this->CalculateSquareLocation(event.GetPosition(), squareLocation);
+	ChessEngine::ChessVector location;
+	this->CalculateSquareLocation(event.GetPosition(), location, &this->hoverWorldX, &this->hoverWorldY);
+
+	if (location != this->hoverLocation || this->formulatingMove)
+	{
+		this->hoverLocation = location;
+		this->Refresh();
+	}
+}
+
+void ChessCanvas::OnLeftMouseButtonDown(wxMouseEvent& event)
+{
+	ChessEngine::ChessVector location;
+	this->CalculateSquareLocation(event.GetPosition(), location);
+
+	ChessEngine::ChessPiece* piece = wxGetApp().game->GetSquareOccupant(location);
+	if (piece && piece->color == wxGetApp().whoseTurn)
+	{
+		this->selectedLocation = location;
+		this->formulatingMove = true;
+		this->CaptureMouse();
+
+		// TODO: Generate the set of legal moves here for current player's turn.
+
+		this->Refresh();
+	}
+}
+
+void ChessCanvas::OnLeftMouseButtonUp(wxMouseEvent& event)
+{
+	if (this->formulatingMove)
+	{
+		this->formulatingMove = false;
+		this->ReleaseMouse();
+
+		ChessEngine::ChessVector targetLocation;
+		this->CalculateSquareLocation(event.GetPosition(), targetLocation);
+
+		if (wxGetApp().game->IsLocationValid(targetLocation))
+		{
+			// TODO: Execute the move if it's in the set of legal moves.
+		}
+
+		this->selectedLocation.file = -1;
+		this->selectedLocation.rank = -1;
+
+		this->Refresh();
+	}
+}
+
+void ChessCanvas::OnCaptureLost(wxMouseCaptureLostEvent& event)
+{
+	if (this->formulatingMove)
+	{
+		this->formulatingMove = false;
+		this->selectedLocation.file = -1;
+		this->selectedLocation.rank = -1;
+		this->Refresh();
+	}
 }
 
 void ChessCanvas::CalculateWorldBox(Box& worldBox) const
@@ -95,8 +165,16 @@ void ChessCanvas::CalculateWorldBox(Box& worldBox) const
 	}
 }
 
-bool ChessCanvas::CalculateSquareLocation(const wxPoint& mousePoint, ChessEngine::ChessVector& squareLocation)
+bool ChessCanvas::CalculateSquareLocation(const wxPoint& mousePoint, ChessEngine::ChessVector& squareLocation, float* worldX /*= nullptr*/, float* worldY /*= nullptr*/)
 {
+	float worldXStorage, worldYStorage;
+	
+	if (!worldX)
+		worldX = &worldXStorage;
+
+	if (!worldY)
+		worldY = &worldYStorage;
+
 	GLint viewport[4];
 	glGetIntegerv(GL_VIEWPORT, viewport);
 
@@ -109,13 +187,13 @@ bool ChessCanvas::CalculateSquareLocation(const wxPoint& mousePoint, ChessEngine
 	Box worldBox;
 	this->CalculateWorldBox(worldBox);
 
-	float x = float(mousePoint.x);
-	float y = float(mousePoint.y);
+	float viewportX = float(mousePoint.x);
+	float viewportY = float(viewport[3] - mousePoint.y);
 
 	float u, v;
-	viewportBox.PointToUVs(x, y, u, v);
 
-	worldBox.PointToUVs(x, y, u, v);
+	viewportBox.PointToUVs(viewportX, viewportY, u, v);
+	worldBox.PointFromUVs(*worldX, *worldY, u, v);
 
 	Box chessBox;
 	chessBox.xMin = 0.0f;
@@ -123,11 +201,15 @@ bool ChessCanvas::CalculateSquareLocation(const wxPoint& mousePoint, ChessEngine
 	chessBox.yMin = 0.0f;
 	chessBox.yMax = 1.0f;
 
-	if (!chessBox.ContainsPoint(x, y))
+	if (!chessBox.ContainsPoint(*worldX, *worldY))
+	{
+		squareLocation.file = -1;
+		squareLocation.rank = -1;
 		return false;
+	}
 
-	squareLocation.file = int(::floor(float(CHESS_BOARD_FILES) * x));
-	squareLocation.rank = int(::floor(float(CHESS_BOARD_RANKS) * y));
+	squareLocation.file = int(::floor(float(CHESS_BOARD_FILES) * *worldX));
+	squareLocation.rank = int(::floor(float(CHESS_BOARD_RANKS) * *worldY));
 
 	if (this->renderOrientation == RenderOrientation::RENDER_FLIPPED)
 		squareLocation.rank = CHESS_BOARD_RANKS - 1 - squareLocation.rank;
@@ -214,6 +296,23 @@ void ChessCanvas::RenderBoardSquarePiece(const ChessEngine::ChessVector& squareL
 			int texture = this->GetTextureForChessPiece(piece->GetName().c_str(), piece->color);
 			if (texture != GL_INVALID_VALUE)
 			{
+				const Box* renderBox = &box;
+
+				Box floatingBox;
+
+				if (this->formulatingMove && squareLocation == this->selectedLocation)
+				{
+					float width = 1.0f / float(CHESS_BOARD_FILES);
+					float height = 1.0f / float(CHESS_BOARD_RANKS);
+
+					floatingBox.xMin = this->hoverWorldX - width / 2.0f;
+					floatingBox.xMax = this->hoverWorldX + width / 2.0f;
+					floatingBox.yMin = this->hoverWorldY - height / 2.0f;
+					floatingBox.yMax = this->hoverWorldY + height / 2.0f;
+
+					renderBox = &floatingBox;
+				}
+
 				glEnable(GL_TEXTURE_2D);
 				glBindTexture(GL_TEXTURE_2D, texture);
 				glBegin(GL_QUADS);
@@ -223,16 +322,16 @@ void ChessCanvas::RenderBoardSquarePiece(const ChessEngine::ChessVector& squareL
 				glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 				glTexCoord2f(0.0f, 0.0f);
-				glVertex2f(box.xMin, box.yMin);
+				glVertex2f(renderBox->xMin, renderBox->yMin);
 
 				glTexCoord2f(1.0f, 0.0f);
-				glVertex2f(box.xMax, box.yMin);
+				glVertex2f(renderBox->xMax, renderBox->yMin);
 
 				glTexCoord2f(1.0f, 1.0f);
-				glVertex2f(box.xMax, box.yMax);
+				glVertex2f(renderBox->xMax, renderBox->yMax);
 
 				glTexCoord2f(0.0f, 1.0f);
-				glVertex2f(box.xMin, box.yMax);
+				glVertex2f(renderBox->xMin, renderBox->yMax);
 
 				glEnd();
 			}
@@ -242,7 +341,38 @@ void ChessCanvas::RenderBoardSquarePiece(const ChessEngine::ChessVector& squareL
 
 void ChessCanvas::RenderBoardSquareHighlight(const ChessEngine::ChessVector& squareLocation, const Box& box)
 {
-	//...
+	if (squareLocation == this->hoverLocation)
+	{
+		if (this->formulatingMove)
+		{
+			// TODO: Choose red if illegal, green if legal.
+			glColor4f(1.0f, 1.0f, 0.0f, 1.0f);
+		}
+		else
+		{
+			glColor4f(0.0f, 0.0f, 1.0f, 1.0f);
+		}
+	}
+	else if (squareLocation == this->selectedLocation)
+	{
+		glColor4f(0.0f, 0.0f, 1.0f, 1.0f);
+	}
+	else
+	{
+		return;
+	}
+
+	glDisable(GL_TEXTURE_2D);
+	glLineWidth(5.0f);
+
+	glBegin(GL_LINE_LOOP);	
+
+	glVertex2f(box.xMin, box.yMin);
+	glVertex2f(box.xMax, box.yMin);
+	glVertex2f(box.xMax, box.yMax);
+	glVertex2f(box.xMin, box.yMax);
+
+	glEnd();
 }
 
 GLuint ChessCanvas::GetTextureForChessPiece(const wxString& pieceName, ChessEngine::ChessColor color)

@@ -40,6 +40,7 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 void ChessFrame::OnNewGame(wxCommandEvent& event)
 {
 	wxGetApp().game->Reset();
+	wxGetApp().whoseTurn = ChessEngine::ChessColor::White;
 
 	this->Refresh();
 }
