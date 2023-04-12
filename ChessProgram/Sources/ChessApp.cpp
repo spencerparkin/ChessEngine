@@ -1,5 +1,6 @@
 #include "ChessApp.h"
 #include "ChessFrame.h"
+#include <wx/image.h>
 
 wxIMPLEMENT_APP(ChessApp);
 
@@ -18,6 +19,8 @@ ChessApp::ChessApp()
 {
 	if (!wxApp::OnInit())
 		return false;
+
+	wxInitAllImageHandlers();
 
 	this->frame = new ChessFrame(nullptr, wxDefaultPosition, wxSize(1000, 600));
 	this->frame->Show();

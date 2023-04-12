@@ -11,6 +11,10 @@ public:
 	void OnPaint(wxPaintEvent& event);
 	void OnSize(wxSizeEvent& event);
 
+private:
+
+	void RenderBoard();
+
 	wxGLContext* renderContext;
 	static int attributeList[];
 };
