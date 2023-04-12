@@ -139,6 +139,11 @@ void ChessCanvas::OnLeftMouseButtonUp(wxMouseEvent& event)
 					for (int i = 0; i < (signed)this->legalMoveArray.size(); i++)
 						if (this->legalMoveArray[i] == move)
 							this->legalMoveArray[i] = nullptr;
+
+					if (wxGetApp().whoseTurn == ChessEngine::ChessColor::White)
+						wxGetApp().whoseTurn = ChessEngine::ChessColor::Black;
+					else
+						wxGetApp().whoseTurn = ChessEngine::ChessColor::White;
 				}
 
 				ChessEngine::DeleteMoveArray(this->legalMoveArray);

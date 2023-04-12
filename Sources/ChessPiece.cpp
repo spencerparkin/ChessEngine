@@ -186,21 +186,21 @@ Knight::Knight(ChessGame* game, const ChessVector& location, ChessColor color) :
 			int rankScale = (j & 0x2) ? 1 : -1;
 			ChessVector moveVector(ellVector.file * fileScale, ellVector.rank * rankScale);
 
-			if (this->game->IsLocationValid(this->location + ellVector))
+			if (this->game->IsLocationValid(this->location + moveVector))
 			{
-				ChessPiece* piece = this->game->GetSquareOccupant(this->location + ellVector);
+				ChessPiece* piece = this->game->GetSquareOccupant(this->location + moveVector);
 				if (!piece)
 				{
 					Travel* travel = new Travel();
 					travel->sourceLocation = this->location;
-					travel->destinationLocation = this->location + ellVector;
+					travel->destinationLocation = this->location + moveVector;
 					moveArray.push_back(travel);
 				}
 				else if (piece->color == opponentColor)
 				{
 					Capture* capture = new Capture();
 					capture->sourceLocation = this->location;
-					capture->destinationLocation = this->location + ellVector;
+					capture->destinationLocation = this->location + moveVector;
 					moveArray.push_back(capture);
 				}
 			}
@@ -329,8 +329,8 @@ King::King(ChessGame* game, const ChessVector& location, ChessColor color) : Che
 			initialKingLocation = ChessVector(4, 7);
 			initialKingSideRookLocation = ChessVector(7, 7);
 			initialQueenSideRookLocation = ChessVector(0, 7);
-			kingSideDirection = ChessVector(1, 7);
-			queenSideDirection = ChessVector(-1, 7);
+			kingSideDirection = ChessVector(1, 0);
+			queenSideDirection = ChessVector(-1, 0);
 			break;
 		}
 	}
