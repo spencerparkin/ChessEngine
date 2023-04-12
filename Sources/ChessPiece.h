@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ChessCommon.h"
+#include <string>
 
 namespace ChessEngine
 {
@@ -11,6 +12,8 @@ namespace ChessEngine
 	public:
 		ChessPiece(ChessGame* game, const ChessVector& location, ChessColor color);
 		virtual ~ChessPiece();
+
+		virtual std::string GetName() const = 0;
 
 		// Note that overrides of this method should generate all possible moves for the chess
 		// piece regardless of who's turn it is, check, check-mate, stale mate, or even the
@@ -31,6 +34,7 @@ namespace ChessEngine
 		Pawn(ChessGame* game, const ChessVector& location, ChessColor color);
 		virtual ~Pawn();
 
+		std::string GetName() const override;
 		virtual void GenerateAllPossibleMoves(ChessMoveArray& moveArray) const override;
 	};
 
@@ -40,6 +44,7 @@ namespace ChessEngine
 		Knight(ChessGame* game, const ChessVector& location, ChessColor color);
 		virtual ~Knight();
 
+		std::string GetName() const override;
 		virtual void GenerateAllPossibleMoves(ChessMoveArray& moveArray) const override;
 	};
 
@@ -49,6 +54,7 @@ namespace ChessEngine
 		Bishop(ChessGame* game, const ChessVector& location, ChessColor color);
 		virtual ~Bishop();
 
+		std::string GetName() const override;
 		virtual void GenerateAllPossibleMoves(ChessMoveArray& moveArray) const override;
 	};
 
@@ -58,6 +64,7 @@ namespace ChessEngine
 		Rook(ChessGame* game, const ChessVector& location, ChessColor color);
 		virtual ~Rook();
 
+		std::string GetName() const override;
 		virtual void GenerateAllPossibleMoves(ChessMoveArray& moveArray) const override;
 	};
 
@@ -67,6 +74,7 @@ namespace ChessEngine
 		Queen(ChessGame* game, const ChessVector& location, ChessColor color);
 		virtual ~Queen();
 
+		std::string GetName() const override;
 		virtual void GenerateAllPossibleMoves(ChessMoveArray& moveArray) const override;
 	};
 
@@ -76,6 +84,7 @@ namespace ChessEngine
 		King(ChessGame* game, const ChessVector& location, ChessColor color);
 		virtual ~King();
 
+		std::string GetName() const override;
 		virtual void GenerateAllPossibleMoves(ChessMoveArray& moveArray) const override;
 	};
 }

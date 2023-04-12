@@ -39,8 +39,7 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 
 void ChessFrame::OnNewGame(wxCommandEvent& event)
 {
-	delete wxGetApp().game;
-	wxGetApp().game = new ChessEngine::ChessGame();
+	wxGetApp().game->Reset();
 
 	this->Refresh();
 }

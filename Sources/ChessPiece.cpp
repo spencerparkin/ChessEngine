@@ -56,6 +56,11 @@ Pawn::Pawn(ChessGame* game, const ChessVector& location, ChessColor color) : Che
 {
 }
 
+/*virtual*/ std::string Pawn::GetName() const
+{
+	return "Pawn";
+}
+
 /*virtual*/ void Pawn::GenerateAllPossibleMoves(ChessMoveArray& moveArray) const
 {
 	ChessColor opponentColor = (this->color == ChessColor::White) ? ChessColor::Black : ChessColor::White;
@@ -156,6 +161,11 @@ Knight::Knight(ChessGame* game, const ChessVector& location, ChessColor color) :
 {
 }
 
+/*virtual*/ std::string Knight::GetName() const
+{
+	return "Knight";
+}
+
 /*virtual*/ void Knight::GenerateAllPossibleMoves(ChessMoveArray& moveArray) const
 {
 	ChessColor opponentColor = (this->color == ChessColor::White) ? ChessColor::Black : ChessColor::White;
@@ -212,6 +222,11 @@ Bishop::Bishop(ChessGame* game, const ChessVector& location, ChessColor color) :
 	this->GenerateMovesWithRayCast(ChessVector(-1, -1), moveArray);
 }
 
+/*virtual*/ std::string Bishop::GetName() const
+{
+	return "Bishop";
+}
+
 //---------------------------------------- Rook ----------------------------------------
 
 Rook::Rook(ChessGame* game, const ChessVector& location, ChessColor color) : ChessPiece(game, location, color)
@@ -220,6 +235,11 @@ Rook::Rook(ChessGame* game, const ChessVector& location, ChessColor color) : Che
 
 /*virtual*/ Rook::~Rook()
 {
+}
+
+std::string Rook::GetName() const
+{
+	return "Rook";
 }
 
 /*virtual*/ void Rook::GenerateAllPossibleMoves(ChessMoveArray& moveArray) const
@@ -238,6 +258,11 @@ Queen::Queen(ChessGame* game, const ChessVector& location, ChessColor color) : C
 
 /*virtual*/ Queen::~Queen()
 {
+}
+
+/*virtual*/ std::string Queen::GetName() const
+{
+	return "Queen";
 }
 
 /*virtual*/ void Queen::GenerateAllPossibleMoves(ChessMoveArray& moveArray) const
@@ -260,6 +285,11 @@ King::King(ChessGame* game, const ChessVector& location, ChessColor color) : Che
 
 /*virtual*/ King::~King()
 {
+}
+
+/*virtual*/ std::string King::GetName() const
+{
+	return "King";
 }
 
 /*virtual*/ void King::GenerateAllPossibleMoves(ChessMoveArray& moveArray) const

@@ -8,6 +8,7 @@ ChessApp::ChessApp()
 {
 	this->frame = nullptr;
 	this->game = new ChessEngine::ChessGame();
+	this->game->Reset();
 }
 
 /*virtual*/ ChessApp::~ChessApp()
@@ -22,7 +23,7 @@ ChessApp::ChessApp()
 
 	wxInitAllImageHandlers();
 
-	this->frame = new ChessFrame(nullptr, wxDefaultPosition, wxSize(1000, 600));
+	this->frame = new ChessFrame(nullptr, wxDefaultPosition, wxSize(1000, 1000));
 	this->frame->Show();
 
 	return true;
