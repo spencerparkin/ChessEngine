@@ -13,6 +13,7 @@ public:
 	void OnNewGame(wxCommandEvent& event);
 	void OnAbout(wxCommandEvent& event);
 	void OnExit(wxCommandEvent& event);
+	void OnGameStateChanged(wxCommandEvent& event);
 
 	enum
 	{
@@ -20,6 +21,8 @@ public:
 		ID_About,
 		ID_Exit
 	};
+
+	void UpdateStatusBar();
 
 	ChessCanvas* canvas;
 };

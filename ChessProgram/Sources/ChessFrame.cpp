@@ -25,16 +25,36 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	this->Bind(wxEVT_MENU, &ChessFrame::OnNewGame, this, ID_NewGame);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnAbout, this, ID_About);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnExit, this, ID_Exit);
+	this->Bind(EVT_GAME_STATE_CHANGED, &ChessFrame::OnGameStateChanged, this);
 
 	this->canvas = new ChessCanvas(this);
 
 	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
 	sizer->Add(this->canvas, 1, wxGROW);
 	this->SetSizer(sizer);
+
+	this->UpdateStatusBar();
 }
 
 /*virtual*/ ChessFrame::~ChessFrame()
 {
+}
+
+void ChessFrame::OnGameStateChanged(wxCommandEvent& event)
+{
+	this->UpdateStatusBar();
+}
+
+void ChessFrame::UpdateStatusBar()
+{
+	wxString text;
+
+	if (wxGetApp().whoseTurn == ChessEngine::ChessColor::White)
+		text = "Waiting for WHITE to move.";
+	else
+		text = "Waiting for BLACK to move.";
+
+	this->GetStatusBar()->SetStatusText(text);
 }
 
 void ChessFrame::OnNewGame(wxCommandEvent& event)

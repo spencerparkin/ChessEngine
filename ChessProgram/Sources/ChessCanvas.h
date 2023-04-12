@@ -7,6 +7,8 @@
 
 WX_DECLARE_STRING_HASH_MAP(GLuint, TextureMap);
 
+wxDECLARE_EVENT(EVT_GAME_STATE_CHANGED, wxCommandEvent);
+
 class ChessCanvas : public wxGLCanvas
 {
 public:

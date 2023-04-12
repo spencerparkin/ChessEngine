@@ -3,9 +3,12 @@
 #include "ChessPiece.h"
 #include "ChessMove.h"
 #include "ChessApp.h"
+#include "ChessFrame.h"
 #include <wx/filename.h>
 #include <wx/image.h>
 #include <gl/GLU.h>
+
+wxDEFINE_EVENT(EVT_GAME_STATE_CHANGED, wxCommandEvent);
 
 int ChessCanvas::attributeList[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, 0 };
 
@@ -144,6 +147,9 @@ void ChessCanvas::OnLeftMouseButtonUp(wxMouseEvent& event)
 						wxGetApp().whoseTurn = ChessEngine::ChessColor::Black;
 					else
 						wxGetApp().whoseTurn = ChessEngine::ChessColor::White;
+
+					wxCommandEvent event(EVT_GAME_STATE_CHANGED);
+					wxPostEvent(wxGetApp().frame, event);
 				}
 
 				ChessEngine::DeleteMoveArray(this->legalMoveArray);
