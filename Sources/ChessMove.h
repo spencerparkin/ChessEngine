@@ -77,8 +77,14 @@ namespace ChessEngine
 
 		virtual std::string GetDescription() const override;
 
+		void SetPromotedPiece(ChessPiece* piece);
+
+	private:
+
 		ChessPiece* newPiece;
 		ChessPiece* oldPiece;
+
+		char cachedDesc[128];
 	};
 
 	class CHESS_ENGINE_API EnPassant : public ChessMove

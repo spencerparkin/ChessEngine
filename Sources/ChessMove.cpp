@@ -176,6 +176,8 @@ Promotion::Promotion()
 {
 	this->newPiece = nullptr;
 	this->oldPiece = nullptr;
+
+	this->cachedDesc[0] = '\0';
 }
 
 /*virtual*/ Promotion::~Promotion()
@@ -214,11 +216,17 @@ Promotion::Promotion()
 	return true;
 }
 
+void Promotion::SetPromotedPiece(ChessPiece* piece)
+{
+	this->newPiece = piece;
+	std::stringstream stream;
+	stream << "Promote pawn to " << this->newPiece->GetName() << " at " << this->destinationLocation.GetLocationString();
+	::strcpy_s(this->cachedDesc, sizeof(this->cachedDesc), stream.str().c_str());
+}
+
 /*virtual*/ std::string Promotion::GetDescription() const
 {
-	std::stringstream stream;
-	stream << "Promote pawn to " << this->newPiece->GetName();
-	return stream.str();
+	return this->cachedDesc;
 }
 
 //---------------------------------------- EnPassant ----------------------------------------

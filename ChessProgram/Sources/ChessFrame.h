@@ -1,6 +1,9 @@
 #pragma once
 
+#include <ChessCommon.h>
 #include <wx/frame.h>
+#include <wx/listbox.h>
+#include <wx/button.h>
 
 class ChessCanvas;
 
@@ -16,6 +19,8 @@ public:
 	void OnGameStateChanged(wxCommandEvent& event);
 	void OnFlipBoard(wxCommandEvent& event);
 	void OnUpdateMenuItemUI(wxUpdateUIEvent& event);
+	void OnUndo(wxCommandEvent& event);
+	void OnRedo(wxCommandEvent& event);
 
 	enum
 	{
@@ -26,6 +31,11 @@ public:
 	};
 
 	void UpdateStatusBar();
+	void UpdatePanel();
 
 	ChessCanvas* canvas;
+	wxListBox* moveListBox;
+	wxButton* undoButton;
+	wxButton* redoButton;
+	ChessEngine::ChessMoveArray redoMoveArray;
 };

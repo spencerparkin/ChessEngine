@@ -61,7 +61,7 @@ std::string ChessVector::GetLocationString() const
 	if (this->rank < 0 || this->rank >= CHESS_BOARD_RANKS)
 		stream << "?";
 	else
-		stream << this->rank;
+		stream << (this->rank + 1);
 
 	return stream.str();
 }

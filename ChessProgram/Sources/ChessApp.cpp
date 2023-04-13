@@ -24,7 +24,7 @@ ChessApp::ChessApp()
 
 	wxInitAllImageHandlers();
 
-	this->frame = new ChessFrame(nullptr, wxDefaultPosition, wxSize(1000, 1000));
+	this->frame = new ChessFrame(nullptr, wxDefaultPosition, wxSize(1300, 700));
 	this->frame->Show();
 
 	return true;

@@ -1,13 +1,15 @@
 #include "ChessFrame.h"
 #include "ChessCanvas.h"
 #include "ChessApp.h"
+#include <ChessMove.h>
 #include <wx/menu.h>
 #include <wx/sizer.h>
+#include <wx/splitter.h>
+#include <wx/panel.h>
+#include <wx/button.h>
 #include <wx/aboutdlg.h>
 
 // TODO: Add undo/redo option.
-// TODO: Show captures and move history, maybe in a list widget.
-// TODO: Implement pawn promotion dialog.
 // TODO: Implement computer-suggested move using mini-max algorithm.
 
 ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size) : wxFrame(parent, wxID_ANY, "Chess", pos, size)
@@ -38,17 +40,41 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	this->Bind(wxEVT_MENU, &ChessFrame::OnFlipBoard, this, ID_FlipBoard);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_FlipBoard);
 
-	this->canvas = new ChessCanvas(this);
+	wxSplitterWindow* splitter = new wxSplitterWindow(this);
 
-	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-	sizer->Add(this->canvas, 1, wxGROW);
-	this->SetSizer(sizer);
+	this->canvas = new ChessCanvas(splitter);
+	wxPanel* panel = new wxPanel(splitter, wxID_ANY);
+
+	splitter->SplitVertically(panel, this->canvas);
+
+	this->moveListBox = new wxListBox(panel, wxID_ANY);
+
+	this->undoButton = new wxButton(panel, wxID_ANY, "Undo");
+	this->redoButton = new wxButton(panel, wxID_ANY, "Redo");
+
+	wxBoxSizer* horizSizer = new wxBoxSizer(wxHORIZONTAL);
+	horizSizer->Add(this->undoButton, 1, wxGROW);
+	horizSizer->Add(this->redoButton, 1, wxGROW);
+
+	wxBoxSizer* vertSizer = new wxBoxSizer(wxVERTICAL);
+	vertSizer->Add(this->moveListBox, 1, wxGROW);
+	vertSizer->Add(horizSizer, 0, 0);
+
+	panel->SetSizer(vertSizer);
+
+	splitter->SetSashPosition(300);
+
+	wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
+	mainSizer->Add(splitter, 1, wxGROW);
+	this->SetSizer(mainSizer);
 
 	this->UpdateStatusBar();
+	this->UpdatePanel();
 }
 
 /*virtual*/ ChessFrame::~ChessFrame()
 {
+	ChessEngine::DeleteMoveArray(this->redoMoveArray);
 }
 
 void ChessFrame::OnFlipBoard(wxCommandEvent& event)
@@ -85,6 +111,7 @@ void ChessFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 void ChessFrame::OnGameStateChanged(wxCommandEvent& event)
 {
 	this->UpdateStatusBar();
+	this->UpdatePanel();
 }
 
 void ChessFrame::UpdateStatusBar()
@@ -109,6 +136,20 @@ void ChessFrame::UpdateStatusBar()
 	ChessEngine::DeleteMoveArray(moveArray);
 
 	this->GetStatusBar()->SetStatusText(text);
+}
+
+void ChessFrame::UpdatePanel()
+{
+	this->undoButton->Enable(wxGetApp().game->GetNumMoves() > 0);
+	this->redoButton->Enable(this->redoMoveArray.size() > 0);
+
+	this->moveListBox->Clear();
+
+	for (int i = 0; i < wxGetApp().game->GetNumMoves(); i++)
+	{
+		const ChessEngine::ChessMove* move = wxGetApp().game->GetMove(i);
+		this->moveListBox->Insert(wxString(move->GetDescription().c_str()), i);
+	}
 }
 
 void ChessFrame::OnNewGame(wxCommandEvent& event)

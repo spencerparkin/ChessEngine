@@ -81,25 +81,25 @@ Pawn::Pawn(ChessGame* game, const ChessVector& location, ChessColor color) : Che
 			Promotion* promotion = new Promotion();
 			promotion->sourceLocation = this->location;
 			promotion->destinationLocation = this->location + forwardDirection;
-			promotion->newPiece = new Knight(nullptr, ChessVector(-1, -1), this->color);
+			promotion->SetPromotedPiece(new Knight(nullptr, ChessVector(-1, -1), this->color));
 			moveArray.push_back(promotion);
 
 			promotion = new Promotion();
 			promotion->sourceLocation = this->location;
 			promotion->destinationLocation = this->location + forwardDirection;
-			promotion->newPiece = new Bishop(nullptr, ChessVector(-1, -1), this->color);
+			promotion->SetPromotedPiece(new Bishop(nullptr, ChessVector(-1, -1), this->color));
 			moveArray.push_back(promotion);
 
 			promotion = new Promotion();
 			promotion->sourceLocation = this->location;
 			promotion->destinationLocation = this->location + forwardDirection;
-			promotion->newPiece = new Rook(nullptr, ChessVector(-1, -1), this->color);
+			promotion->SetPromotedPiece(new Rook(nullptr, ChessVector(-1, -1), this->color));
 			moveArray.push_back(promotion);
 
 			promotion = new Promotion();
 			promotion->sourceLocation = this->location;
 			promotion->destinationLocation = this->location + forwardDirection;
-			promotion->newPiece = new Queen(nullptr, ChessVector(-1, -1), this->color);
+			promotion->SetPromotedPiece(new Queen(nullptr, ChessVector(-1, -1), this->color));
 			moveArray.push_back(promotion);
 		}
 		else
