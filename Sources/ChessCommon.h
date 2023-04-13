@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <list>
+#include <string>
 #include <math.h>
 #include <limits.h>
 
@@ -45,6 +46,8 @@ namespace ChessEngine
 
 		bool operator==(const ChessVector& vector) const;
 		bool operator!=(const ChessVector& vector) const;
+
+		std::string GetLocationString() const;
 
 		int file, rank;
 	};

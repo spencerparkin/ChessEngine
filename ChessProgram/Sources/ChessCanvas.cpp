@@ -6,6 +6,7 @@
 #include "ChessFrame.h"
 #include <wx/filename.h>
 #include <wx/image.h>
+#include <wx/choicdlg.h>
 #include <gl/GLU.h>
 
 wxDEFINE_EVENT(EVT_GAME_STATE_CHANGED, wxCommandEvent);
@@ -132,7 +133,22 @@ void ChessCanvas::OnLeftMouseButtonUp(wxMouseEvent& event)
 					move = moveArray[0];
 				else
 				{
-					// TODO: Let user pick which move they want to do.  Pawn promotions are the only case I'm aware of where this would happen.
+					wxArrayString choicesArray;
+					for (ChessEngine::ChessMove* possibleMove : moveArray)
+						choicesArray.Add(possibleMove->GetDescription().c_str());
+					wxSingleChoiceDialog dialog(this, "Please choose one.", "Make a Decision", choicesArray);
+					if (wxID_OK == dialog.ShowModal())
+					{
+						wxString chosen = dialog.GetStringSelection();
+						for (ChessEngine::ChessMove* possibleMove : moveArray)
+						{
+							if (wxString(possibleMove->GetDescription().c_str()) == chosen)
+							{
+								move = possibleMove;
+								break;
+							}
+						}
+					}
 				}
 
 				if (move)
@@ -181,13 +197,10 @@ bool ChessCanvas::FindLegalMoves(const ChessEngine::ChessVector& sourceLocation,
 	{
 		ChessEngine::ChessMove* move = this->legalMoveArray[i];
 		if (move->sourceLocation == sourceLocation && move->destinationLocation == destinationLocation)
-		{
 			moveArray.push_back(move);
-			return true;
-		}
 	}
 
-	return false;
+	return moveArray.size() > 0;
 }
 
 void ChessCanvas::CalculateWorldBox(Box& worldBox) const

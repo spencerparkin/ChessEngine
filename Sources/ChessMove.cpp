@@ -1,6 +1,7 @@
 #include "ChessMove.h"
 #include "ChessGame.h"
 #include "ChessPiece.h"
+#include <sstream>
 
 using namespace ChessEngine;
 
@@ -12,6 +13,11 @@ ChessMove::ChessMove()
 
 /*virtual*/ ChessMove::~ChessMove()
 {
+}
+
+/*virtual*/ std::string ChessMove::GetDescription() const
+{
+	return "?";
 }
 
 //---------------------------------------- Travel ----------------------------------------
@@ -50,6 +56,13 @@ Travel::Travel()
 	game->SetSquareOccupant(this->sourceLocation, piece);
 	game->SetSquareOccupant(this->destinationLocation, nullptr);
 	return true;
+}
+
+/*virtual*/ std::string Travel::GetDescription() const
+{
+	std::stringstream stream;
+	stream << "Move " << this->sourceLocation.GetLocationString() << " to " << this->destinationLocation.GetLocationString();
+	return stream.str();
 }
 
 //---------------------------------------- Capture ----------------------------------------
@@ -95,6 +108,13 @@ Capture::Capture()
 	game->SetSquareOccupant(this->destinationLocation, this->capturedPiece);
 	this->capturedPiece = nullptr;
 	return true;
+}
+
+/*virtual*/ std::string Capture::GetDescription() const
+{
+	std::stringstream stream;
+	stream << this->sourceLocation.GetLocationString() << " captures " << this->destinationLocation.GetLocationString();
+	return stream.str();
 }
 
 //---------------------------------------- Castle ----------------------------------------
@@ -143,6 +163,13 @@ Castle::Castle()
 	return true;
 }
 
+/*virtual*/ std::string Castle::GetDescription() const
+{
+	std::stringstream stream;
+	stream << "Castle " << this->sourceLocation.GetLocationString() << " to " << this->destinationLocation.GetLocationString();
+	return stream.str();
+}
+
 //---------------------------------------- Promotion ----------------------------------------
 
 Promotion::Promotion()
@@ -185,6 +212,13 @@ Promotion::Promotion()
 	game->SetSquareOccupant(this->destinationLocation, nullptr);
 	this->oldPiece = nullptr;
 	return true;
+}
+
+/*virtual*/ std::string Promotion::GetDescription() const
+{
+	std::stringstream stream;
+	stream << "Promote pawn to " << this->newPiece->GetName();
+	return stream.str();
 }
 
 //---------------------------------------- EnPassant ----------------------------------------
@@ -238,4 +272,11 @@ EnPassant::EnPassant()
 	game->SetSquareOccupant(this->captureLocation, this->capturedPiece);
 	this->capturedPiece = nullptr;
 	return true;
+}
+
+/*virtual*/ std::string EnPassant::GetDescription() const
+{
+	std::stringstream stream;
+	stream << "En Passant from " << this->sourceLocation.GetLocationString() << " to " << this->destinationLocation.GetLocationString();
+	return stream.str();
 }

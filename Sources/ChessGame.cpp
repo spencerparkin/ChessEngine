@@ -93,8 +93,11 @@ void ChessGame::SetSquareOccupant(const ChessVector& location, ChessPiece* piece
 	{
 		this->boardMatrix[location.file][location.rank] = piece;
 		
-		if(piece)
+		if (piece)
+		{
 			piece->location = location;
+			piece->game = this;
+		}
 	}
 }
 

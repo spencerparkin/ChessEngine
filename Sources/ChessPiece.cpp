@@ -11,7 +11,9 @@ ChessPiece::ChessPiece(ChessGame* game, const ChessVector& location, ChessColor 
 	this->game = game;
 	this->location = location;
 	this->color = color;
-	this->game->SetSquareOccupant(this->location, this);
+
+	if (this->game)
+		this->game->SetSquareOccupant(this->location, this);
 }
 
 /*virtual*/ ChessPiece::~ChessPiece()
@@ -79,25 +81,25 @@ Pawn::Pawn(ChessGame* game, const ChessVector& location, ChessColor color) : Che
 			Promotion* promotion = new Promotion();
 			promotion->sourceLocation = this->location;
 			promotion->destinationLocation = this->location + forwardDirection;
-			promotion->newPiece = new Knight(this->game, ChessVector(), this->color);
+			promotion->newPiece = new Knight(nullptr, ChessVector(-1, -1), this->color);
 			moveArray.push_back(promotion);
 
 			promotion = new Promotion();
 			promotion->sourceLocation = this->location;
 			promotion->destinationLocation = this->location + forwardDirection;
-			promotion->newPiece = new Bishop(this->game, ChessVector(), this->color);
+			promotion->newPiece = new Bishop(nullptr, ChessVector(-1, -1), this->color);
 			moveArray.push_back(promotion);
 
 			promotion = new Promotion();
 			promotion->sourceLocation = this->location;
 			promotion->destinationLocation = this->location + forwardDirection;
-			promotion->newPiece = new Rook(this->game, ChessVector(), this->color);
+			promotion->newPiece = new Rook(nullptr, ChessVector(-1, -1), this->color);
 			moveArray.push_back(promotion);
 
 			promotion = new Promotion();
 			promotion->sourceLocation = this->location;
 			promotion->destinationLocation = this->location + forwardDirection;
-			promotion->newPiece = new Queen(this->game, ChessVector(), this->color);
+			promotion->newPiece = new Queen(nullptr, ChessVector(-1, -1), this->color);
 			moveArray.push_back(promotion);
 		}
 		else

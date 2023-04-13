@@ -19,6 +19,8 @@ namespace ChessEngine
 		virtual bool Do(ChessGame* game) = 0;
 		virtual bool Undo(ChessGame* game) = 0;
 
+		virtual std::string GetDescription() const;
+
 		ChessVector sourceLocation;
 		ChessVector destinationLocation;
 	};
@@ -31,6 +33,8 @@ namespace ChessEngine
 
 		virtual bool Do(ChessGame* game) override;
 		virtual bool Undo(ChessGame* game) override;
+
+		virtual std::string GetDescription() const override;
 	};
 
 	class CHESS_ENGINE_API Capture : public ChessMove
@@ -41,6 +45,8 @@ namespace ChessEngine
 		
 		virtual bool Do(ChessGame* game) override;
 		virtual bool Undo(ChessGame* game) override;
+
+		virtual std::string GetDescription() const override;
 
 		ChessPiece* capturedPiece;
 	};
@@ -53,6 +59,8 @@ namespace ChessEngine
 
 		virtual bool Do(ChessGame* game) override;
 		virtual bool Undo(ChessGame* game) override;
+
+		virtual std::string GetDescription() const override;
 
 		ChessVector rookSourceLocation;
 		ChessVector rookDestinationLocation;
@@ -67,6 +75,8 @@ namespace ChessEngine
 		virtual bool Do(ChessGame* game) override;
 		virtual bool Undo(ChessGame* game) override;
 
+		virtual std::string GetDescription() const override;
+
 		ChessPiece* newPiece;
 		ChessPiece* oldPiece;
 	};
@@ -79,6 +89,8 @@ namespace ChessEngine
 
 		virtual bool Do(ChessGame* game) override;
 		virtual bool Undo(ChessGame* game) override;
+
+		virtual std::string GetDescription() const override;
 
 		ChessVector captureLocation;
 		ChessPiece* capturedPiece;

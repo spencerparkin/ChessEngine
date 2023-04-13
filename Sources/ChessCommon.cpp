@@ -1,5 +1,6 @@
 #include "ChessCommon.h"
 #include "ChessMove.h"
+#include <sstream>
 
 using namespace ChessEngine;
 
@@ -44,6 +45,25 @@ bool ChessVector::operator==(const ChessVector& vector) const
 bool ChessVector::operator!=(const ChessVector& vector) const
 {
 	return this->file != vector.file || this->rank != vector.rank;
+}
+
+std::string ChessVector::GetLocationString() const
+{
+	std::stringstream stream;
+	if (this->file < 0 || this->file >= CHESS_BOARD_FILES)
+		stream << "?";
+	else
+	{
+		static char fileLetter[] = "ABCDEFGH";
+		stream << fileLetter[this->file];
+	}
+
+	if (this->rank < 0 || this->rank >= CHESS_BOARD_RANKS)
+		stream << "?";
+	else
+		stream << this->rank;
+
+	return stream.str();
 }
 
 namespace ChessEngine
