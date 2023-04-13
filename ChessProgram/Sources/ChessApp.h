@@ -15,6 +15,8 @@ public:
 	virtual bool OnInit(void) override;
 	virtual int OnExit(void) override;
 
+	void FlipTurn();
+
 	ChessFrame* frame;
 	ChessEngine::ChessGame* game;
 	ChessEngine::ChessColor whoseTurn;

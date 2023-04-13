@@ -34,3 +34,11 @@ ChessApp::ChessApp()
 {
 	return 0;
 }
+
+void ChessApp::FlipTurn()
+{
+	if (this->whoseTurn == ChessEngine::ChessColor::White)
+		this->whoseTurn = ChessEngine::ChessColor::Black;
+	else
+		this->whoseTurn = ChessEngine::ChessColor::White;
+}

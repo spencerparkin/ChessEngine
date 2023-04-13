@@ -159,13 +159,10 @@ void ChessCanvas::OnLeftMouseButtonUp(wxMouseEvent& event)
 						if (this->legalMoveArray[i] == move)
 							this->legalMoveArray[i] = nullptr;
 
-					if (wxGetApp().whoseTurn == ChessEngine::ChessColor::White)
-						wxGetApp().whoseTurn = ChessEngine::ChessColor::Black;
-					else
-						wxGetApp().whoseTurn = ChessEngine::ChessColor::White;
+					wxGetApp().FlipTurn();
 
-					wxCommandEvent event(EVT_GAME_STATE_CHANGED);
-					wxPostEvent(wxGetApp().frame, event);
+					wxCommandEvent stateChangedEvent(EVT_GAME_STATE_CHANGED);
+					wxPostEvent(wxGetApp().frame, stateChangedEvent);
 				}
 
 				ChessEngine::DeleteMoveArray(this->legalMoveArray);

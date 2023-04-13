@@ -9,7 +9,6 @@
 #include <wx/button.h>
 #include <wx/aboutdlg.h>
 
-// TODO: Add undo/redo option.
 // TODO: Implement computer-suggested move using mini-max algorithm.
 
 ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size) : wxFrame(parent, wxID_ANY, "Chess", pos, size)
@@ -52,6 +51,9 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	this->undoButton = new wxButton(panel, wxID_ANY, "Undo");
 	this->redoButton = new wxButton(panel, wxID_ANY, "Redo");
 
+	this->undoButton->Bind(wxEVT_BUTTON, &ChessFrame::OnUndo, this);
+	this->redoButton->Bind(wxEVT_BUTTON, &ChessFrame::OnRedo, this);
+
 	wxBoxSizer* horizSizer = new wxBoxSizer(wxHORIZONTAL);
 	horizSizer->Add(this->undoButton, 1, wxGROW);
 	horizSizer->Add(this->redoButton, 1, wxGROW);
@@ -75,6 +77,44 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 /*virtual*/ ChessFrame::~ChessFrame()
 {
 	ChessEngine::DeleteMoveArray(this->redoMoveArray);
+}
+
+void ChessFrame::OnUndo(wxCommandEvent& event)
+{
+	ChessEngine::ChessGame* game = wxGetApp().game;
+	if (game->GetNumMoves() > 0)
+	{
+		ChessEngine::ChessMove* move = game->PopMove();
+		this->redoMoveArray.push_back(move);
+
+		wxGetApp().FlipTurn();
+
+		wxCommandEvent stateChangedEvent(EVT_GAME_STATE_CHANGED);
+		stateChangedEvent.SetString("undo");
+		wxPostEvent(this, stateChangedEvent);
+
+		this->canvas->Refresh();
+	}
+}
+
+void ChessFrame::OnRedo(wxCommandEvent& event)
+{
+	if (this->redoMoveArray.size() > 0)
+	{
+		ChessEngine::ChessGame* game = wxGetApp().game;
+		ChessEngine::ChessMove* move = this->redoMoveArray.back();
+		this->redoMoveArray.pop_back();
+
+		game->PushMove(move);
+
+		wxGetApp().FlipTurn();
+
+		wxCommandEvent stateChangedEvent(EVT_GAME_STATE_CHANGED);
+		stateChangedEvent.SetString("redo");
+		wxPostEvent(this, stateChangedEvent);
+
+		this->canvas->Refresh();
+	}
 }
 
 void ChessFrame::OnFlipBoard(wxCommandEvent& event)
@@ -110,6 +150,11 @@ void ChessFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 
 void ChessFrame::OnGameStateChanged(wxCommandEvent& event)
 {
+	if (event.GetString() != "undo" && event.GetString() != "redo")
+	{
+		ChessEngine::DeleteMoveArray(this->redoMoveArray);
+	}
+
 	this->UpdateStatusBar();
 	this->UpdatePanel();
 }
