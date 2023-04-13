@@ -6,7 +6,6 @@
 #include <wx/aboutdlg.h>
 
 // TODO: Add undo/redo option.
-// TODO: add option to flip board around 180 degrees.
 // TODO: Show captures and move history, maybe in a list widget.
 // TODO: Implement pawn promotion dialog.
 // TODO: Implement computer-suggested move using mini-max algorithm.
@@ -18,11 +17,15 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	gameMenu->AppendSeparator();
 	gameMenu->Append(new wxMenuItem(gameMenu, ID_Exit, "Exit", "Terminate this program."));
 
+	wxMenu* optionsMenu = new wxMenu();
+	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_FlipBoard, "Flip Board", "Flip the board 180 degrees.", wxITEM_CHECK));
+
 	wxMenu* helpMenu = new wxMenu();
 	helpMenu->Append(new wxMenuItem(helpMenu, ID_About, "About", "Show the about-box."));
 
 	wxMenuBar* menuBar = new wxMenuBar();
 	menuBar->Append(gameMenu, "Game");
+	menuBar->Append(optionsMenu, "Options");
 	menuBar->Append(helpMenu, "Help");
 	this->SetMenuBar(menuBar);
 
@@ -32,6 +35,8 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	this->Bind(wxEVT_MENU, &ChessFrame::OnAbout, this, ID_About);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnExit, this, ID_Exit);
 	this->Bind(EVT_GAME_STATE_CHANGED, &ChessFrame::OnGameStateChanged, this);
+	this->Bind(wxEVT_MENU, &ChessFrame::OnFlipBoard, this, ID_FlipBoard);
+	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_FlipBoard);
 
 	this->canvas = new ChessCanvas(this);
 
@@ -44,6 +49,37 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 
 /*virtual*/ ChessFrame::~ChessFrame()
 {
+}
+
+void ChessFrame::OnFlipBoard(wxCommandEvent& event)
+{
+	switch (this->canvas->renderOrientation)
+	{
+		case ChessCanvas::RenderOrientation::RENDER_NORMAL:
+		{
+			this->canvas->renderOrientation = ChessCanvas::RenderOrientation::RENDER_FLIPPED;
+			break;
+		}
+		case ChessCanvas::RenderOrientation::RENDER_FLIPPED:
+		{
+			this->canvas->renderOrientation = ChessCanvas::RenderOrientation::RENDER_NORMAL;
+			break;
+		}
+	}
+
+	this->canvas->Refresh();
+}
+
+void ChessFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
+{
+	switch (event.GetId())
+	{
+		case ID_FlipBoard:
+		{
+			event.Check(this->canvas->renderOrientation == ChessCanvas::RenderOrientation::RENDER_FLIPPED);
+			break;
+		}
+	}
 }
 
 void ChessFrame::OnGameStateChanged(wxCommandEvent& event)
@@ -79,6 +115,9 @@ void ChessFrame::OnNewGame(wxCommandEvent& event)
 {
 	wxGetApp().game->Reset();
 	wxGetApp().whoseTurn = ChessEngine::ChessColor::White;
+
+	wxCommandEvent stateChangedEvent(EVT_GAME_STATE_CHANGED);
+	wxPostEvent(this, stateChangedEvent);
 
 	this->Refresh();
 }

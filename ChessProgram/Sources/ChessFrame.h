@@ -14,12 +14,15 @@ public:
 	void OnAbout(wxCommandEvent& event);
 	void OnExit(wxCommandEvent& event);
 	void OnGameStateChanged(wxCommandEvent& event);
+	void OnFlipBoard(wxCommandEvent& event);
+	void OnUpdateMenuItemUI(wxUpdateUIEvent& event);
 
 	enum
 	{
 		ID_NewGame = wxID_HIGHEST,
 		ID_About,
-		ID_Exit
+		ID_Exit,
+		ID_FlipBoard
 	};
 
 	void UpdateStatusBar();

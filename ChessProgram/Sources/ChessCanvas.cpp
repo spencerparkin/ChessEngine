@@ -263,7 +263,10 @@ bool ChessCanvas::CalculateSquareLocation(const wxPoint& mousePoint, ChessEngine
 	squareLocation.rank = int(::floor(float(CHESS_BOARD_RANKS) * *worldY));
 
 	if (this->renderOrientation == RenderOrientation::RENDER_FLIPPED)
+	{
+		squareLocation.file = CHESS_BOARD_RANKS - 1 - squareLocation.file;
 		squareLocation.rank = CHESS_BOARD_RANKS - 1 - squareLocation.rank;
+	}
 
 	return true;
 }
@@ -308,7 +311,7 @@ void ChessCanvas::ForEachBoardSquare(std::function<void(const ChessEngine::Chess
 				}
 				case RenderOrientation::RENDER_FLIPPED:
 				{
-					squareLocation = ChessEngine::ChessVector(i, CHESS_BOARD_RANKS - 1 - j);
+					squareLocation = ChessEngine::ChessVector(CHESS_BOARD_FILES - 1 - i, CHESS_BOARD_RANKS - 1 - j);
 					break;
 				}
 			}
