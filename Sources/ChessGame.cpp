@@ -104,7 +104,10 @@ void ChessGame::SetSquareOccupant(const ChessVector& location, ChessPiece* piece
 bool ChessGame::PushMove(ChessMove* move)
 {
 	if (!move->Do(this))
+	{
+		assert(0);		// We should never be pushing a move that can't be pushed.
 		return false;
+	}
 
 	this->chessMoveStack->push_back(move);
 	return true;
@@ -113,11 +116,17 @@ bool ChessGame::PushMove(ChessMove* move)
 ChessMove* ChessGame::PopMove()
 {
 	if (this->chessMoveStack->size() == 0)
+	{
+		assert(0);		// We should never have a stack underflow.
 		return nullptr;
+	}
 
 	ChessMove* move = this->chessMoveStack->back();
 	if (!move->Undo(this))
+	{
+		assert(0);		// We should never fail to pop a momve.
 		return nullptr;
+	}
 
 	this->chessMoveStack->pop_back();
 	return move;

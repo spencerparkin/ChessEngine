@@ -13,6 +13,7 @@
 #include <string>
 #include <math.h>
 #include <limits.h>
+#include <assert.h>
 
 #define CHESS_BOARD_RANKS		8
 #define CHESS_BOARD_FILES		8
