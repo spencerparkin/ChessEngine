@@ -60,7 +60,7 @@ ChessMinimaxAI::ChessMinimaxAI(int maxDepth)
 	return this->bestMove;
 }
 
-// TODO: Could this be sped up using memoization?
+// TODO: Could this be sped up using memoization?  It's hard to reconcile this with moves that depend on the move history, such as castling or en passant.
 bool ChessMinimaxAI::Minimax(Goal goal, ChessColor favoredColor, ChessColor whoseTurn, ChessGame* game, int depth, int& score, int* currentSuperScore /*= nullptr*/)
 {
 	if (depth >= this->maxDepth)

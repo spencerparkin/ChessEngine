@@ -4,6 +4,7 @@
 #include <wx/frame.h>
 #include <wx/listbox.h>
 #include <wx/button.h>
+#include <wx/gauge.h>
 
 class ChessCanvas;
 
@@ -22,6 +23,7 @@ public:
 	void OnUndo(wxCommandEvent& event);
 	void OnRedo(wxCommandEvent& event);
 	void OnColorPlayerdByComputer(wxCommandEvent& event);
+	void OnComputerDifficulty(wxCommandEvent& event);
 
 	enum
 	{
@@ -30,7 +32,10 @@ public:
 		ID_Exit,
 		ID_FlipBoard,
 		ID_WhitePlayedByComputer,
-		ID_BlackPlayedByComputer
+		ID_BlackPlayedByComputer,
+		ID_ComputerDifficultyEasy,
+		ID_ComputerDifficultyMedium,
+		ID_ComputerDifficultyHard
 	};
 
 	void UpdateStatusBar();
@@ -40,5 +45,6 @@ public:
 	wxListBox* moveListBox;
 	wxButton* undoButton;
 	wxButton* redoButton;
+	wxGauge* gaugeBar;
 	ChessEngine::ChessMoveArray redoMoveArray;
 };

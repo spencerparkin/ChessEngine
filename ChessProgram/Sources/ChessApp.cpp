@@ -13,7 +13,7 @@ ChessApp::ChessApp()
 	this->whoseTurn = ChessEngine::ChessColor::White;
 	this->playerType[0] = PlayerType::HUMAN;
 	this->playerType[1] = PlayerType::HUMAN;
-	this->bot = new ChessBot(3);
+	this->bot = new ChessBot(COMPUTER_MEDIUM_MAX_DEPTH);
 }
 
 /*virtual*/ ChessApp::~ChessApp()

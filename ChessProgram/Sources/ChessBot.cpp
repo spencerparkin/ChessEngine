@@ -13,17 +13,43 @@ ChessBot::ChessBot(int maxDepth) : ChessEngine::ChessMinimaxAI(maxDepth)
 
 /*virtual*/ void ChessBot::ProgressBegin()
 {
-	this->progressDialog = new wxProgressDialog("Chess AI", "Thinking...", 100, wxGetApp().frame, wxPD_APP_MODAL | wxPD_AUTO_HIDE | wxPD_CAN_ABORT);
+	if (this->maxDepth == COMPUTER_HARD_MAX_DEPTH)
+	{
+		this->progressDialog = new wxProgressDialog("Chess AI", "Thinking...", 100, wxGetApp().frame, wxPD_APP_MODAL | wxPD_AUTO_HIDE | wxPD_CAN_ABORT);
+		this->progressDialog->SetPosition(wxGetApp().frame->GetPosition());
+	}
+	else
+	{
+		wxGetApp().frame->gaugeBar->SetValue(0);
+	}
 }
 
 /*virtual*/ void ChessBot::ProgressEnd()
 {
-	delete this->progressDialog;
-	this->progressDialog = nullptr;
+	wxGetApp().frame->gaugeBar->SetValue(0);
+
+	if (this->progressDialog)
+	{
+		delete this->progressDialog;
+		this->progressDialog = nullptr;
+	}
 }
 
 /*virtual*/ bool ChessBot::ProgressUpdate(float percentage)
 {
-	int progressValue = (int)::roundf(percentage * 100.0f);
-	return this->progressDialog->Update(progressValue);
+	float range = 1.0f;
+	if (this->maxDepth == COMPUTER_HARD_MAX_DEPTH)
+		range = (float)this->progressDialog->GetRange();
+	else
+		range = (float)wxGetApp().frame->gaugeBar->GetRange();
+
+	int progressValue = (int)::roundf(percentage * range);
+	bool keepGoing = true;
+
+	if (this->maxDepth == COMPUTER_HARD_MAX_DEPTH)
+		keepGoing = this->progressDialog->Update(progressValue);
+	else
+		wxGetApp().frame->gaugeBar->SetValue(progressValue);
+
+	return keepGoing;
 }

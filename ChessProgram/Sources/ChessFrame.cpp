@@ -25,6 +25,10 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	optionsMenu->AppendSeparator();
 	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_WhitePlayedByComputer, "Computer Plays White", "When it is WHITE's turn to play, the computer will take the turn.", wxITEM_CHECK));
 	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_BlackPlayedByComputer, "Computer Plays Black", "When it is BLACK's turn to play, the computer will take the turn.", wxITEM_CHECK));
+	optionsMenu->AppendSeparator();
+	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_ComputerDifficultyEasy, "Computer Difficulty Easy", "Make the AI dumb.", wxITEM_CHECK));
+	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_ComputerDifficultyMedium, "Computer Difficulty Medium", "Make the AI somewhat smart.", wxITEM_CHECK));
+	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_ComputerDifficultyHard, "Computer Difficulty Hard", "Make the AI as smart as it can be.", wxITEM_CHECK));
 
 	wxMenu* helpMenu = new wxMenu();
 	helpMenu->Append(new wxMenuItem(helpMenu, ID_About, "About", "Show the about-box."));
@@ -43,9 +47,15 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	this->Bind(wxEVT_MENU, &ChessFrame::OnFlipBoard, this, ID_FlipBoard);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnColorPlayerdByComputer, this, ID_WhitePlayedByComputer);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnColorPlayerdByComputer, this, ID_BlackPlayedByComputer);
+	this->Bind(wxEVT_MENU, &ChessFrame::OnComputerDifficulty, this, ID_ComputerDifficultyEasy);
+	this->Bind(wxEVT_MENU, &ChessFrame::OnComputerDifficulty, this, ID_ComputerDifficultyMedium);
+	this->Bind(wxEVT_MENU, &ChessFrame::OnComputerDifficulty, this, ID_ComputerDifficultyHard);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_FlipBoard);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_WhitePlayedByComputer);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_BlackPlayedByComputer);
+	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_ComputerDifficultyEasy);
+	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_ComputerDifficultyMedium);
+	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_ComputerDifficultyHard);
 	this->Bind(EVT_GAME_STATE_CHANGED, &ChessFrame::OnGameStateChanged, this);
 
 	wxSplitterWindow* splitter = new wxSplitterWindow(this);
@@ -67,9 +77,12 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	horizSizer->Add(this->undoButton, 1, wxGROW);
 	horizSizer->Add(this->redoButton, 1, wxGROW);
 
+	this->gaugeBar = new wxGauge(panel, wxID_ANY, 100, wxDefaultPosition, wxDefaultSize, wxGA_HORIZONTAL | wxGA_SMOOTH);
+
 	wxBoxSizer* vertSizer = new wxBoxSizer(wxVERTICAL);
 	vertSizer->Add(this->moveListBox, 1, wxGROW);
-	vertSizer->Add(horizSizer, 0, 0);
+	vertSizer->Add(horizSizer, 0, wxGROW);
+	vertSizer->Add(this->gaugeBar, 0, wxGROW);
 
 	panel->SetSizer(vertSizer);
 
@@ -168,6 +181,21 @@ void ChessFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 		case ID_BlackPlayedByComputer:
 		{
 			event.Check(wxGetApp().GetPlayerType(ChessEngine::ChessColor::Black) == ChessApp::PlayerType::COMPUTER);
+			break;
+		}
+		case ID_ComputerDifficultyEasy:
+		{
+			event.Check(wxGetApp().bot->maxDepth == COMPUTER_EASY_MAX_DEPTH);
+			break;
+		}
+		case ID_ComputerDifficultyMedium:
+		{
+			event.Check(wxGetApp().bot->maxDepth == COMPUTER_MEDIUM_MAX_DEPTH);
+			break;
+		}
+		case ID_ComputerDifficultyHard:
+		{
+			event.Check(wxGetApp().bot->maxDepth == COMPUTER_HARD_MAX_DEPTH);
 			break;
 		}
 	}
@@ -285,6 +313,28 @@ void ChessFrame::OnColorPlayerdByComputer(wxCommandEvent& event)
 
 	wxCommandEvent stateChangedEvent(EVT_GAME_STATE_CHANGED);
 	wxPostEvent(wxGetApp().frame, stateChangedEvent);
+}
+
+void ChessFrame::OnComputerDifficulty(wxCommandEvent& event)
+{
+	switch (event.GetId())
+	{
+		case ID_ComputerDifficultyEasy:
+		{
+			wxGetApp().bot->maxDepth = COMPUTER_EASY_MAX_DEPTH;
+			break;
+		}
+		case ID_ComputerDifficultyMedium:
+		{
+			wxGetApp().bot->maxDepth = COMPUTER_MEDIUM_MAX_DEPTH;
+			break;
+		}
+		case ID_ComputerDifficultyHard:
+		{
+			wxGetApp().bot->maxDepth = COMPUTER_HARD_MAX_DEPTH;
+			break;
+		}
+	}
 }
 
 void ChessFrame::OnAbout(wxCommandEvent& event)
