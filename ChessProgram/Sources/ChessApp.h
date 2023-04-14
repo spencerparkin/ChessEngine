@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ChessGame.h>
+#include <ChessAI.h>
 #include <wx/setup.h>
 #include <wx/app.h>
 
@@ -17,9 +18,20 @@ public:
 
 	void FlipTurn();
 
+	enum class PlayerType
+	{
+		HUMAN,
+		COMPUTER
+	};
+
+	PlayerType GetCurrentPlayerType();
+	PlayerType GetPlayerType(ChessEngine::ChessColor color);
+	void SetPlayerType(ChessEngine::ChessColor color, PlayerType playerType);
+
 	ChessFrame* frame;
 	ChessEngine::ChessGame* game;
 	ChessEngine::ChessColor whoseTurn;
+	PlayerType playerType[2];
 };
 
 wxDECLARE_APP(ChessApp);

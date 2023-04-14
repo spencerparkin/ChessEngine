@@ -97,19 +97,22 @@ void ChessCanvas::OnMouseMotion(wxMouseEvent& event)
 
 void ChessCanvas::OnLeftMouseButtonDown(wxMouseEvent& event)
 {
-	ChessEngine::ChessVector location;
-	this->CalculateSquareLocation(event.GetPosition(), location);
-
-	ChessEngine::ChessPiece* piece = wxGetApp().game->GetSquareOccupant(location);
-	if (piece && piece->color == wxGetApp().whoseTurn)
+	if (wxGetApp().GetCurrentPlayerType() == ChessApp::PlayerType::HUMAN)
 	{
-		this->selectedLocation = location;
-		this->formulatingMove = true;
-		this->CaptureMouse();
+		ChessEngine::ChessVector location;
+		this->CalculateSquareLocation(event.GetPosition(), location);
 
-		wxGetApp().game->GenerateAllLegalMovesForColor(wxGetApp().whoseTurn, this->legalMoveArray);
+		ChessEngine::ChessPiece* piece = wxGetApp().game->GetSquareOccupant(location);
+		if (piece && piece->color == wxGetApp().whoseTurn)
+		{
+			this->selectedLocation = location;
+			this->formulatingMove = true;
+			this->CaptureMouse();
 
-		this->Refresh();
+			wxGetApp().game->GenerateAllLegalMovesForColor(wxGetApp().whoseTurn, this->legalMoveArray);
+
+			this->Refresh();
+		}
 	}
 }
 

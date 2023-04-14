@@ -10,6 +10,8 @@ ChessApp::ChessApp()
 	this->game = new ChessEngine::ChessGame();
 	this->game->Reset();
 	this->whoseTurn = ChessEngine::ChessColor::White;
+	this->playerType[0] = PlayerType::HUMAN;
+	this->playerType[1] = PlayerType::HUMAN;
 }
 
 /*virtual*/ ChessApp::~ChessApp()
@@ -41,4 +43,19 @@ void ChessApp::FlipTurn()
 		this->whoseTurn = ChessEngine::ChessColor::Black;
 	else
 		this->whoseTurn = ChessEngine::ChessColor::White;
+}
+
+ChessApp::PlayerType ChessApp::GetCurrentPlayerType()
+{
+	return this->playerType[int(this->whoseTurn)];
+}
+
+ChessApp::PlayerType ChessApp::GetPlayerType(ChessEngine::ChessColor color)
+{
+	return this->playerType[int(color)];
+}
+
+void ChessApp::SetPlayerType(ChessEngine::ChessColor color, PlayerType playerType)
+{
+	this->playerType[int(color)] = playerType;
 }

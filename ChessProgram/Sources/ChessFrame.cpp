@@ -20,6 +20,9 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 
 	wxMenu* optionsMenu = new wxMenu();
 	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_FlipBoard, "Flip Board", "Flip the board 180 degrees.", wxITEM_CHECK));
+	optionsMenu->AppendSeparator();
+	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_WhitePlayedByComputer, "Computer Plays White", "When it is WHITE's turn to play, the computer will take the turn.", wxITEM_CHECK));
+	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_BlackPlayedByComputer, "Computer Plays Black", "When it is BLACK's turn to play, the computer will take the turn.", wxITEM_CHECK));
 
 	wxMenu* helpMenu = new wxMenu();
 	helpMenu->Append(new wxMenuItem(helpMenu, ID_About, "About", "Show the about-box."));
@@ -35,9 +38,13 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	this->Bind(wxEVT_MENU, &ChessFrame::OnNewGame, this, ID_NewGame);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnAbout, this, ID_About);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnExit, this, ID_Exit);
-	this->Bind(EVT_GAME_STATE_CHANGED, &ChessFrame::OnGameStateChanged, this);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnFlipBoard, this, ID_FlipBoard);
+	this->Bind(wxEVT_MENU, &ChessFrame::OnColorPlayerdByComputer, this, ID_WhitePlayedByComputer);
+	this->Bind(wxEVT_MENU, &ChessFrame::OnColorPlayerdByComputer, this, ID_BlackPlayedByComputer);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_FlipBoard);
+	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_WhitePlayedByComputer);
+	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_BlackPlayedByComputer);
+	this->Bind(EVT_GAME_STATE_CHANGED, &ChessFrame::OnGameStateChanged, this);
 
 	wxSplitterWindow* splitter = new wxSplitterWindow(this);
 
@@ -84,6 +91,9 @@ void ChessFrame::OnUndo(wxCommandEvent& event)
 	ChessEngine::ChessGame* game = wxGetApp().game;
 	if (game->GetNumMoves() > 0)
 	{
+		wxGetApp().SetPlayerType(ChessEngine::ChessColor::White, ChessApp::PlayerType::HUMAN);
+		wxGetApp().SetPlayerType(ChessEngine::ChessColor::Black, ChessApp::PlayerType::HUMAN);
+
 		ChessEngine::ChessMove* move = game->PopMove();
 		this->redoMoveArray.push_back(move);
 
@@ -101,6 +111,9 @@ void ChessFrame::OnRedo(wxCommandEvent& event)
 {
 	if (this->redoMoveArray.size() > 0)
 	{
+		wxGetApp().SetPlayerType(ChessEngine::ChessColor::White, ChessApp::PlayerType::HUMAN);
+		wxGetApp().SetPlayerType(ChessEngine::ChessColor::Black, ChessApp::PlayerType::HUMAN);
+
 		ChessEngine::ChessGame* game = wxGetApp().game;
 		ChessEngine::ChessMove* move = this->redoMoveArray.back();
 		this->redoMoveArray.pop_back();
@@ -145,6 +158,16 @@ void ChessFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 			event.Check(this->canvas->renderOrientation == ChessCanvas::RenderOrientation::RENDER_FLIPPED);
 			break;
 		}
+		case ID_WhitePlayedByComputer:
+		{
+			event.Check(wxGetApp().GetPlayerType(ChessEngine::ChessColor::White) == ChessApp::PlayerType::COMPUTER);
+			break;
+		}
+		case ID_BlackPlayedByComputer:
+		{
+			event.Check(wxGetApp().GetPlayerType(ChessEngine::ChessColor::Black) == ChessApp::PlayerType::COMPUTER);
+			break;
+		}
 	}
 }
 
@@ -157,6 +180,11 @@ void ChessFrame::OnGameStateChanged(wxCommandEvent& event)
 
 	this->UpdateStatusBar();
 	this->UpdatePanel();
+
+	if (wxGetApp().GetCurrentPlayerType() == ChessApp::PlayerType::COMPUTER)
+	{
+		// TODO: Computer takes turn here.  Block with progress dialog?
+	}
 }
 
 void ChessFrame::UpdateStatusBar()
@@ -206,6 +234,37 @@ void ChessFrame::OnNewGame(wxCommandEvent& event)
 	wxPostEvent(this, stateChangedEvent);
 
 	this->Refresh();
+}
+
+void ChessFrame::OnColorPlayerdByComputer(wxCommandEvent& event)
+{
+	ChessEngine::ChessColor color;
+	switch (event.GetId())
+	{
+		case ID_WhitePlayedByComputer:
+		{
+			color = ChessEngine::ChessColor::White;
+			break;
+		}
+		case ID_BlackPlayedByComputer:
+		{
+			color = ChessEngine::ChessColor::Black;
+			break;
+		}
+		default:
+		{
+			return;
+		}
+	}
+
+	ChessApp::PlayerType playerType = wxGetApp().GetPlayerType(color);
+
+	if (playerType == ChessApp::PlayerType::HUMAN)
+		playerType = ChessApp::PlayerType::COMPUTER;
+	else
+		playerType = ChessApp::PlayerType::HUMAN;
+
+	wxGetApp().SetPlayerType(color, playerType);
 }
 
 void ChessFrame::OnAbout(wxCommandEvent& event)

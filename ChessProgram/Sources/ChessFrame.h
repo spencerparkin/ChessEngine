@@ -21,13 +21,16 @@ public:
 	void OnUpdateMenuItemUI(wxUpdateUIEvent& event);
 	void OnUndo(wxCommandEvent& event);
 	void OnRedo(wxCommandEvent& event);
+	void OnColorPlayerdByComputer(wxCommandEvent& event);
 
 	enum
 	{
 		ID_NewGame = wxID_HIGHEST,
 		ID_About,
 		ID_Exit,
-		ID_FlipBoard
+		ID_FlipBoard,
+		ID_WhitePlayedByComputer,
+		ID_BlackPlayedByComputer
 	};
 
 	void UpdateStatusBar();
