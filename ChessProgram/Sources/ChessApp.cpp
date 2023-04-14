@@ -1,5 +1,6 @@
 #include "ChessApp.h"
 #include "ChessFrame.h"
+#include "ChessBot.h"
 #include <wx/image.h>
 
 wxIMPLEMENT_APP(ChessApp);
@@ -12,11 +13,13 @@ ChessApp::ChessApp()
 	this->whoseTurn = ChessEngine::ChessColor::White;
 	this->playerType[0] = PlayerType::HUMAN;
 	this->playerType[1] = PlayerType::HUMAN;
+	this->bot = new ChessBot(3);
 }
 
 /*virtual*/ ChessApp::~ChessApp()
 {
 	delete this->game;
+	delete this->bot;
 }
 
 /*virtual*/ bool ChessApp::OnInit(void)
@@ -47,7 +50,12 @@ void ChessApp::FlipTurn()
 
 ChessApp::PlayerType ChessApp::GetCurrentPlayerType()
 {
-	return this->playerType[int(this->whoseTurn)];
+	return this->GetPlayerType(this->whoseTurn);
+}
+
+void ChessApp::SetCurrentPlayerType(PlayerType playerType)
+{
+	this->SetPlayerType(this->whoseTurn, playerType);
 }
 
 ChessApp::PlayerType ChessApp::GetPlayerType(ChessEngine::ChessColor color)

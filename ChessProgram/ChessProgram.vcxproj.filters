@@ -16,6 +16,9 @@
     <ClInclude Include="Sources\ChessCanvas.h">
       <Filter>Sources</Filter>
     </ClInclude>
+    <ClInclude Include="Sources\ChessBot.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Sources\ChessApp.cpp">
@@ -25,6 +28,9 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="Sources\ChessCanvas.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\ChessBot.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>

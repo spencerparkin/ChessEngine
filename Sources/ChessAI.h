@@ -23,6 +23,10 @@ namespace ChessEngine
 		// process should be canceled.  This is meant to be overridden by users of the engine, not
 		// implementors of various chess solvers.
 		virtual bool ProgressUpdate(float percentage);
+
+		// These serve a similar purpose.
+		virtual void ProgressBegin();
+		virtual void ProgressEnd();
 	};
 
 	// Useful resource: https://medium.com/@SereneBiologist/the-anatomy-of-a-chess-ai-2087d0d565

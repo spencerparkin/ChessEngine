@@ -1,6 +1,7 @@
 #include "ChessFrame.h"
 #include "ChessCanvas.h"
 #include "ChessApp.h"
+#include "ChessBot.h"
 #include <ChessMove.h>
 #include <wx/menu.h>
 #include <wx/sizer.h>
@@ -8,6 +9,7 @@
 #include <wx/panel.h>
 #include <wx/button.h>
 #include <wx/aboutdlg.h>
+#include <wx/msgdlg.h>
 
 // TODO: Implement computer-suggested move using mini-max algorithm.
 
@@ -183,7 +185,21 @@ void ChessFrame::OnGameStateChanged(wxCommandEvent& event)
 
 	if (wxGetApp().GetCurrentPlayerType() == ChessApp::PlayerType::COMPUTER)
 	{
-		// TODO: Computer takes turn here.  Block with progress dialog?
+		// TODO: Maybe find a way to do this without blocking?  (E.g., in a background thread or something?)
+		ChessEngine::ChessMove* move = wxGetApp().bot->CalculateRecommendedMove(wxGetApp().whoseTurn, wxGetApp().game);
+		if (!move)
+		{
+			wxMessageBox("The computer has failed and will now cower in shame.", "Error!", wxICON_ERROR, wxGetApp().frame);
+			wxGetApp().SetCurrentPlayerType(ChessApp::PlayerType::HUMAN);
+		}
+		else
+		{
+			wxGetApp().game->PushMove(move);
+			wxGetApp().FlipTurn();
+
+			wxCommandEvent stateChangedEvent(EVT_GAME_STATE_CHANGED);
+			wxPostEvent(wxGetApp().frame, stateChangedEvent);
+		}
 	}
 }
 

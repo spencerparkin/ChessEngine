@@ -19,6 +19,14 @@ ChessAI::ChessAI()
 	return true;
 }
 
+/*virtual*/ void ChessAI::ProgressBegin()
+{
+}
+
+/*virtual*/ void ChessAI::ProgressEnd()
+{
+}
+
 //---------------------------------------- ChessMinimaxAI ----------------------------------------
 
 ChessMinimaxAI::ChessMinimaxAI(int maxDepth)
@@ -33,6 +41,8 @@ ChessMinimaxAI::ChessMinimaxAI(int maxDepth)
 
 /*virtual*/ ChessMove* ChessMinimaxAI::CalculateRecommendedMove(ChessColor favoredColor, ChessGame* game)
 {
+	this->ProgressBegin();
+
 	this->bestMove = nullptr;
 
 	int numMoves = game->GetNumMoves();
@@ -44,6 +54,8 @@ ChessMinimaxAI::ChessMinimaxAI(int maxDepth)
 
 	if (!success)
 		this->bestMove = nullptr;
+
+	this->ProgressEnd();
 
 	return this->bestMove;
 }
