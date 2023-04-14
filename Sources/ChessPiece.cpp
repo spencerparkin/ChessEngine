@@ -67,6 +67,11 @@ Pawn::Pawn(ChessGame* game, const ChessVector& location, ChessColor color) : Che
 	return "Pawn";
 }
 
+/*virtual*/ int Pawn::GetScore() const
+{
+	return 10;
+}
+
 /*virtual*/ void Pawn::GenerateAllPossibleMoves(ChessMoveArray& moveArray) const
 {
 	ChessColor opponentColor = (this->color == ChessColor::White) ? ChessColor::Black : ChessColor::White;
@@ -172,6 +177,11 @@ Knight::Knight(ChessGame* game, const ChessVector& location, ChessColor color) :
 	return "Knight";
 }
 
+/*virtual*/ int Knight::GetScore() const
+{
+	return 30;
+}
+
 /*virtual*/ void Knight::GenerateAllPossibleMoves(ChessMoveArray& moveArray) const
 {
 	ChessColor opponentColor = (this->color == ChessColor::White) ? ChessColor::Black : ChessColor::White;
@@ -233,6 +243,11 @@ Bishop::Bishop(ChessGame* game, const ChessVector& location, ChessColor color) :
 	return "Bishop";
 }
 
+/*virtual*/ int Bishop::GetScore() const
+{
+	return 30;
+}
+
 //---------------------------------------- Rook ----------------------------------------
 
 Rook::Rook(ChessGame* game, const ChessVector& location, ChessColor color) : ChessPiece(game, location, color)
@@ -246,6 +261,11 @@ Rook::Rook(ChessGame* game, const ChessVector& location, ChessColor color) : Che
 std::string Rook::GetName() const
 {
 	return "Rook";
+}
+
+/*virtual*/ int Rook::GetScore() const
+{
+	return 50;
 }
 
 /*virtual*/ void Rook::GenerateAllPossibleMoves(ChessMoveArray& moveArray) const
@@ -269,6 +289,11 @@ Queen::Queen(ChessGame* game, const ChessVector& location, ChessColor color) : C
 /*virtual*/ std::string Queen::GetName() const
 {
 	return "Queen";
+}
+
+/*virtual*/ int Queen::GetScore() const
+{
+	return 90;
 }
 
 /*virtual*/ void Queen::GenerateAllPossibleMoves(ChessMoveArray& moveArray) const
@@ -296,6 +321,11 @@ King::King(ChessGame* game, const ChessVector& location, ChessColor color) : Che
 /*virtual*/ std::string King::GetName() const
 {
 	return "King";
+}
+
+/*virtual*/ int King::GetScore() const
+{
+	return 900;
 }
 
 /*virtual*/ void King::GenerateAllPossibleMoves(ChessMoveArray& moveArray) const

@@ -14,6 +14,7 @@ namespace ChessEngine
 		virtual ~ChessPiece();
 
 		virtual std::string GetName() const = 0;
+		virtual int GetScore() const = 0;
 
 		// Note that overrides of this method should generate all possible moves for the chess
 		// piece regardless of who's turn it is, check, check-mate, stale mate, or even the
@@ -35,6 +36,8 @@ namespace ChessEngine
 		virtual ~Pawn();
 
 		std::string GetName() const override;
+		virtual int GetScore() const override;
+
 		virtual void GenerateAllPossibleMoves(ChessMoveArray& moveArray) const override;
 	};
 
@@ -45,6 +48,8 @@ namespace ChessEngine
 		virtual ~Knight();
 
 		std::string GetName() const override;
+		virtual int GetScore() const override;
+
 		virtual void GenerateAllPossibleMoves(ChessMoveArray& moveArray) const override;
 	};
 
@@ -55,6 +60,8 @@ namespace ChessEngine
 		virtual ~Bishop();
 
 		std::string GetName() const override;
+		virtual int GetScore() const override;
+
 		virtual void GenerateAllPossibleMoves(ChessMoveArray& moveArray) const override;
 	};
 
@@ -65,6 +72,8 @@ namespace ChessEngine
 		virtual ~Rook();
 
 		std::string GetName() const override;
+		virtual int GetScore() const override;
+
 		virtual void GenerateAllPossibleMoves(ChessMoveArray& moveArray) const override;
 	};
 
@@ -75,6 +84,8 @@ namespace ChessEngine
 		virtual ~Queen();
 
 		std::string GetName() const override;
+		virtual int GetScore() const override;
+
 		virtual void GenerateAllPossibleMoves(ChessMoveArray& moveArray) const override;
 	};
 
@@ -85,6 +96,8 @@ namespace ChessEngine
 		virtual ~King();
 
 		std::string GetName() const override;
+		virtual int GetScore() const override;
+
 		virtual void GenerateAllPossibleMoves(ChessMoveArray& moveArray) const override;
 	};
 }
