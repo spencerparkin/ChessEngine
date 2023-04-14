@@ -199,6 +199,8 @@ void ChessFrame::OnGameStateChanged(wxCommandEvent& event)
 
 			wxCommandEvent stateChangedEvent(EVT_GAME_STATE_CHANGED);
 			wxPostEvent(wxGetApp().frame, stateChangedEvent);
+
+			this->canvas->Refresh();
 		}
 	}
 }
@@ -281,6 +283,9 @@ void ChessFrame::OnColorPlayerdByComputer(wxCommandEvent& event)
 		playerType = ChessApp::PlayerType::HUMAN;
 
 	wxGetApp().SetPlayerType(color, playerType);
+
+	wxCommandEvent stateChangedEvent(EVT_GAME_STATE_CHANGED);
+	wxPostEvent(wxGetApp().frame, stateChangedEvent);
 }
 
 void ChessFrame::OnAbout(wxCommandEvent& event)
