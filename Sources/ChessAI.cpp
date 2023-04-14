@@ -60,6 +60,7 @@ ChessMinimaxAI::ChessMinimaxAI(int maxDepth)
 	return this->bestMove;
 }
 
+// TODO: Could this be sped up using memoization?
 bool ChessMinimaxAI::Minimax(Goal goal, ChessColor favoredColor, ChessColor whoseTurn, ChessGame* game, int depth, int& score, int* currentSuperScore /*= nullptr*/)
 {
 	if (depth >= this->maxDepth)
@@ -182,6 +183,7 @@ bool ChessMinimaxAI::Minimax(Goal goal, ChessColor favoredColor, ChessColor whos
 	return success;
 }
 
+// TODO: Adjust score here to favor a presents in the center of the board?
 /*virtual*/ int ChessMinimaxAI::EvaluationFunction(ChessColor favoredColor, const ChessGame* game)
 {
 	int totalScore = 0;

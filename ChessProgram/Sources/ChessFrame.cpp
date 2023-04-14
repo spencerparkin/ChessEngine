@@ -185,7 +185,6 @@ void ChessFrame::OnGameStateChanged(wxCommandEvent& event)
 
 	if (wxGetApp().GetCurrentPlayerType() == ChessApp::PlayerType::COMPUTER)
 	{
-		// TODO: Maybe find a way to do this without blocking?  (E.g., in a background thread or something?)
 		ChessEngine::ChessMove* move = wxGetApp().bot->CalculateRecommendedMove(wxGetApp().whoseTurn, wxGetApp().game);
 		if (!move)
 		{
