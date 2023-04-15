@@ -20,6 +20,7 @@ namespace ChessEngine
 		virtual bool Undo(ChessGame* game) = 0;
 
 		virtual std::string GetDescription() const;
+		virtual int GetSortKey() const;
 
 		ChessVector sourceLocation;
 		ChessVector destinationLocation;
@@ -35,6 +36,7 @@ namespace ChessEngine
 		virtual bool Undo(ChessGame* game) override;
 
 		virtual std::string GetDescription() const override;
+		virtual int GetSortKey() const override;
 	};
 
 	class CHESS_ENGINE_API Capture : public ChessMove
@@ -47,6 +49,7 @@ namespace ChessEngine
 		virtual bool Undo(ChessGame* game) override;
 
 		virtual std::string GetDescription() const override;
+		virtual int GetSortKey() const override;
 
 		ChessPiece* capturedPiece;
 	};
@@ -61,6 +64,7 @@ namespace ChessEngine
 		virtual bool Undo(ChessGame* game) override;
 
 		virtual std::string GetDescription() const override;
+		virtual int GetSortKey() const override;
 
 		ChessVector rookSourceLocation;
 		ChessVector rookDestinationLocation;
@@ -76,6 +80,7 @@ namespace ChessEngine
 		virtual bool Undo(ChessGame* game) override;
 
 		virtual std::string GetDescription() const override;
+		virtual int GetSortKey() const override;
 
 		void SetPromotedPiece(ChessPiece* piece);
 
@@ -97,6 +102,7 @@ namespace ChessEngine
 		virtual bool Undo(ChessGame* game) override;
 
 		virtual std::string GetDescription() const override;
+		virtual int GetSortKey() const override;
 
 		ChessVector captureLocation;
 		ChessPiece* capturedPiece;

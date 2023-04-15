@@ -66,6 +66,18 @@ std::string ChessVector::GetLocationString() const
 	return stream.str();
 }
 
+int ChessVector::TaxiCabLength() const
+{
+	return abs(this->file) + abs(this->rank);
+}
+
+int ChessVector::ShortestDistanceToBoardEdge() const
+{
+	int i = (this->file < CHESS_BOARD_FILES / 2) ? this->file : (CHESS_BOARD_FILES - 1 - this->file);
+	int j = (this->rank < CHESS_BOARD_RANKS / 2) ? this->rank : (CHESS_BOARD_RANKS - 1 - this->rank);
+	return i < j ? i : j;
+}
+
 namespace ChessEngine
 {
 	ChessVector operator+(const ChessVector& vectorA, const ChessVector& vectorB)

@@ -48,6 +48,9 @@ namespace ChessEngine
 		bool operator==(const ChessVector& vector) const;
 		bool operator!=(const ChessVector& vector) const;
 
+		int TaxiCabLength() const;
+		int ShortestDistanceToBoardEdge() const;
+
 		std::string GetLocationString() const;
 
 		int file, rank;

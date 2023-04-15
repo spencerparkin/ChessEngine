@@ -268,6 +268,9 @@ void ChessFrame::UpdatePanel()
 		const ChessEngine::ChessMove* move = wxGetApp().game->GetMove(i);
 		this->moveListBox->Insert(wxString(move->GetDescription().c_str()), i);
 	}
+
+	if (this->moveListBox->GetCount() > 0)
+		this->moveListBox->EnsureVisible(this->moveListBox->GetCount() - 1);
 }
 
 void ChessFrame::OnNewGame(wxCommandEvent& event)

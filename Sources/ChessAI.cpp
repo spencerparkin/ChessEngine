@@ -1,6 +1,8 @@
 #include "ChessAI.h"
 #include "ChessGame.h"
 #include "ChessPiece.h"
+#include "ChessMove.h"
+#include <algorithm>
 
 using namespace ChessEngine;
 
@@ -85,7 +87,10 @@ bool ChessMinimaxAI::Minimax(Goal goal, ChessColor favoredColor, ChessColor whos
 		}
 	}
 
-	// TODO: Sort legal move array in a way that might promote alpha-beta pruning.
+	// We sort the legal moves in order of possibly best to worst.  This may improve the alpha-beta pruning.
+	std::sort(legalMoveArray.begin(), legalMoveArray.end(), [&legalMoveArray](const ChessMove* moveA, const ChessMove* moveB) -> bool {
+		return moveA->GetSortKey() > moveB->GetSortKey();
+	});
 
 	score = 0;
 	switch (goal)
@@ -183,7 +188,7 @@ bool ChessMinimaxAI::Minimax(Goal goal, ChessColor favoredColor, ChessColor whos
 	return success;
 }
 
-// TODO: Adjust score here to favor a presents in the center of the board?
+// TODO: The algorithm never castles, but I know that's important.  When do we castle?
 /*virtual*/ int ChessMinimaxAI::EvaluationFunction(ChessColor favoredColor, const ChessGame* game)
 {
 	int totalScore = 0;
@@ -199,6 +204,9 @@ bool ChessMinimaxAI::Minimax(Goal goal, ChessColor favoredColor, ChessColor whos
 			if (piece)
 			{
 				int score = piece->GetScore();
+
+				// Bonus points for being closer to the center of the board.
+				score += piece->location.ShortestDistanceToBoardEdge();
 
 				if (piece->color == favoredColor)
 					totalScore += score;

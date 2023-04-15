@@ -20,6 +20,11 @@ ChessMove::ChessMove()
 	return "?";
 }
 
+/*virtual*/ int ChessMove::GetSortKey() const
+{
+	return 0;
+}
+
 //---------------------------------------- Travel ----------------------------------------
 
 Travel::Travel()
@@ -63,6 +68,11 @@ Travel::Travel()
 	std::stringstream stream;
 	stream << "Move " << this->sourceLocation.GetLocationString() << " to " << this->destinationLocation.GetLocationString();
 	return stream.str();
+}
+
+/*virtual*/ int Travel::GetSortKey() const
+{
+	return 1;
 }
 
 //---------------------------------------- Capture ----------------------------------------
@@ -117,6 +127,11 @@ Capture::Capture()
 	return stream.str();
 }
 
+/*virtual*/ int Capture::GetSortKey() const
+{
+	return 2;
+}
+
 //---------------------------------------- Castle ----------------------------------------
 
 Castle::Castle()
@@ -168,6 +183,11 @@ Castle::Castle()
 	std::stringstream stream;
 	stream << "Castle " << this->sourceLocation.GetLocationString() << " to " << this->destinationLocation.GetLocationString();
 	return stream.str();
+}
+
+/*virtual*/ int Castle::GetSortKey() const
+{
+	return 1;
 }
 
 //---------------------------------------- Promotion ----------------------------------------
@@ -229,6 +249,11 @@ void Promotion::SetPromotedPiece(ChessPiece* piece)
 	return this->cachedDesc;
 }
 
+/*virtual*/ int Promotion::GetSortKey() const
+{
+	return 3;
+}
+
 //---------------------------------------- EnPassant ----------------------------------------
 
 EnPassant::EnPassant()
@@ -287,4 +312,9 @@ EnPassant::EnPassant()
 	std::stringstream stream;
 	stream << "En Passant from " << this->sourceLocation.GetLocationString() << " to " << this->destinationLocation.GetLocationString();
 	return stream.str();
+}
+
+/*virtual*/ int EnPassant::GetSortKey() const
+{
+	return 2;
 }
