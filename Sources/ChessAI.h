@@ -49,7 +49,7 @@ namespace ChessEngine
 
 		bool Minimax(Goal goal, ChessColor favoredColor, ChessColor whoseTurn, ChessGame* game, int depth, int& score, int* currentSuperScore = nullptr);
 
-		ChessMove* bestMove;
+		ChessMoveArray* bestMoveArray;
 		int maxDepth;
 	};
 }

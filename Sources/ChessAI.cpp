@@ -3,6 +3,7 @@
 #include "ChessPiece.h"
 #include "ChessMove.h"
 #include <algorithm>
+#include <cstdlib>
 
 using namespace ChessEngine;
 
@@ -33,19 +34,23 @@ ChessAI::ChessAI()
 
 ChessMinimaxAI::ChessMinimaxAI(int maxDepth)
 {
-	this->bestMove = nullptr;
+	this->bestMoveArray = new ChessMoveArray();
 	this->maxDepth = maxDepth;
+	std::srand(0);
 }
 
 /*virtual*/ ChessMinimaxAI::~ChessMinimaxAI()
 {
+	delete this->bestMoveArray;
 }
 
 /*virtual*/ ChessMove* ChessMinimaxAI::CalculateRecommendedMove(ChessColor favoredColor, ChessGame* game)
 {
+	ChessMove* chosenMove = nullptr;
+
 	this->ProgressBegin();
 
-	this->bestMove = nullptr;
+	this->bestMoveArray->clear();
 
 	int numMoves = game->GetNumMoves();
 
@@ -54,12 +59,20 @@ ChessMinimaxAI::ChessMinimaxAI(int maxDepth)
 
 	assert(numMoves == game->GetNumMoves());
 
-	if (!success)
-		this->bestMove = nullptr;
+	if (success && this->bestMoveArray->size() > 0)
+	{
+		double alpha = double(std::rand()) / float(RAND_MAX);
+		int i = (int)::round(alpha * double(this->bestMoveArray->size()));
+		if (i < 0)
+			i = 0;
+		if (i >= (signed)this->bestMoveArray->size())
+			i = (signed)this->bestMoveArray->size() - 1;
+		chosenMove = (*this->bestMoveArray)[i];
+	}
 
 	this->ProgressEnd();
 
-	return this->bestMove;
+	return chosenMove;
 }
 
 // TODO: Could this be sped up using memoization?  It's hard to reconcile this with moves that depend on the move history, such as castling or en passant.
@@ -130,37 +143,24 @@ bool ChessMinimaxAI::Minimax(Goal goal, ChessColor favoredColor, ChessColor whos
 		if (!success)
 			break;
 
-		bool earlyOut = false;
-		switch (goal)
+		if ((goal == Goal::MINIMIZE && score > subScore) || (goal == Goal::MAXIMIZE && score < subScore))
 		{
-			case Goal::MINIMIZE:
+			score = subScore;
+
+			if (depth == 0)
 			{
-				if (score > subScore)
-				{
-					score = subScore;
-
-					if (depth == 0)
-						this->bestMove = legalMove;
-					else if (score < *currentSuperScore)
-						earlyOut = true;
-				}
-
+				this->bestMoveArray->clear();
+				this->bestMoveArray->push_back(legalMove);
+			}
+			else if ((goal == Goal::MINIMIZE && score < *currentSuperScore) || (goal == Goal::MAXIMIZE && score > *currentSuperScore))
+			{
+				// This is the so-called "alpha-beta" prune case.
 				break;
 			}
-			case Goal::MAXIMIZE:
-			{
-				if (score < subScore)
-				{
-					score = subScore;
-
-					if (depth == 0)
-						this->bestMove = legalMove;
-					else if (score > *currentSuperScore)
-						earlyOut = true;
-				}
-
-				break;
-			}
+		}
+		else if (depth == 0 && score == subScore)
+		{
+			this->bestMoveArray->push_back(legalMove);
 		}
 
 		if (depth == 0)
@@ -172,15 +172,26 @@ bool ChessMinimaxAI::Minimax(Goal goal, ChessColor favoredColor, ChessColor whos
 				break;
 			}
 		}
-		else if (earlyOut)	// This is the so-called "alpha-beta" prune case.
-			break;
 	}
 
-	if (depth == 0 && success)
+	if (depth == 0)
 	{
-		for (int i = 0; i < (signed)legalMoveArray.size(); i++)
-			if (legalMoveArray[i] == this->bestMove)
-				legalMoveArray[i] = nullptr;
+		if (!success)
+			this->bestMoveArray->clear();
+		else
+		{
+			for (int i = 0; i < (signed)legalMoveArray.size(); i++)
+			{
+				for (int j = 0; j < (signed)this->bestMoveArray->size(); j++)
+				{
+					if (legalMoveArray[i] == (*this->bestMoveArray)[j])
+					{
+						legalMoveArray[i] = nullptr;
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	DeleteMoveArray(legalMoveArray);
