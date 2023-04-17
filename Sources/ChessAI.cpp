@@ -68,6 +68,8 @@ ChessMinimaxAI::ChessMinimaxAI(int maxDepth)
 		if (i >= (signed)this->bestMoveArray->size())
 			i = (signed)this->bestMoveArray->size() - 1;
 		chosenMove = (*this->bestMoveArray)[i];
+		(*this->bestMoveArray)[i] = nullptr;
+		DeleteMoveArray(*this->bestMoveArray);
 	}
 
 	this->ProgressEnd();
