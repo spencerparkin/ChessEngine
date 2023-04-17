@@ -23,12 +23,14 @@
     <ClInclude Include="Sources\ChessBot.h" />
     <ClInclude Include="Sources\ChessCanvas.h" />
     <ClInclude Include="Sources\ChessFrame.h" />
+    <ClInclude Include="Sources\Math.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Sources\ChessApp.cpp" />
     <ClCompile Include="Sources\ChessBot.cpp" />
     <ClCompile Include="Sources\ChessCanvas.cpp" />
     <ClCompile Include="Sources\ChessFrame.cpp" />
+    <ClCompile Include="Sources\Math.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

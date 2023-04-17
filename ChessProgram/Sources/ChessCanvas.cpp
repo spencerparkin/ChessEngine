@@ -32,8 +32,11 @@ ChessCanvas::ChessCanvas(wxWindow* parent) : wxGLCanvas(parent, wxID_ANY, attrib
 	this->selectedLocation.file = -1;
 	this->selectedLocation.rank = -1;
 
-	this->hoverWorldX = 0.0f;
-	this->hoverWorldY = 0.0f;
+	this->offsetLocation.file = -1;
+	this->offsetLocation.rank = -1;
+
+	this->offsetVector.x = 0.0;
+	this->offsetVector.y = 0.0;
 }
 
 /*virtual*/ ChessCanvas::~ChessCanvas()
@@ -61,7 +64,7 @@ void ChessCanvas::OnPaint(wxPaintEvent& event)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluOrtho2D(worldBox.xMin, worldBox.xMax, worldBox.yMin, worldBox.yMax);
+	gluOrtho2D(worldBox.min.x, worldBox.max.x, worldBox.min.y, worldBox.max.y);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -86,11 +89,16 @@ void ChessCanvas::OnSize(wxSizeEvent& event)
 void ChessCanvas::OnMouseMotion(wxMouseEvent& event)
 {
 	ChessEngine::ChessVector location;
-	this->CalculateSquareLocation(event.GetPosition(), location, &this->hoverWorldX, &this->hoverWorldY);
+	Vector worldPoint;
+	this->CalculateSquareLocation(event.GetPosition(), location, &worldPoint);
 
 	if (location != this->hoverLocation || this->formulatingMove)
 	{
 		this->hoverLocation = location;
+
+		if (this->formulatingMove)
+			this->offsetVector = worldPoint - this->clickOrigin;
+
 		this->Refresh();
 	}
 }
@@ -100,7 +108,8 @@ void ChessCanvas::OnLeftMouseButtonDown(wxMouseEvent& event)
 	if (wxGetApp().GetCurrentPlayerType() == ChessApp::PlayerType::HUMAN)
 	{
 		ChessEngine::ChessVector location;
-		this->CalculateSquareLocation(event.GetPosition(), location);
+		Vector worldPoint;
+		this->CalculateSquareLocation(event.GetPosition(), location, &worldPoint);
 
 		ChessEngine::ChessPiece* piece = wxGetApp().game->GetSquareOccupant(location);
 		if (piece && piece->color == wxGetApp().whoseTurn)
@@ -108,6 +117,10 @@ void ChessCanvas::OnLeftMouseButtonDown(wxMouseEvent& event)
 			this->selectedLocation = location;
 			this->formulatingMove = true;
 			this->CaptureMouse();
+
+			this->CalculateSquareWorldCenter(location, this->clickOrigin);
+			this->offsetLocation = location;
+			this->offsetVector = worldPoint - this->clickOrigin;
 
 			wxGetApp().game->GenerateAllLegalMovesForColor(wxGetApp().whoseTurn, this->legalMoveArray);
 
@@ -175,6 +188,9 @@ void ChessCanvas::OnLeftMouseButtonUp(wxMouseEvent& event)
 		this->selectedLocation.file = -1;
 		this->selectedLocation.rank = -1;
 
+		this->offsetLocation.file = -1;
+		this->offsetLocation.rank = -1;
+
 		this->Refresh();
 	}
 }
@@ -210,76 +226,71 @@ void ChessCanvas::CalculateWorldBox(Box& worldBox) const
 
 	float aspectRatio = float(viewport[2]) / float(viewport[3]);
 
-	worldBox.xMin = 0.0f;
-	worldBox.xMax = 1.0f;
-	worldBox.yMin = 0.0f;
-	worldBox.yMax = 1.0f;
+	worldBox.min = Vector(0.0, 0.0);
+	worldBox.max = Vector(1.0, 1.0);
 
-	if (aspectRatio > 1.0f)
-	{
-		float xDelta = (aspectRatio * (worldBox.yMax - worldBox.yMin) - (worldBox.xMax - worldBox.xMin)) / 2.0f;
-		worldBox.xMin -= xDelta;
-		worldBox.xMax += xDelta;
-	}
-	else
-	{
-		float yDelta = ((1.0f / aspectRatio) * (worldBox.xMax - worldBox.xMin) - (worldBox.yMax - worldBox.yMin)) / 2.0f;
-		worldBox.yMin -= yDelta;
-		worldBox.yMax += yDelta;
-	}
+	worldBox.ScaleToMatchAspectRatio(aspectRatio);
 }
 
-bool ChessCanvas::CalculateSquareLocation(const wxPoint& mousePoint, ChessEngine::ChessVector& squareLocation, float* worldX /*= nullptr*/, float* worldY /*= nullptr*/)
+bool ChessCanvas::CalculateSquareLocation(const wxPoint& mousePoint, ChessEngine::ChessVector& squareLocation, Vector* worldPoint /*= nullptr*/)
 {
-	float worldXStorage, worldYStorage;
-	
-	if (!worldX)
-		worldX = &worldXStorage;
-
-	if (!worldY)
-		worldY = &worldYStorage;
+	Vector worldPointStorage;
+	if (!worldPoint)
+		worldPoint = &worldPointStorage;
 
 	GLint viewport[4];
 	glGetIntegerv(GL_VIEWPORT, viewport);
 
 	Box viewportBox;
-	viewportBox.xMin = float(viewport[0]);
-	viewportBox.xMax = float(viewport[2]);
-	viewportBox.yMin = float(viewport[1]);
-	viewportBox.yMax = float(viewport[3]);
+	viewportBox.min.x = double(viewport[0]);
+	viewportBox.max.x = double(viewport[2]);
+	viewportBox.min.y = double(viewport[1]);
+	viewportBox.max.y = double(viewport[3]);
 
 	Box worldBox;
 	this->CalculateWorldBox(worldBox);
 
-	float viewportX = float(mousePoint.x);
-	float viewportY = float(viewport[3] - mousePoint.y);
+	Vector viewportPoint(double(mousePoint.x), double(viewport[3] - mousePoint.y));
 
-	float u, v;
-
-	viewportBox.PointToUVs(viewportX, viewportY, u, v);
-	worldBox.PointFromUVs(*worldX, *worldY, u, v);
+	Vector uvs;
+	viewportBox.PointToUVs(viewportPoint, uvs);
+	worldBox.PointFromUVs(*worldPoint, uvs);
 
 	Box chessBox;
-	chessBox.xMin = 0.0f;
-	chessBox.xMax = 1.0f;
-	chessBox.yMin = 0.0f;
-	chessBox.yMax = 1.0f;
+	chessBox.min.x = 0.0;
+	chessBox.max.x = 1.0;
+	chessBox.min.y = 0.0;
+	chessBox.max.y = 1.0;
 
-	if (!chessBox.ContainsPoint(*worldX, *worldY))
+	if (!chessBox.ContainsPoint(*worldPoint))
 	{
 		squareLocation.file = -1;
 		squareLocation.rank = -1;
 		return false;
 	}
 
-	squareLocation.file = int(::floor(float(CHESS_BOARD_FILES) * *worldX));
-	squareLocation.rank = int(::floor(float(CHESS_BOARD_RANKS) * *worldY));
+	squareLocation.file = int(::floor(double(CHESS_BOARD_FILES) * worldPoint->x));
+	squareLocation.rank = int(::floor(double(CHESS_BOARD_RANKS) * worldPoint->y));
 
 	if (this->renderOrientation == RenderOrientation::RENDER_FLIPPED)
 	{
 		squareLocation.file = CHESS_BOARD_RANKS - 1 - squareLocation.file;
 		squareLocation.rank = CHESS_BOARD_RANKS - 1 - squareLocation.rank;
 	}
+
+	return true;
+}
+
+bool ChessCanvas::CalculateSquareWorldCenter(const ChessEngine::ChessVector& squareLocation, Vector& worldCenter)
+{
+	if (!wxGetApp().game->IsLocationValid(squareLocation))
+		return false;
+
+	double squareWidth = 1.0 / double(CHESS_BOARD_FILES);
+	double squareHeight = 1.0 / double(CHESS_BOARD_RANKS);
+
+	worldCenter.x = double(squareLocation.file) * squareWidth + squareWidth / 2.0;
+	worldCenter.y = double(squareLocation.rank) * squareHeight + squareHeight / 2.0;
 
 	return true;
 }
@@ -305,13 +316,13 @@ void ChessCanvas::ForEachBoardSquare(std::function<void(const ChessEngine::Chess
 
 	for (int i = 0; i < CHESS_BOARD_FILES; i++)
 	{
-		box.xMin = float(i) / float(CHESS_BOARD_FILES);
-		box.xMax = float(i + 1) / float(CHESS_BOARD_FILES);
+		box.min.x = float(i) / float(CHESS_BOARD_FILES);
+		box.max.x = float(i + 1) / float(CHESS_BOARD_FILES);
 
 		for (int j = 0; j < CHESS_BOARD_RANKS; j++)
 		{
-			box.yMin = float(j) / float(CHESS_BOARD_FILES);
-			box.yMax = float(j + 1) / float(CHESS_BOARD_FILES);
+			box.min.y = float(j) / float(CHESS_BOARD_FILES);
+			box.max.y = float(j + 1) / float(CHESS_BOARD_FILES);
 
 			ChessEngine::ChessVector squareLocation;
 
@@ -344,10 +355,10 @@ void ChessCanvas::RenderBoardSquare(const ChessEngine::ChessVector& squareLocati
 	else
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
-	glVertex2f(box.xMin, box.yMin);
-	glVertex2f(box.xMax, box.yMin);
-	glVertex2f(box.xMax, box.yMax);
-	glVertex2f(box.xMin, box.yMax);
+	glVertex2f(box.min.x, box.min.y);
+	glVertex2f(box.max.x, box.min.y);
+	glVertex2f(box.max.x, box.max.y);
+	glVertex2f(box.min.x, box.max.y);
 
 	glEnd();
 }
@@ -363,22 +374,10 @@ void ChessCanvas::RenderBoardSquarePiece(const ChessEngine::ChessVector& squareL
 			int texture = this->GetTextureForChessPiece(piece->GetName().c_str(), piece->color);
 			if (texture != GL_INVALID_VALUE)
 			{
-				const Box* renderBox = &box;
+				Box renderBox(box);
 
-				Box floatingBox;
-
-				if (this->formulatingMove && squareLocation == this->selectedLocation)
-				{
-					float width = 1.0f / float(CHESS_BOARD_FILES);
-					float height = 1.0f / float(CHESS_BOARD_RANKS);
-
-					floatingBox.xMin = this->hoverWorldX - width / 2.0f;
-					floatingBox.xMax = this->hoverWorldX + width / 2.0f;
-					floatingBox.yMin = this->hoverWorldY - height / 2.0f;
-					floatingBox.yMax = this->hoverWorldY + height / 2.0f;
-
-					renderBox = &floatingBox;
-				}
+				if (squareLocation == this->offsetLocation)
+					renderBox += this->offsetVector;
 
 				glEnable(GL_TEXTURE_2D);
 				glBindTexture(GL_TEXTURE_2D, texture);
@@ -389,16 +388,16 @@ void ChessCanvas::RenderBoardSquarePiece(const ChessEngine::ChessVector& squareL
 				glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 				glTexCoord2f(0.0f, 0.0f);
-				glVertex2f(renderBox->xMin, renderBox->yMin);
+				glVertex2f(renderBox.min.x, renderBox.min.y);
 
 				glTexCoord2f(1.0f, 0.0f);
-				glVertex2f(renderBox->xMax, renderBox->yMin);
+				glVertex2f(renderBox.max.x, renderBox.min.y);
 
 				glTexCoord2f(1.0f, 1.0f);
-				glVertex2f(renderBox->xMax, renderBox->yMax);
+				glVertex2f(renderBox.max.x, renderBox.max.y);
 
 				glTexCoord2f(0.0f, 1.0f);
-				glVertex2f(renderBox->xMin, renderBox->yMax);
+				glVertex2f(renderBox.min.x, renderBox.max.y);
 
 				glEnd();
 			}
@@ -439,10 +438,10 @@ void ChessCanvas::RenderBoardSquareHighlight(const ChessEngine::ChessVector& squ
 
 	glBegin(GL_LINE_LOOP);	
 
-	glVertex2f(box.xMin, box.yMin);
-	glVertex2f(box.xMax, box.yMin);
-	glVertex2f(box.xMax, box.yMax);
-	glVertex2f(box.xMin, box.yMax);
+	glVertex2f(box.min.x, box.min.y);
+	glVertex2f(box.max.x, box.min.y);
+	glVertex2f(box.max.x, box.max.y);
+	glVertex2f(box.min.x, box.max.y);
 
 	glEnd();
 }
@@ -509,27 +508,4 @@ GLuint ChessCanvas::GetTextureForChessPiece(const wxString& pieceName, ChessEngi
 	}
 
 	return texture;
-}
-
-void ChessCanvas::Box::PointToUVs(float x, float y, float& u, float& v) const
-{
-	u = (x - this->xMin) / (this->xMax - this->xMin);
-	v = (y - this->yMin) / (this->yMax - this->yMin);
-}
-
-void ChessCanvas::Box::PointFromUVs(float& x, float& y, float u, float v) const
-{
-	x = this->xMin + u * (this->xMax - this->xMin);
-	y = this->yMin + v * (this->yMax - this->yMin);
-}
-
-bool ChessCanvas::Box::ContainsPoint(float x, float y) const
-{
-	if (!(this->xMin <= x && x <= this->xMax))
-		return false;
-
-	if (!(this->yMin <= y && y <= this->yMax))
-		return false;
-
-	return true;
 }

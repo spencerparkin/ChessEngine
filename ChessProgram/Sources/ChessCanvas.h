@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ChessCommon.h"
+#include "Math.h"
 #include <wx/glcanvas.h>
 #include <wx/hashmap.h>
 #include <functional>
@@ -22,17 +23,6 @@ public:
 	void OnLeftMouseButtonUp(wxMouseEvent& event);
 	void OnCaptureLost(wxMouseCaptureLostEvent& event);
 
-	struct Box
-	{
-		float xMin, xMax;
-		float yMin, yMax;
-
-		void PointToUVs(float x, float y, float& u, float& v) const;
-		void PointFromUVs(float& x, float& y, float u, float v) const;
-		
-		bool ContainsPoint(float x, float y) const;
-	};
-
 	enum class RenderOrientation
 	{
 		RENDER_NORMAL,
@@ -53,7 +43,8 @@ private:
 	GLuint GetTextureForChessPiece(const wxString& pieceName, ChessEngine::ChessColor color);
 
 	void CalculateWorldBox(Box& worldBox) const;
-	bool CalculateSquareLocation(const wxPoint& mousePoint, ChessEngine::ChessVector& squareLocation, float* worldX = nullptr, float* worldY = nullptr);
+	bool CalculateSquareLocation(const wxPoint& mousePoint, ChessEngine::ChessVector& squareLocation, Vector* worldPoint = nullptr);
+	bool CalculateSquareWorldCenter(const ChessEngine::ChessVector& squareLocation, Vector& worldCenter);
 
 	bool FindLegalMoves(const ChessEngine::ChessVector& sourceLocation, const ChessEngine::ChessVector& destinationLocation, ChessEngine::ChessMoveArray& moveArray);
 
@@ -64,6 +55,7 @@ private:
 	ChessEngine::ChessVector selectedLocation;
 	ChessEngine::ChessMoveArray legalMoveArray;
 	bool formulatingMove;
-	float hoverWorldX;
-	float hoverWorldY;
+	ChessEngine::ChessVector offsetLocation;
+	Vector offsetVector;
+	Vector clickOrigin;
 };
