@@ -201,7 +201,6 @@ bool ChessMinimaxAI::Minimax(Goal goal, ChessColor favoredColor, ChessColor whos
 	return success;
 }
 
-// TODO: The algorithm never castles, but I know that's important.  When do we castle?
 /*virtual*/ int ChessMinimaxAI::EvaluationFunction(ChessColor favoredColor, const ChessGame* game)
 {
 	int totalScore = 0;
