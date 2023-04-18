@@ -11,9 +11,7 @@
 #include <wx/aboutdlg.h>
 #include <wx/msgdlg.h>
 
-// TODO: Implement computer-suggested move using mini-max algorithm.
-
-ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size) : wxFrame(parent, wxID_ANY, "Chess", pos, size)
+ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size) : wxFrame(parent, wxID_ANY, "Chess", pos, size), timer(this)
 {
 	wxMenu* gameMenu = new wxMenu();
 	gameMenu->Append(new wxMenuItem(gameMenu, ID_NewGame, "New Game", "Start a new game of Chess."));
@@ -57,6 +55,7 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_ComputerDifficultyMedium);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_ComputerDifficultyHard);
 	this->Bind(EVT_GAME_STATE_CHANGED, &ChessFrame::OnGameStateChanged, this);
+	this->Bind(wxEVT_TIMER, &ChessFrame::OnTimerTick, this);
 
 	wxSplitterWindow* splitter = new wxSplitterWindow(this);
 
@@ -94,6 +93,8 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 
 	this->UpdateStatusBar();
 	this->UpdatePanel();
+
+	this->timer.Start(60);
 }
 
 /*virtual*/ ChessFrame::~ChessFrame()
@@ -210,27 +211,36 @@ void ChessFrame::OnGameStateChanged(wxCommandEvent& event)
 
 	this->UpdateStatusBar();
 	this->UpdatePanel();
+}
 
-	if (wxGetApp().GetCurrentPlayerType() == ChessApp::PlayerType::COMPUTER)
+void ChessFrame::OnTimerTick(wxTimerEvent& event)
+{
+	double deltaTimeSeconds = double(this->timer.GetInterval()) / 1000.0;
+	this->canvas->Animate(deltaTimeSeconds);
+
+	if (wxGetApp().GetCurrentPlayerType() == ChessApp::PlayerType::COMPUTER && !this->canvas->IsAnimating())
+		this->ComputerTakesTurn();
+}
+
+void ChessFrame::ComputerTakesTurn()
+{
+	ChessEngine::ChessMove* move = wxGetApp().bot->CalculateRecommendedMove(wxGetApp().whoseTurn, wxGetApp().game);
+	if (!move)
 	{
-		ChessEngine::ChessMove* move = wxGetApp().bot->CalculateRecommendedMove(wxGetApp().whoseTurn, wxGetApp().game);
-		if (!move)
-		{
-			wxMessageBox("The computer has failed and will now cower in shame.", "Error!", wxICON_ERROR, wxGetApp().frame);
-			wxGetApp().SetCurrentPlayerType(ChessApp::PlayerType::HUMAN);
-		}
-		else
-		{
-			this->canvas->AnimateMove(move);
+		wxGetApp().SetPlayerType(ChessEngine::ChessColor::White, ChessApp::PlayerType::HUMAN);
+		wxGetApp().SetPlayerType(ChessEngine::ChessColor::Black, ChessApp::PlayerType::HUMAN);
+	}
+	else
+	{
+		this->canvas->AnimateMove(move);
 
-			wxGetApp().game->PushMove(move);
-			wxGetApp().FlipTurn();
+		wxGetApp().game->PushMove(move);
+		wxGetApp().FlipTurn();
 
-			wxCommandEvent stateChangedEvent(EVT_GAME_STATE_CHANGED);
-			wxPostEvent(wxGetApp().frame, stateChangedEvent);
+		wxCommandEvent stateChangedEvent(EVT_GAME_STATE_CHANGED);
+		wxPostEvent(wxGetApp().frame, stateChangedEvent);
 
-			this->canvas->Refresh();
-		}
+		this->canvas->Refresh();
 	}
 }
 

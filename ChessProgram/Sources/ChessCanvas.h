@@ -23,9 +23,10 @@ public:
 	void OnLeftMouseButtonDown(wxMouseEvent& event);
 	void OnLeftMouseButtonUp(wxMouseEvent& event);
 	void OnCaptureLost(wxMouseCaptureLostEvent& event);
-	void OnTimerTick(wxTimerEvent& event);
 
 	void AnimateMove(const ChessEngine::ChessMove* move);
+	void Animate(double deltaTimeSeconds);
+	bool IsAnimating() { return this->animating; }
 
 	enum class RenderOrientation
 	{
@@ -62,6 +63,5 @@ private:
 	ChessEngine::ChessVector offsetLocation;
 	Vector offsetVector;
 	Vector clickOrigin;
-	wxTimer timer;
 	bool animating;
 };

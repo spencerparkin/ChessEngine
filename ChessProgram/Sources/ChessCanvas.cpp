@@ -25,7 +25,6 @@ ChessCanvas::ChessCanvas(wxWindow* parent) : wxGLCanvas(parent, wxID_ANY, attrib
 	this->Bind(wxEVT_LEFT_DOWN, &ChessCanvas::OnLeftMouseButtonDown, this);
 	this->Bind(wxEVT_LEFT_UP, &ChessCanvas::OnLeftMouseButtonUp, this);
 	this->Bind(wxEVT_MOUSE_CAPTURE_LOST, &ChessCanvas::OnCaptureLost, this);
-	this->Bind(wxEVT_TIMER, &ChessCanvas::OnTimerTick, this);
 
 	this->hoverLocation.file = -1;
 	this->hoverLocation.rank = -1;
@@ -40,9 +39,6 @@ ChessCanvas::ChessCanvas(wxWindow* parent) : wxGLCanvas(parent, wxID_ANY, attrib
 	this->offsetVector.y = 0.0;
 
 	this->animating = false;
-
-	this->timer.SetOwner(this);
-	this->timer.Start(60);
 }
 
 /*virtual*/ ChessCanvas::~ChessCanvas()
@@ -65,11 +61,10 @@ void ChessCanvas::AnimateMove(const ChessEngine::ChessMove* move)
 	this->animating = true;
 }
 
-void ChessCanvas::OnTimerTick(wxTimerEvent& event)
+void ChessCanvas::Animate(double deltaTimeSeconds)
 {
 	if (this->animating)
 	{
-		double deltaTimeSeconds = double(this->timer.GetInterval()) / 1000.0;
 		double oldLength = this->offsetVector.Length();
 		double moveRate = 0.5;
 		double newLength = oldLength - moveRate * deltaTimeSeconds;

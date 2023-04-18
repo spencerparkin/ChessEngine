@@ -5,6 +5,7 @@
 #include <wx/listbox.h>
 #include <wx/button.h>
 #include <wx/gauge.h>
+#include <wx/timer.h>
 
 class ChessCanvas;
 
@@ -24,6 +25,7 @@ public:
 	void OnRedo(wxCommandEvent& event);
 	void OnColorPlayerdByComputer(wxCommandEvent& event);
 	void OnComputerDifficulty(wxCommandEvent& event);
+	void OnTimerTick(wxTimerEvent& event);
 
 	enum
 	{
@@ -40,6 +42,7 @@ public:
 
 	void UpdateStatusBar();
 	void UpdatePanel();
+	void ComputerTakesTurn();
 
 	ChessCanvas* canvas;
 	wxListBox* moveListBox;
@@ -47,4 +50,5 @@ public:
 	wxButton* redoButton;
 	wxGauge* gaugeBar;
 	ChessEngine::ChessMoveArray redoMoveArray;
+	wxTimer timer;
 };
