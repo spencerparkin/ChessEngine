@@ -11,6 +11,8 @@ public:
 	void operator=(const Vector& vector);
 	void operator+=(const Vector& vector);
 	void operator-=(const Vector& vector);
+	void operator*=(double scalar);
+	void operator/=(double scalar);
 
 	double Dot(const Vector& vector) const;
 	double Cross(const Vector& vector) const;

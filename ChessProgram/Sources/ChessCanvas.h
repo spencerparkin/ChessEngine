@@ -4,6 +4,7 @@
 #include "Math.h"
 #include <wx/glcanvas.h>
 #include <wx/hashmap.h>
+#include <wx/timer.h>
 #include <functional>
 
 WX_DECLARE_STRING_HASH_MAP(GLuint, TextureMap);
@@ -22,6 +23,9 @@ public:
 	void OnLeftMouseButtonDown(wxMouseEvent& event);
 	void OnLeftMouseButtonUp(wxMouseEvent& event);
 	void OnCaptureLost(wxMouseCaptureLostEvent& event);
+	void OnTimerTick(wxTimerEvent& event);
+
+	void AnimateMove(const ChessEngine::ChessMove* move);
 
 	enum class RenderOrientation
 	{
@@ -58,4 +62,6 @@ private:
 	ChessEngine::ChessVector offsetLocation;
 	Vector offsetVector;
 	Vector clickOrigin;
+	wxTimer timer;
+	bool animating;
 };

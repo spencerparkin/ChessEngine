@@ -221,6 +221,8 @@ void ChessFrame::OnGameStateChanged(wxCommandEvent& event)
 		}
 		else
 		{
+			this->canvas->AnimateMove(move);
+
 			wxGetApp().game->PushMove(move);
 			wxGetApp().FlipTurn();
 

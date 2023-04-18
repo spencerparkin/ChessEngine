@@ -43,6 +43,18 @@ void Vector::operator-=(const Vector& vector)
 	this->y -= vector.y;
 }
 
+void Vector::operator*=(double scalar)
+{
+	this->x *= scalar;
+	this->y *= scalar;
+}
+
+void Vector::operator/=(double scalar)
+{
+	this->x /= scalar;
+	this->y /= scalar;
+}
+
 double Vector::Dot(const Vector& vector) const
 {
 	return this->x * vector.x + this->y * vector.y;

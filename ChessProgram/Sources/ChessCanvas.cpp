@@ -25,6 +25,7 @@ ChessCanvas::ChessCanvas(wxWindow* parent) : wxGLCanvas(parent, wxID_ANY, attrib
 	this->Bind(wxEVT_LEFT_DOWN, &ChessCanvas::OnLeftMouseButtonDown, this);
 	this->Bind(wxEVT_LEFT_UP, &ChessCanvas::OnLeftMouseButtonUp, this);
 	this->Bind(wxEVT_MOUSE_CAPTURE_LOST, &ChessCanvas::OnCaptureLost, this);
+	this->Bind(wxEVT_TIMER, &ChessCanvas::OnTimerTick, this);
 
 	this->hoverLocation.file = -1;
 	this->hoverLocation.rank = -1;
@@ -37,6 +38,11 @@ ChessCanvas::ChessCanvas(wxWindow* parent) : wxGLCanvas(parent, wxID_ANY, attrib
 
 	this->offsetVector.x = 0.0;
 	this->offsetVector.y = 0.0;
+
+	this->animating = false;
+
+	this->timer.SetOwner(this);
+	this->timer.Start(60);
 }
 
 /*virtual*/ ChessCanvas::~ChessCanvas()
@@ -44,6 +50,43 @@ ChessCanvas::ChessCanvas(wxWindow* parent) : wxGLCanvas(parent, wxID_ANY, attrib
 	delete this->renderContext;
 
 	ChessEngine::DeleteMoveArray(this->legalMoveArray);
+}
+
+void ChessCanvas::AnimateMove(const ChessEngine::ChessMove* move)
+{
+	Vector worldSourcePoint, worldDestinationPoint;
+
+	this->CalculateSquareWorldCenter(move->sourceLocation, worldSourcePoint);
+	this->CalculateSquareWorldCenter(move->destinationLocation, worldDestinationPoint);
+
+	this->offsetLocation = move->destinationLocation;
+	this->offsetVector = worldSourcePoint - worldDestinationPoint;
+	
+	this->animating = true;
+}
+
+void ChessCanvas::OnTimerTick(wxTimerEvent& event)
+{
+	if (this->animating)
+	{
+		double deltaTimeSeconds = double(this->timer.GetInterval()) / 1000.0;
+		double oldLength = this->offsetVector.Length();
+		double moveRate = 0.5;
+		double newLength = oldLength - moveRate * deltaTimeSeconds;
+		if (newLength <= 0.0)
+		{
+			this->animating = false;
+			this->offsetLocation.file = -1;
+			this->offsetLocation.rank = -1;
+		}
+		else
+		{
+			this->offsetVector /= oldLength;
+			this->offsetVector *= newLength;
+		}
+
+		this->Refresh();
+	}
 }
 
 void ChessCanvas::OnPaint(wxPaintEvent& event)
@@ -121,6 +164,7 @@ void ChessCanvas::OnLeftMouseButtonDown(wxMouseEvent& event)
 			this->CalculateSquareWorldCenter(location, this->clickOrigin);
 			this->offsetLocation = location;
 			this->offsetVector = worldPoint - this->clickOrigin;
+			this->animating = false;
 
 			wxGetApp().game->GenerateAllLegalMovesForColor(wxGetApp().whoseTurn, this->legalMoveArray);
 
