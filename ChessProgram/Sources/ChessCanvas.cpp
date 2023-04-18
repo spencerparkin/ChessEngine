@@ -337,8 +337,11 @@ bool ChessCanvas::CalculateSquareWorldCenter(const ChessEngine::ChessVector& squ
 	double squareWidth = 1.0 / double(CHESS_BOARD_FILES);
 	double squareHeight = 1.0 / double(CHESS_BOARD_RANKS);
 
-	worldCenter.x = double(squareLocation.file) * squareWidth + squareWidth / 2.0;
-	worldCenter.y = double(squareLocation.rank) * squareHeight + squareHeight / 2.0;
+	int i = (this->renderOrientation == RenderOrientation::RENDER_FLIPPED) ? (CHESS_BOARD_FILES - 1 - squareLocation.file) : squareLocation.file;
+	int j = (this->renderOrientation == RenderOrientation::RENDER_FLIPPED) ? (CHESS_BOARD_RANKS - 1 - squareLocation.rank) : squareLocation.rank;
+
+	worldCenter.x = double(i) * squareWidth + squareWidth / 2.0;
+	worldCenter.y = double(j) * squareHeight + squareHeight / 2.0;
 
 	return true;
 }
@@ -516,8 +519,22 @@ void ChessCanvas::RenderBoardCoordinates(const ChessEngine::ChessVector& squareL
 		if (texture != GL_INVALID_VALUE)
 		{
 			Box renderBox;
-			box.PointFromUVs(renderBox.min, Vector(0.0, 3.0 / 4.0));
-			box.PointFromUVs(renderBox.max, Vector(1.0 / 4.0, 1.0));
+
+			switch (this->renderOrientation)
+			{
+				case RenderOrientation::RENDER_NORMAL:
+				{
+					box.PointFromUVs(renderBox.min, Vector(0.0, 3.0 / 4.0));
+					box.PointFromUVs(renderBox.max, Vector(1.0 / 4.0, 1.0));
+					break;
+				}
+				case RenderOrientation::RENDER_FLIPPED:
+				{
+					box.PointFromUVs(renderBox.min, Vector(3.0 / 4.0, 0.0));
+					box.PointFromUVs(renderBox.max, Vector(1.0, 1.0 / 4.0));
+					break;
+				}
+			}
 
 			this->RenderTexturedQuad(renderBox, texture);
 		}
@@ -532,8 +549,22 @@ void ChessCanvas::RenderBoardCoordinates(const ChessEngine::ChessVector& squareL
 		if (texture != GL_INVALID_VALUE)
 		{
 			Box renderBox;
-			box.PointFromUVs(renderBox.min, Vector(3.0 / 4.0, 0.0));
-			box.PointFromUVs(renderBox.max, Vector(1.0, 1.0 / 4.0));
+
+			switch (this->renderOrientation)
+			{
+				case RenderOrientation::RENDER_NORMAL:
+				{
+					box.PointFromUVs(renderBox.min, Vector(3.0 / 4.0, 0.0));
+					box.PointFromUVs(renderBox.max, Vector(1.0, 1.0 / 4.0));
+					break;
+				}
+				case RenderOrientation::RENDER_FLIPPED:
+				{
+					box.PointFromUVs(renderBox.min, Vector(0.0, 3.0 / 4.0));
+					box.PointFromUVs(renderBox.max, Vector(1.0 / 4.0, 1.0));
+					break;
+				}
+			}
 
 			this->RenderTexturedQuad(renderBox, texture);
 		}
