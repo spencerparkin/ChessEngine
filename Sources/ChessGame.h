@@ -1,19 +1,25 @@
 #pragma once
 
 #include "ChessCommon.h"
+#include "ChessObject.h"
 
 namespace ChessEngine
 {
 	class ChessPiece;
 	class ChessMove;
 
-	class CHESS_ENGINE_API ChessGame
+	class CHESS_ENGINE_API ChessGame : public ChessObject
 	{
 	public:
 		ChessGame();
 		virtual ~ChessGame();
 
 		void Reset();
+
+		virtual bool WriteToStream(std::ostream& stream) const override;
+		virtual bool ReadFromStream(std::istream& stream) override;
+
+		virtual Code GetCode() const override;
 
 		bool IsLocationValid(const ChessVector& location) const;
 

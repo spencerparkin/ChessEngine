@@ -23,6 +23,7 @@
     <ClInclude Include="Sources\ChessCommon.h" />
     <ClInclude Include="Sources\ChessGame.h" />
     <ClInclude Include="Sources\ChessMove.h" />
+    <ClInclude Include="Sources\ChessObject.h" />
     <ClInclude Include="Sources\ChessPiece.h" />
   </ItemGroup>
   <ItemGroup>
@@ -30,6 +31,7 @@
     <ClCompile Include="Sources\ChessCommon.cpp" />
     <ClCompile Include="Sources\ChessGame.cpp" />
     <ClCompile Include="Sources\ChessMove.cpp" />
+    <ClCompile Include="Sources\ChessObject.cpp" />
     <ClCompile Include="Sources\ChessPiece.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

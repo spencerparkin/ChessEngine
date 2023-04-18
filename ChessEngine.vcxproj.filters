@@ -22,6 +22,9 @@
     <ClInclude Include="Sources\ChessAI.h">
       <Filter>Sources</Filter>
     </ClInclude>
+    <ClInclude Include="Sources\ChessObject.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Sources\ChessGame.cpp">
@@ -37,6 +40,9 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="Sources\ChessAI.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\ChessObject.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>

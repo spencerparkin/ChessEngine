@@ -1,13 +1,14 @@
 #pragma once
 
 #include "ChessCommon.h"
+#include "ChessObject.h"
 
 namespace ChessEngine
 {
 	class ChessGame;
 	class ChessPiece;
 
-	class CHESS_ENGINE_API ChessMove
+	class CHESS_ENGINE_API ChessMove : public ChessObject
 	{
 	public:
 		ChessMove();
@@ -22,6 +23,12 @@ namespace ChessEngine
 		virtual std::string GetDescription() const;
 		virtual int GetSortKey() const;
 
+		virtual bool WriteToStream(std::ostream& stream) const override;
+		virtual bool ReadFromStream(std::istream& stream) override;
+
+		bool WritePiece(std::ostream& stream, const ChessPiece* piece) const;
+		bool ReadPiece(std::istream& stream, ChessPiece*& piece) const;
+
 		ChessVector sourceLocation;
 		ChessVector destinationLocation;
 	};
@@ -34,6 +41,8 @@ namespace ChessEngine
 
 		virtual bool Do(ChessGame* game) override;
 		virtual bool Undo(ChessGame* game) override;
+
+		virtual Code GetCode() const override;
 
 		virtual std::string GetDescription() const override;
 		virtual int GetSortKey() const override;
@@ -51,6 +60,11 @@ namespace ChessEngine
 		virtual std::string GetDescription() const override;
 		virtual int GetSortKey() const override;
 
+		virtual bool WriteToStream(std::ostream& stream) const override;
+		virtual bool ReadFromStream(std::istream& stream) override;
+
+		virtual Code GetCode() const override;
+
 		ChessPiece* capturedPiece;
 	};
 
@@ -65,6 +79,11 @@ namespace ChessEngine
 
 		virtual std::string GetDescription() const override;
 		virtual int GetSortKey() const override;
+
+		virtual bool WriteToStream(std::ostream& stream) const override;
+		virtual bool ReadFromStream(std::istream& stream) override;
+
+		virtual Code GetCode() const override;
 
 		ChessVector rookSourceLocation;
 		ChessVector rookDestinationLocation;
@@ -81,6 +100,11 @@ namespace ChessEngine
 
 		virtual std::string GetDescription() const override;
 		virtual int GetSortKey() const override;
+
+		virtual bool WriteToStream(std::ostream& stream) const override;
+		virtual bool ReadFromStream(std::istream& stream) override;
+
+		virtual Code GetCode() const override;
 
 		void SetPromotedPiece(ChessPiece* piece);
 
@@ -103,6 +127,11 @@ namespace ChessEngine
 
 		virtual std::string GetDescription() const override;
 		virtual int GetSortKey() const override;
+
+		virtual bool WriteToStream(std::ostream& stream) const override;
+		virtual bool ReadFromStream(std::istream& stream) override;
+
+		virtual Code GetCode() const override;
 
 		ChessVector captureLocation;
 		ChessPiece* capturedPiece;

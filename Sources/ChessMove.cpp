@@ -25,6 +25,56 @@ ChessMove::ChessMove()
 	return 0;
 }
 
+/*virtual*/ bool ChessMove::WriteToStream(std::ostream& stream) const
+{
+	stream << this->sourceLocation.file << this->sourceLocation.rank;
+	stream << this->destinationLocation.file << this->destinationLocation.rank;
+	return true;
+}
+
+/*virtual*/ bool ChessMove::ReadFromStream(std::istream& stream)
+{
+	stream >> this->sourceLocation.file >> this->sourceLocation.rank;
+	stream >> this->destinationLocation.file >> this->destinationLocation.rank;
+	return true;
+}
+
+bool ChessMove::WritePiece(std::ostream& stream, const ChessPiece* piece) const
+{
+	if (!piece)
+	{
+		char code = (char)Code::EMPTY;
+		stream << code;
+	}
+	else
+	{
+		char code = (char)piece->GetCode();
+		stream << code;
+		if (!piece->WriteToStream(stream))
+			return false;
+	}
+
+	return true;
+}
+
+bool ChessMove::ReadPiece(std::istream& stream, ChessPiece*& piece) const
+{
+	char code = (char)Code::EMPTY;
+	stream >> code;
+	ChessObject* object = ChessObject::Factory((Code)code);
+	if (object)
+	{
+		piece = dynamic_cast<ChessPiece*>(object);
+		if (!piece)
+		{
+			delete object;
+			return false;
+		}
+	}
+
+	return true;
+}
+
 //---------------------------------------- Travel ----------------------------------------
 
 Travel::Travel()
@@ -33,6 +83,11 @@ Travel::Travel()
 
 /*virtual*/ Travel::~Travel()
 {
+}
+
+/*virtual*/ ChessObject::Code Travel::GetCode() const
+{
+	return Code::TRAVEL;
 }
 
 /*virtual*/ bool Travel::Do(ChessGame* game)
@@ -87,6 +142,11 @@ Capture::Capture()
 	delete this->capturedPiece;
 }
 
+/*virtual*/ ChessObject::Code Capture::GetCode() const
+{
+	return Code::CAPTURE;
+}
+
 /*virtual*/ bool Capture::Do(ChessGame* game)
 {
 	ChessPiece* piece = game->GetSquareOccupant(this->sourceLocation);
@@ -132,6 +192,28 @@ Capture::Capture()
 	return 2;
 }
 
+/*virtual*/ bool Capture::WriteToStream(std::ostream& stream) const
+{
+	if (!ChessMove::WriteToStream(stream))
+		return false;
+
+	if (!this->WritePiece(stream, this->capturedPiece))
+		return false;
+
+	return true;
+}
+
+/*virtual*/ bool Capture::ReadFromStream(std::istream& stream)
+{
+	if (!ChessMove::ReadFromStream(stream))
+		return false;
+
+	if (!this->ReadPiece(stream, this->capturedPiece))
+		return false;
+
+	return true;
+}
+
 //---------------------------------------- Castle ----------------------------------------
 
 Castle::Castle()
@@ -140,6 +222,11 @@ Castle::Castle()
 
 /*virtual*/ Castle::~Castle()
 {
+}
+
+/*virtual*/ ChessObject::Code Castle::GetCode() const
+{
+	return Code::CASTLE;
 }
 
 /*virtual*/ bool Castle::Do(ChessGame* game)
@@ -190,6 +277,26 @@ Castle::Castle()
 	return 1;
 }
 
+/*virtual*/ bool Castle::WriteToStream(std::ostream& stream) const
+{
+	if (!ChessMove::WriteToStream(stream))
+		return false;
+
+	stream << this->rookSourceLocation.file << this->rookSourceLocation.rank;
+	stream << this->rookDestinationLocation.file << this->rookDestinationLocation.rank;
+	return true;
+}
+
+/*virtual*/ bool Castle::ReadFromStream(std::istream& stream)
+{
+	if (!ChessMove::ReadFromStream(stream))
+		return false;
+
+	stream >> this->rookSourceLocation.file >> this->rookSourceLocation.rank;
+	stream >> this->rookDestinationLocation.file >> this->rookDestinationLocation.rank;
+	return true;
+}
+
 //---------------------------------------- Promotion ----------------------------------------
 
 Promotion::Promotion()
@@ -204,6 +311,11 @@ Promotion::Promotion()
 {
 	delete this->newPiece;
 	delete this->oldPiece;
+}
+
+/*virtual*/ ChessObject::Code Promotion::GetCode() const
+{
+	return Code::PROMOTION;
 }
 
 /*virtual*/ bool Promotion::Do(ChessGame* game)
@@ -254,6 +366,34 @@ void Promotion::SetPromotedPiece(ChessPiece* piece)
 	return 3;
 }
 
+/*virtual*/ bool Promotion::WriteToStream(std::ostream& stream) const
+{
+	if (!ChessMove::WriteToStream(stream))
+		return false;
+
+	if (!this->WritePiece(stream, this->newPiece))
+		return false;
+
+	if (!this->WritePiece(stream, this->oldPiece))
+		return false;
+
+	return true;
+}
+
+/*virtual*/ bool Promotion::ReadFromStream(std::istream& stream)
+{
+	if (!ChessMove::ReadFromStream(stream))
+		return false;
+
+	if (!this->ReadPiece(stream, this->newPiece))
+		return false;
+
+	if (!this->ReadPiece(stream, this->oldPiece))
+		return false;
+
+	return true;
+}
+
 //---------------------------------------- EnPassant ----------------------------------------
 
 EnPassant::EnPassant()
@@ -264,6 +404,11 @@ EnPassant::EnPassant()
 /*virtual*/ EnPassant::~EnPassant()
 {
 	delete this->capturedPiece;
+}
+
+/*virtual*/ ChessObject::Code EnPassant::GetCode() const
+{
+	return Code::EN_PASSANT;
 }
 
 /*virtual*/ bool EnPassant::Do(ChessGame* game)
@@ -317,4 +462,30 @@ EnPassant::EnPassant()
 /*virtual*/ int EnPassant::GetSortKey() const
 {
 	return 2;
+}
+
+/*virtual*/ bool EnPassant::WriteToStream(std::ostream& stream) const
+{
+	if (!ChessMove::WriteToStream(stream))
+		return false;
+
+	stream << this->captureLocation.file << this->captureLocation.rank;
+	
+	if (!this->WritePiece(stream, this->capturedPiece))
+		return false;
+
+	return true;
+}
+
+/*virtual*/ bool EnPassant::ReadFromStream(std::istream& stream)
+{
+	if (!ChessMove::ReadFromStream(stream))
+		return false;
+
+	stream >> this->captureLocation.file >> this->captureLocation.rank;
+
+	if (!this->ReadPiece(stream, this->capturedPiece))
+		return false;
+
+	return true;
 }

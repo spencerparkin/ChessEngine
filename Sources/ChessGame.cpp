@@ -20,6 +20,11 @@ ChessGame::ChessGame()
 	delete this->chessMoveStack;
 }
 
+/*virtual*/ ChessObject::Code ChessGame::GetCode() const
+{
+	return Code::GAME;
+}
+
 void ChessGame::Clear()
 {
 	for (int i = 0; i < CHESS_BOARD_FILES; i++)
@@ -66,6 +71,85 @@ void ChessGame::Reset()
 	new King(this, ChessVector(4, 0), ChessColor::White);
 	new Queen(this, ChessVector(3, 7), ChessColor::Black);
 	new King(this, ChessVector(4, 7), ChessColor::Black);
+}
+
+/*virtual*/ bool ChessGame::WriteToStream(std::ostream& stream) const
+{
+	for (int i = 0; i < CHESS_BOARD_FILES; i++)
+	{
+		for (int j = 0; j < CHESS_BOARD_RANKS; j++)
+		{
+			const ChessPiece* piece = this->boardMatrix[i][j];
+			if (!piece)
+				stream << (char)Code::EMPTY;
+			else
+			{
+				char code = (char)piece->GetCode();
+				stream << code;
+				piece->WriteToStream(stream);
+			}
+		}
+	}
+
+	int numMoves = this->chessMoveStack->size();
+	stream << numMoves;
+
+	for (int i = 0; i < (signed)this->chessMoveStack->size(); i++)
+	{
+		const ChessMove* move = (*this->chessMoveStack)[i];
+		char code = (char)move->GetCode();
+		stream << code;
+		move->WriteToStream(stream);
+	}
+
+	return true;
+}
+
+/*virtual*/ bool ChessGame::ReadFromStream(std::istream& stream)
+{
+	this->Clear();
+
+	for (int i = 0; i < CHESS_BOARD_FILES; i++)
+	{
+		for (int j = 0; j < CHESS_BOARD_RANKS; j++)
+		{
+			char code = -1;
+			stream >> code;
+			ChessObject* object = ChessObject::Factory((Code)code);
+			if (!object)
+				return false;
+			ChessPiece* piece = dynamic_cast<ChessPiece*>(object);
+			if (piece)
+			{
+				this->SetSquareOccupant(ChessVector(i, j), piece);
+				if (!piece->ReadFromStream(stream))
+					return false;
+			}
+		}
+	}
+
+	int numMoves = -1;
+	stream >> numMoves;
+
+	for (int i = 0; i < numMoves; i++)
+	{
+		char code = -1;
+		stream >> code;
+		ChessObject* object = ChessObject::Factory((Code)code);
+		if (!object)
+			return false;
+		ChessMove* move = dynamic_cast<ChessMove*>(object);
+		if (!move)
+		{
+			delete move;
+			return false;
+		}
+		this->chessMoveStack->push_back(move);
+		if (!move->ReadFromStream(stream))
+			return false;
+	}
+
+	return true;
 }
 
 bool ChessGame::IsLocationValid(const ChessVector& location) const

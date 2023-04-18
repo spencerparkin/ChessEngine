@@ -1,13 +1,14 @@
 #pragma once
 
 #include "ChessCommon.h"
+#include "ChessObject.h"
 #include <string>
 
 namespace ChessEngine
 {
 	class ChessGame;
 
-	class CHESS_ENGINE_API ChessPiece
+	class CHESS_ENGINE_API ChessPiece : public ChessObject
 	{
 	public:
 		ChessPiece(ChessGame* game, const ChessVector& location, ChessColor color);
@@ -15,6 +16,9 @@ namespace ChessEngine
 
 		virtual std::string GetName() const = 0;
 		virtual int GetScore() const = 0;
+
+		virtual bool WriteToStream(std::ostream& stream) const override;
+		virtual bool ReadFromStream(std::istream& stream) override;
 
 		// Note that overrides of this method should generate all possible moves for the chess
 		// piece regardless of who's turn it is, check, check-mate, stale mate, or even the
@@ -37,6 +41,7 @@ namespace ChessEngine
 
 		std::string GetName() const override;
 		virtual int GetScore() const override;
+		virtual Code GetCode() const override;
 
 		virtual void GenerateAllPossibleMoves(ChessMoveArray& moveArray) const override;
 	};
@@ -49,6 +54,7 @@ namespace ChessEngine
 
 		std::string GetName() const override;
 		virtual int GetScore() const override;
+		virtual Code GetCode() const override;
 
 		virtual void GenerateAllPossibleMoves(ChessMoveArray& moveArray) const override;
 	};
@@ -61,6 +67,7 @@ namespace ChessEngine
 
 		std::string GetName() const override;
 		virtual int GetScore() const override;
+		virtual Code GetCode() const override;
 
 		virtual void GenerateAllPossibleMoves(ChessMoveArray& moveArray) const override;
 	};
@@ -73,6 +80,7 @@ namespace ChessEngine
 
 		std::string GetName() const override;
 		virtual int GetScore() const override;
+		virtual Code GetCode() const override;
 
 		virtual void GenerateAllPossibleMoves(ChessMoveArray& moveArray) const override;
 	};
@@ -85,6 +93,7 @@ namespace ChessEngine
 
 		std::string GetName() const override;
 		virtual int GetScore() const override;
+		virtual Code GetCode() const override;
 
 		virtual void GenerateAllPossibleMoves(ChessMoveArray& moveArray) const override;
 	};
@@ -97,6 +106,7 @@ namespace ChessEngine
 
 		std::string GetName() const override;
 		virtual int GetScore() const override;
+		virtual Code GetCode() const override;
 
 		virtual void GenerateAllPossibleMoves(ChessMoveArray& moveArray) const override;
 	};

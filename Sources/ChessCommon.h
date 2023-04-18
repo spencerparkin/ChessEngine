@@ -11,6 +11,7 @@
 #include <vector>
 #include <list>
 #include <string>
+#include <iostream>
 #include <math.h>
 #include <limits.h>
 #include <assert.h>

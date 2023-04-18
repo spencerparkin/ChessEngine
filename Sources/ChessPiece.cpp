@@ -20,6 +20,21 @@ ChessPiece::ChessPiece(ChessGame* game, const ChessVector& location, ChessColor 
 {
 }
 
+/*virtual*/ bool ChessPiece::WriteToStream(std::ostream& stream) const
+{
+	char colorByte = (char)this->color;
+	stream << colorByte;
+	return true;
+}
+
+/*virtual*/ bool ChessPiece::ReadFromStream(std::istream& stream)
+{
+	char colorByte = 0;
+	stream >> colorByte;
+	this->color = (ChessColor)colorByte;
+	return true;
+}
+
 void ChessPiece::GenerateMovesWithRayCast(const ChessVector& rayDirection, ChessMoveArray& moveArray, int maxLength /*= INT_MAX*/) const
 {
 	ChessColor opponentColor = (this->color == ChessColor::White) ? ChessColor::Black : ChessColor::White;
@@ -70,6 +85,11 @@ Pawn::Pawn(ChessGame* game, const ChessVector& location, ChessColor color) : Che
 /*virtual*/ int Pawn::GetScore() const
 {
 	return 10;
+}
+
+/*virtual*/ ChessPiece::Code Pawn::GetCode() const
+{
+	return Code::PAWN;
 }
 
 /*virtual*/ void Pawn::GenerateAllPossibleMoves(ChessMoveArray& moveArray) const
@@ -182,6 +202,11 @@ Knight::Knight(ChessGame* game, const ChessVector& location, ChessColor color) :
 	return 30;
 }
 
+/*virtual*/ ChessPiece::Code Knight::GetCode() const
+{
+	return Code::KNIGHT;
+}
+
 /*virtual*/ void Knight::GenerateAllPossibleMoves(ChessMoveArray& moveArray) const
 {
 	ChessColor opponentColor = (this->color == ChessColor::White) ? ChessColor::Black : ChessColor::White;
@@ -248,6 +273,11 @@ Bishop::Bishop(ChessGame* game, const ChessVector& location, ChessColor color) :
 	return 30;
 }
 
+/*virtual*/ ChessPiece::Code Bishop::GetCode() const
+{
+	return Code::BISHOP;
+}
+
 //---------------------------------------- Rook ----------------------------------------
 
 Rook::Rook(ChessGame* game, const ChessVector& location, ChessColor color) : ChessPiece(game, location, color)
@@ -266,6 +296,11 @@ std::string Rook::GetName() const
 /*virtual*/ int Rook::GetScore() const
 {
 	return 50;
+}
+
+/*virtual*/ ChessPiece::Code Rook::GetCode() const
+{
+	return Code::ROOK;
 }
 
 /*virtual*/ void Rook::GenerateAllPossibleMoves(ChessMoveArray& moveArray) const
@@ -294,6 +329,11 @@ Queen::Queen(ChessGame* game, const ChessVector& location, ChessColor color) : C
 /*virtual*/ int Queen::GetScore() const
 {
 	return 90;
+}
+
+/*virtual*/ ChessPiece::Code Queen::GetCode() const
+{
+	return Code::QUEEN;
 }
 
 /*virtual*/ void Queen::GenerateAllPossibleMoves(ChessMoveArray& moveArray) const
@@ -326,6 +366,11 @@ King::King(ChessGame* game, const ChessVector& location, ChessColor color) : Che
 /*virtual*/ int King::GetScore() const
 {
 	return 900;
+}
+
+/*virtual*/ ChessPiece::Code King::GetCode() const
+{
+	return Code::KING;
 }
 
 /*virtual*/ void King::GenerateAllPossibleMoves(ChessMoveArray& moveArray) const
