@@ -94,6 +94,7 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	this->UpdateStatusBar();
 	this->UpdatePanel();
 
+	this->inTimerTick = false;
 	this->timer.Start(60);
 }
 
@@ -215,11 +216,18 @@ void ChessFrame::OnGameStateChanged(wxCommandEvent& event)
 
 void ChessFrame::OnTimerTick(wxTimerEvent& event)
 {
-	double deltaTimeSeconds = double(this->timer.GetInterval()) / 1000.0;
-	this->canvas->Animate(deltaTimeSeconds);
+	if (this->inTimerTick)
+		return;
+
+	this->inTimerTick = true;
 
 	if (wxGetApp().GetCurrentPlayerType() == ChessApp::PlayerType::COMPUTER && !this->canvas->IsAnimating())
 		this->ComputerTakesTurn();
+
+	double deltaTimeSeconds = double(this->timer.GetInterval()) / 1000.0;
+	this->canvas->Animate(deltaTimeSeconds);
+
+	this->inTimerTick = false;
 }
 
 void ChessFrame::ComputerTakesTurn()

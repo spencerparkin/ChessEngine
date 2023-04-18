@@ -51,4 +51,5 @@ public:
 	wxGauge* gaugeBar;
 	ChessEngine::ChessMoveArray redoMoveArray;
 	wxTimer timer;
+	bool inTimerTick;
 };
