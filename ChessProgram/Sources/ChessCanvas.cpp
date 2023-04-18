@@ -16,6 +16,8 @@ int ChessCanvas::attributeList[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, 0 };
 ChessCanvas::ChessCanvas(wxWindow* parent) : wxGLCanvas(parent, wxID_ANY, attributeList, wxDefaultPosition, wxDefaultSize)
 {
 	this->formulatingMove = false;
+	this->drawCoordinates = false;
+	this->animating = false;
 
 	this->renderContext = new wxGLContext(this);
 
@@ -37,8 +39,6 @@ ChessCanvas::ChessCanvas(wxWindow* parent) : wxGLCanvas(parent, wxID_ANY, attrib
 
 	this->offsetVector.x = 0.0;
 	this->offsetVector.y = 0.0;
-
-	this->animating = false;
 }
 
 /*virtual*/ ChessCanvas::~ChessCanvas()
@@ -46,6 +46,15 @@ ChessCanvas::ChessCanvas(wxWindow* parent) : wxGLCanvas(parent, wxID_ANY, attrib
 	delete this->renderContext;
 
 	ChessEngine::DeleteMoveArray(this->legalMoveArray);
+}
+
+void ChessCanvas::SetDrawCoordinates(bool draw)
+{
+	if (draw != this->drawCoordinates)
+	{
+		this->drawCoordinates = draw;
+		this->Refresh();
+	}
 }
 
 void ChessCanvas::AnimateMove(const ChessEngine::ChessMove* move)
@@ -347,6 +356,13 @@ void ChessCanvas::RenderBoard()
 	this->ForEachBoardSquare([=](const ChessEngine::ChessVector& squareLocation, const Box& box) {
 		this->RenderBoardSquareHighlight(squareLocation, box);
 	});
+
+	if (this->drawCoordinates)
+	{
+		this->ForEachBoardSquare([=](const ChessEngine::ChessVector& squareLocation, const Box& box) {
+			this->RenderBoardCoordinates(squareLocation, box);
+		});
+	}
 }
 
 void ChessCanvas::ForEachBoardSquare(std::function<void(const ChessEngine::ChessVector&, const Box&)> renderFunc)
@@ -402,6 +418,31 @@ void ChessCanvas::RenderBoardSquare(const ChessEngine::ChessVector& squareLocati
 	glEnd();
 }
 
+void ChessCanvas::RenderTexturedQuad(const Box& renderBox, GLuint texture)
+{
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glBegin(GL_QUADS);
+
+	// I spent hours pulling my hair out wondering why the blending wasn't working until
+	// finally putting in the following line of code.  WTF?!  This fixes it?!
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex2f(renderBox.min.x, renderBox.min.y);
+
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex2f(renderBox.max.x, renderBox.min.y);
+
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex2f(renderBox.max.x, renderBox.max.y);
+
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex2f(renderBox.min.x, renderBox.max.y);
+
+	glEnd();
+}
+
 void ChessCanvas::RenderBoardSquarePiece(const ChessEngine::ChessVector& squareLocation, const Box& box)
 {
 	ChessEngine::ChessGame* game = wxGetApp().game;
@@ -418,27 +459,7 @@ void ChessCanvas::RenderBoardSquarePiece(const ChessEngine::ChessVector& squareL
 				if (squareLocation == this->offsetLocation)
 					renderBox += this->offsetVector;
 
-				glEnable(GL_TEXTURE_2D);
-				glBindTexture(GL_TEXTURE_2D, texture);
-				glBegin(GL_QUADS);
-
-				// I spent hours pulling my hair out wondering why the blending wasn't working until
-				// finally putting in the following line of code.  WTF?!  This fixes it?!
-				glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
-				glTexCoord2f(0.0f, 0.0f);
-				glVertex2f(renderBox.min.x, renderBox.min.y);
-
-				glTexCoord2f(1.0f, 0.0f);
-				glVertex2f(renderBox.max.x, renderBox.min.y);
-
-				glTexCoord2f(1.0f, 1.0f);
-				glVertex2f(renderBox.max.x, renderBox.max.y);
-
-				glTexCoord2f(0.0f, 1.0f);
-				glVertex2f(renderBox.min.x, renderBox.max.y);
-
-				glEnd();
+				this->RenderTexturedQuad(renderBox, texture);
 			}
 		}
 	}
@@ -485,28 +506,64 @@ void ChessCanvas::RenderBoardSquareHighlight(const ChessEngine::ChessVector& squ
 	glEnd();
 }
 
+void ChessCanvas::RenderBoardCoordinates(const ChessEngine::ChessVector& squareLocation, const Box& box)
+{
+	if (squareLocation.file == 0)
+	{
+		wxString rank = wxString::Format("%d", squareLocation.rank + 1);
+		wxFileName textureFile(wxGetCwd() + "/Textures/" + rank + ".png");
+		GLuint texture = this->GetTexture(textureFile.GetFullPath());
+		if (texture != GL_INVALID_VALUE)
+		{
+			Box renderBox;
+			box.PointFromUVs(renderBox.min, Vector(0.0, 3.0 / 4.0));
+			box.PointFromUVs(renderBox.max, Vector(1.0 / 4.0, 1.0));
+
+			this->RenderTexturedQuad(renderBox, texture);
+		}
+	}
+
+	if (squareLocation.rank == 0)
+	{
+		char fileArray[] = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h' };
+		wxString file = fileArray[squareLocation.file];
+		wxFileName textureFile(wxGetCwd() + "/Textures/" + file + ".png");
+		GLuint texture = this->GetTexture(textureFile.GetFullPath());
+		if (texture != GL_INVALID_VALUE)
+		{
+			Box renderBox;
+			box.PointFromUVs(renderBox.min, Vector(3.0 / 4.0, 0.0));
+			box.PointFromUVs(renderBox.max, Vector(1.0, 1.0 / 4.0));
+
+			this->RenderTexturedQuad(renderBox, texture);
+		}
+	}
+}
+
 GLuint ChessCanvas::GetTextureForChessPiece(const wxString& pieceName, ChessEngine::ChessColor color)
+{
+	wxString prefix = (color == ChessEngine::ChessColor::White) ? "white" : "black";
+	wxString postfix = pieceName.Lower();
+	wxFileName textureFile(wxGetCwd() + "/Textures/" + prefix + "_" + postfix + ".png");
+	return this->GetTexture(textureFile.GetFullPath());
+}
+
+GLuint ChessCanvas::GetTexture(const wxString& textureFile)
 {
 	GLuint texture = GL_INVALID_VALUE;
 
-	wxString prefix = (color == ChessEngine::ChessColor::White) ? "white" : "black";
-	wxString postfix = pieceName.Lower();
-	wxString textureKey = prefix + "_" + postfix;
-
-	TextureMap::iterator iter = this->textureMap.find(textureKey);
+	TextureMap::iterator iter = this->textureMap.find(textureFile);
 	if (iter != this->textureMap.end())
 		texture = iter->second;
 	else
 	{
-		wxFileName textureFile(wxGetCwd() + "/Textures/" + textureKey + ".png");
-
 		wxImage image;
-		if (image.LoadFile(textureFile.GetFullPath()) && image.HasAlpha())
+		if (image.LoadFile(textureFile) && image.HasAlpha())
 		{
 			glGenTextures(1, &texture);
 			if (texture != GL_INVALID_VALUE)
 			{
-				this->textureMap[textureKey] = texture;
+				this->textureMap[textureFile] = texture;
 
 				glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 				glBindTexture(GL_TEXTURE_2D, texture);
@@ -540,7 +597,10 @@ GLuint ChessCanvas::GetTextureForChessPiece(const wxString& pieceName, ChessEngi
 					}
 				}
 
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageWidth, imageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureBuffer);
+				//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageWidth, imageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureBuffer);
+
+				gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, imageWidth, imageHeight, GL_RGBA, GL_UNSIGNED_BYTE, textureBuffer);
+
 				delete[] textureBuffer;
 			}
 		}

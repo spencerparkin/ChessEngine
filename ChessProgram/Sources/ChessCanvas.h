@@ -27,6 +27,8 @@ public:
 	void AnimateMove(const ChessEngine::ChessMove* move);
 	void Animate(double deltaTimeSeconds);
 	bool IsAnimating() { return this->animating; }
+	bool GetDrawCoordinates() { return this->drawCoordinates; }
+	void SetDrawCoordinates(bool draw);
 
 	enum class RenderOrientation
 	{
@@ -42,10 +44,13 @@ private:
 	void RenderBoardSquare(const ChessEngine::ChessVector& squareLocation, const Box& box);
 	void RenderBoardSquarePiece(const ChessEngine::ChessVector& squareLocation, const Box& box);
 	void RenderBoardSquareHighlight(const ChessEngine::ChessVector& squareLocation, const Box& box);
+	void RenderBoardCoordinates(const ChessEngine::ChessVector& squareLocation, const Box& box);
+	void RenderTexturedQuad(const Box& renderBox, GLuint texture);
 
 	void ForEachBoardSquare(std::function<void(const ChessEngine::ChessVector&, const Box&)> renderFunc);
 
 	GLuint GetTextureForChessPiece(const wxString& pieceName, ChessEngine::ChessColor color);
+	GLuint GetTexture(const wxString& textureFile);
 
 	void CalculateWorldBox(Box& worldBox) const;
 	bool CalculateSquareLocation(const wxPoint& mousePoint, ChessEngine::ChessVector& squareLocation, Vector* worldPoint = nullptr);
@@ -64,4 +69,5 @@ private:
 	Vector offsetVector;
 	Vector clickOrigin;
 	bool animating;
+	bool drawCoordinates;
 };

@@ -27,6 +27,8 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_ComputerDifficultyEasy, "Computer Difficulty Easy", "Make the AI dumb.", wxITEM_CHECK));
 	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_ComputerDifficultyMedium, "Computer Difficulty Medium", "Make the AI somewhat smart.", wxITEM_CHECK));
 	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_ComputerDifficultyHard, "Computer Difficulty Hard", "Make the AI as smart as it can be.", wxITEM_CHECK));
+	optionsMenu->AppendSeparator();
+	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_DrawCoordinates, "Draw Coordinates", "Show the rand and file labels.", wxITEM_CHECK));
 
 	wxMenu* helpMenu = new wxMenu();
 	helpMenu->Append(new wxMenuItem(helpMenu, ID_About, "About", "Show the about-box."));
@@ -48,12 +50,14 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	this->Bind(wxEVT_MENU, &ChessFrame::OnComputerDifficulty, this, ID_ComputerDifficultyEasy);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnComputerDifficulty, this, ID_ComputerDifficultyMedium);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnComputerDifficulty, this, ID_ComputerDifficultyHard);
+	this->Bind(wxEVT_MENU, &ChessFrame::OnDrawCoordinates, this, ID_DrawCoordinates);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_FlipBoard);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_WhitePlayedByComputer);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_BlackPlayedByComputer);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_ComputerDifficultyEasy);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_ComputerDifficultyMedium);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_ComputerDifficultyHard);
+	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_DrawCoordinates);
 	this->Bind(EVT_GAME_STATE_CHANGED, &ChessFrame::OnGameStateChanged, this);
 	this->Bind(wxEVT_TIMER, &ChessFrame::OnTimerTick, this);
 
@@ -200,6 +204,11 @@ void ChessFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 			event.Check(wxGetApp().bot->maxDepth == COMPUTER_HARD_MAX_DEPTH);
 			break;
 		}
+		case ID_DrawCoordinates:
+		{
+			event.Check(this->canvas->GetDrawCoordinates());
+			break;
+		}
 	}
 }
 
@@ -228,6 +237,11 @@ void ChessFrame::OnTimerTick(wxTimerEvent& event)
 	this->canvas->Animate(deltaTimeSeconds);
 
 	this->inTimerTick = false;
+}
+
+void ChessFrame::OnDrawCoordinates(wxCommandEvent& event)
+{
+	this->canvas->SetDrawCoordinates(!this->canvas->GetDrawCoordinates());
 }
 
 void ChessFrame::ComputerTakesTurn()

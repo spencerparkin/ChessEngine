@@ -26,6 +26,7 @@ public:
 	void OnColorPlayerdByComputer(wxCommandEvent& event);
 	void OnComputerDifficulty(wxCommandEvent& event);
 	void OnTimerTick(wxTimerEvent& event);
+	void OnDrawCoordinates(wxCommandEvent& event);
 
 	enum
 	{
@@ -37,7 +38,8 @@ public:
 		ID_BlackPlayedByComputer,
 		ID_ComputerDifficultyEasy,
 		ID_ComputerDifficultyMedium,
-		ID_ComputerDifficultyHard
+		ID_ComputerDifficultyHard,
+		ID_DrawCoordinates
 	};
 
 	void UpdateStatusBar();
