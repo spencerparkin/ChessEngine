@@ -35,5 +35,8 @@ namespace ChessEngine
 		virtual Code GetCode() const = 0;
 
 		static ChessObject* Factory(Code code);
+
+		void WriteInt(std::ostream& stream, int value) const;
+		void ReadInt(std::istream& stream, int& value);
 	};
 }

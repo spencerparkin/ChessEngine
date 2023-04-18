@@ -2,7 +2,8 @@
 #include "ChessCanvas.h"
 #include "ChessApp.h"
 #include "ChessBot.h"
-#include <ChessMove.h>
+#include "ChessMove.h"
+#include <fstream>
 #include <wx/menu.h>
 #include <wx/sizer.h>
 #include <wx/splitter.h>
@@ -10,11 +11,15 @@
 #include <wx/button.h>
 #include <wx/aboutdlg.h>
 #include <wx/msgdlg.h>
+#include <wx/filedlg.h>
 
 ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size) : wxFrame(parent, wxID_ANY, "Chess", pos, size), timer(this)
 {
 	wxMenu* gameMenu = new wxMenu();
 	gameMenu->Append(new wxMenuItem(gameMenu, ID_NewGame, "New Game", "Start a new game of Chess."));
+	gameMenu->AppendSeparator();
+	gameMenu->Append(new wxMenuItem(gameMenu, ID_SaveGame, "Save Game", "Save the current Chess game to disk."));
+	gameMenu->Append(new wxMenuItem(gameMenu, ID_LoadGame, "Load Game", "Load a previously saved Chess game from disk."));
 	gameMenu->AppendSeparator();
 	gameMenu->Append(new wxMenuItem(gameMenu, ID_Exit, "Exit", "Terminate this program."));
 
@@ -42,6 +47,8 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	this->SetStatusBar(new wxStatusBar(this));
 
 	this->Bind(wxEVT_MENU, &ChessFrame::OnNewGame, this, ID_NewGame);
+	this->Bind(wxEVT_MENU, &ChessFrame::OnSaveGame, this, ID_SaveGame);
+	this->Bind(wxEVT_MENU, &ChessFrame::OnLoadGame, this, ID_LoadGame);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnAbout, this, ID_About);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnExit, this, ID_Exit);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnFlipBoard, this, ID_FlipBoard);
@@ -105,6 +112,59 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 /*virtual*/ ChessFrame::~ChessFrame()
 {
 	ChessEngine::DeleteMoveArray(this->redoMoveArray);
+}
+
+void ChessFrame::OnSaveGame(wxCommandEvent& event)
+{
+	wxFileDialog fileDialog(this, "Choose Chess file save location", wxEmptyString, wxEmptyString, "Chess Files (*.chess)|*.chess", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+	if (wxID_OK == fileDialog.ShowModal())
+	{
+		std::ofstream stream;
+		stream.open((const char*)fileDialog.GetPath().c_str(), std::ios::binary | std::ios::out);
+		if (!stream.is_open())
+			wxMessageBox(wxString::Format("Failed to open file: %s", (const char*)fileDialog.GetPath().c_str()), "Error", wxICON_ERROR | wxOK, this);
+		else
+		{
+			if (!wxGetApp().game->WriteToStream(stream))
+				wxMessageBox(wxString::Format("Failed to write file: %s", (const char*)fileDialog.GetPath().c_str()), "Error", wxICON_ERROR | wxOK, this);
+
+			stream << (char)wxGetApp().whoseTurn;
+			stream.close();
+		}
+	}
+}
+
+void ChessFrame::OnLoadGame(wxCommandEvent& event)
+{
+	wxFileDialog fileDialog(this, "Choose a Chess file to open.", wxEmptyString, wxEmptyString, "Chess Files (*.chess)|*.chess", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+	if (wxID_OK == fileDialog.ShowModal())
+	{
+		std::ifstream stream;
+		stream.open((const char*)fileDialog.GetPath().c_str(), std::ios::binary | std::ios::in);
+		if (!stream.is_open())
+			wxMessageBox(wxString::Format("Failed to open file: %s", (const char*)fileDialog.GetPath().c_str()), "Error", wxICON_ERROR | wxOK, this);
+		else
+		{
+			if (!wxGetApp().game->ReadFromStream(stream))
+			{
+				wxMessageBox(wxString::Format("Failed to read file: %s", (const char*)fileDialog.GetPath().c_str()), "Error", wxICON_ERROR | wxOK, this);
+				wxGetApp().game->Reset();
+			}
+			else
+			{
+				char colorByte = 0;
+				stream >> colorByte;
+				wxGetApp().whoseTurn = (ChessEngine::ChessColor)colorByte;
+
+				wxCommandEvent stateChangedEvent(EVT_GAME_STATE_CHANGED);
+				wxPostEvent(this, stateChangedEvent);
+
+				this->canvas->Refresh();
+			}
+
+			stream.close();
+		}
+	}
 }
 
 void ChessFrame::OnUndo(wxCommandEvent& event)

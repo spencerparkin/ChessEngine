@@ -27,15 +27,19 @@ ChessMove::ChessMove()
 
 /*virtual*/ bool ChessMove::WriteToStream(std::ostream& stream) const
 {
-	stream << this->sourceLocation.file << this->sourceLocation.rank;
-	stream << this->destinationLocation.file << this->destinationLocation.rank;
+	this->WriteInt(stream, this->sourceLocation.file);
+	this->WriteInt(stream, this->sourceLocation.rank);
+	this->WriteInt(stream, this->destinationLocation.file);
+	this->WriteInt(stream, this->destinationLocation.rank);
 	return true;
 }
 
 /*virtual*/ bool ChessMove::ReadFromStream(std::istream& stream)
 {
-	stream >> this->sourceLocation.file >> this->sourceLocation.rank;
-	stream >> this->destinationLocation.file >> this->destinationLocation.rank;
+	this->ReadInt(stream, this->sourceLocation.file);
+	this->ReadInt(stream, this->sourceLocation.rank);
+	this->ReadInt(stream, this->destinationLocation.file);
+	this->ReadInt(stream, this->destinationLocation.rank);
 	return true;
 }
 
@@ -282,8 +286,10 @@ Castle::Castle()
 	if (!ChessMove::WriteToStream(stream))
 		return false;
 
-	stream << this->rookSourceLocation.file << this->rookSourceLocation.rank;
-	stream << this->rookDestinationLocation.file << this->rookDestinationLocation.rank;
+	this->WriteInt(stream, rookSourceLocation.file);
+	this->WriteInt(stream, rookSourceLocation.rank);
+	this->WriteInt(stream, rookDestinationLocation.file);
+	this->WriteInt(stream, rookDestinationLocation.rank);
 	return true;
 }
 
@@ -292,8 +298,10 @@ Castle::Castle()
 	if (!ChessMove::ReadFromStream(stream))
 		return false;
 
-	stream >> this->rookSourceLocation.file >> this->rookSourceLocation.rank;
-	stream >> this->rookDestinationLocation.file >> this->rookDestinationLocation.rank;
+	this->ReadInt(stream, rookSourceLocation.file);
+	this->ReadInt(stream, rookSourceLocation.rank);
+	this->ReadInt(stream, rookDestinationLocation.file);
+	this->ReadInt(stream, rookDestinationLocation.rank);
 	return true;
 }
 
@@ -469,8 +477,9 @@ EnPassant::EnPassant()
 	if (!ChessMove::WriteToStream(stream))
 		return false;
 
-	stream << this->captureLocation.file << this->captureLocation.rank;
-	
+	this->WriteInt(stream, this->captureLocation.file);
+	this->WriteInt(stream, this->captureLocation.rank);
+
 	if (!this->WritePiece(stream, this->capturedPiece))
 		return false;
 
@@ -482,7 +491,8 @@ EnPassant::EnPassant()
 	if (!ChessMove::ReadFromStream(stream))
 		return false;
 
-	stream >> this->captureLocation.file >> this->captureLocation.rank;
+	this->ReadInt(stream, this->captureLocation.file);
+	this->ReadInt(stream, this->captureLocation.rank);
 
 	if (!this->ReadPiece(stream, this->capturedPiece))
 		return false;

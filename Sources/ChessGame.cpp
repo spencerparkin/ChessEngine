@@ -92,7 +92,7 @@ void ChessGame::Reset()
 	}
 
 	int numMoves = this->chessMoveStack->size();
-	stream << numMoves;
+	this->WriteInt(stream, numMoves);
 
 	for (int i = 0; i < (signed)this->chessMoveStack->size(); i++)
 	{
@@ -116,11 +116,15 @@ void ChessGame::Reset()
 			char code = -1;
 			stream >> code;
 			ChessObject* object = ChessObject::Factory((Code)code);
-			if (!object)
-				return false;
-			ChessPiece* piece = dynamic_cast<ChessPiece*>(object);
-			if (piece)
+			if (object)
 			{
+				ChessPiece* piece = dynamic_cast<ChessPiece*>(object);
+				if (!piece)
+				{
+					delete object;
+					return false;
+				}
+				
 				this->SetSquareOccupant(ChessVector(i, j), piece);
 				if (!piece->ReadFromStream(stream))
 					return false;
@@ -129,7 +133,7 @@ void ChessGame::Reset()
 	}
 
 	int numMoves = -1;
-	stream >> numMoves;
+	this->ReadInt(stream, numMoves);
 
 	for (int i = 0; i < numMoves; i++)
 	{

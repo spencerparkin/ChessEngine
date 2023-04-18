@@ -32,3 +32,13 @@ ChessObject::ChessObject()
 
 	return nullptr;
 }
+
+void ChessObject::WriteInt(std::ostream& stream, int value) const
+{
+	stream.write((const char*)&value, sizeof(int));
+}
+
+void ChessObject::ReadInt(std::istream& stream, int& value)
+{
+	stream.read((char*)&value, sizeof(int));
+}

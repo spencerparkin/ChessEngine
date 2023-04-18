@@ -16,6 +16,8 @@ public:
 	virtual ~ChessFrame();
 
 	void OnNewGame(wxCommandEvent& event);
+	void OnSaveGame(wxCommandEvent& event);
+	void OnLoadGame(wxCommandEvent& event);
 	void OnAbout(wxCommandEvent& event);
 	void OnExit(wxCommandEvent& event);
 	void OnGameStateChanged(wxCommandEvent& event);
@@ -31,6 +33,8 @@ public:
 	enum
 	{
 		ID_NewGame = wxID_HIGHEST,
+		ID_SaveGame,
+		ID_LoadGame,
 		ID_About,
 		ID_Exit,
 		ID_FlipBoard,
