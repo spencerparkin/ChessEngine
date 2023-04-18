@@ -74,6 +74,9 @@ bool ChessMove::ReadPiece(std::istream& stream, ChessPiece*& piece) const
 			delete object;
 			return false;
 		}
+
+		if (!piece->ReadFromStream(stream))
+			return false;
 	}
 
 	return true;
