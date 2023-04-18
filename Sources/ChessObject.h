@@ -14,7 +14,7 @@ namespace ChessEngine
 
 		enum class Code
 		{
-			EMPTY,
+			EMPTY = 100,
 			PAWN,
 			KNIGHT,
 			BISHOP,
