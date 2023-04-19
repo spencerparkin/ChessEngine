@@ -458,10 +458,11 @@ void ChessCanvas::RenderCaptures(const Box& marginBox, const std::vector<ChessEn
 {
 	double aspectRatio = marginBox.AspectRatio();
 	double delta = 0.0;
+	double divisor = (captureArray.size() == 1) ? 2.0 : double(captureArray.size());
 	if (aspectRatio > 1.0)
-		delta = (marginBox.Height() / double(captureArray.size())) / 0.9;
+		delta = marginBox.Height() / divisor;
 	else
-		delta = (marginBox.Width() / double(captureArray.size())) / 0.9;
+		delta = marginBox.Width() / divisor;
 
 	for (int i = 0; i < (signed)captureArray.size(); i++)
 	{
