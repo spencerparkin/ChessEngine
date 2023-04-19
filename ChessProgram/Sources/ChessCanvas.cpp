@@ -16,9 +16,14 @@ int ChessCanvas::attributeList[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, 0 };
 ChessCanvas::ChessCanvas(wxWindow* parent) : wxGLCanvas(parent, wxID_ANY, attributeList, wxDefaultPosition, wxDefaultSize)
 {
 	this->formulatingMove = false;
-	this->drawCoordinates = false;
-	this->drawCaptures = false;
 	this->animating = false;
+
+	this->settings.drawCoordinates = false;
+	this->settings.drawCaptures = false;
+	this->settings.lightSquareNum = 0;
+	this->settings.darkSquareNum = 0;
+
+	// TODO: Load settings from config.  Save them to config when the canvas closes.
 
 	this->renderContext = new wxGLContext(this);
 
@@ -51,18 +56,18 @@ ChessCanvas::ChessCanvas(wxWindow* parent) : wxGLCanvas(parent, wxID_ANY, attrib
 
 void ChessCanvas::SetDrawCoordinates(bool draw)
 {
-	if (draw != this->drawCoordinates)
+	if (draw != this->settings.drawCoordinates)
 	{
-		this->drawCoordinates = draw;
+		this->settings.drawCoordinates = draw;
 		this->Refresh();
 	}
 }
 
 void ChessCanvas::SetDrawCaptures(bool draw)
 {
-	if (draw != this->drawCaptures)
+	if (draw != this->settings.drawCaptures)
 	{
-		this->drawCaptures = draw;
+		this->settings.drawCaptures = draw;
 		this->Refresh();
 	}
 }
@@ -401,14 +406,14 @@ void ChessCanvas::RenderBoard()
 		this->RenderBoardSquareHighlight(squareLocation, box);
 	});
 
-	if (this->drawCoordinates)
+	if (this->settings.drawCoordinates)
 	{
 		this->ForEachBoardSquare([=](const ChessEngine::ChessVector& squareLocation, const Box& box) {
 			this->RenderBoardCoordinates(squareLocation, box);
 		});
 	}
 
-	if (this->drawCaptures)
+	if (this->settings.drawCaptures)
 	{
 		Box marginBoxA, marginBoxB;
 		if (this->CalculateMarginBoxes(marginBoxA, marginBoxB))
@@ -520,18 +525,62 @@ void ChessCanvas::ForEachBoardSquare(std::function<void(const ChessEngine::Chess
 
 void ChessCanvas::RenderBoardSquare(const ChessEngine::ChessVector& squareLocation, const Box& box)
 {
+	int* squareNum = nullptr;
+	float color = 0.0f;
+	if ((squareLocation.file + squareLocation.rank) % 2 == 0)
+	{
+		squareNum = &this->settings.darkSquareNum;
+		color = 0.7f;
+	}
+	else
+	{
+		squareNum = &this->settings.lightSquareNum;
+		color = 1.0f;
+	}
+
+	if (*squareNum == 0)
+		this->RenderSolidColorQuad(box, color, color, color);
+	else
+	{
+		wxString postfix = wxString::Format("square_%d", *squareNum - 1);
+		wxString prefix = (squareNum == &this->settings.darkSquareNum) ? wxString("dark") : wxString("light");
+		wxFileName textureFile(wxGetCwd() + "/Textures/" + prefix + "_" + postfix + ".png");
+		GLuint texture = this->GetTexture(textureFile.GetFullPath());
+		if (texture != GL_INVALID_VALUE)
+			this->RenderTexturedQuad(box, texture);
+	}
+}
+
+void ChessCanvas::CycleSquareTexture(SquareShade shade)
+{
+	switch (shade)
+	{
+		case SquareShade::Light:
+		{
+			// There are 4 shades, including the flat color.
+			this->settings.lightSquareNum = (this->settings.lightSquareNum + 1) % 4;
+			break;
+		}
+		case SquareShade::Dark:
+		{
+			// There are 5 shades, including the flat color.
+			this->settings.darkSquareNum = (this->settings.darkSquareNum + 1) % 5;
+			break;
+		}
+	}
+}
+
+void ChessCanvas::RenderSolidColorQuad(const Box& renderBox, float red, float green, float blue)
+{
 	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
 
-	if ((squareLocation.file + squareLocation.rank) % 2 == 0)
-		glColor4f(0.7f, 0.7f, 0.7f, 1.0f);
-	else
-		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	glColor4f(red, green, blue, 1.0f);
 
-	glVertex2f(box.min.x, box.min.y);
-	glVertex2f(box.max.x, box.min.y);
-	glVertex2f(box.max.x, box.max.y);
-	glVertex2f(box.min.x, box.max.y);
+	glVertex2f(renderBox.min.x, renderBox.min.y);
+	glVertex2f(renderBox.max.x, renderBox.min.y);
+	glVertex2f(renderBox.max.x, renderBox.max.y);
+	glVertex2f(renderBox.min.x, renderBox.max.y);
 
 	glEnd();
 }
@@ -704,7 +753,7 @@ GLuint ChessCanvas::GetTexture(const wxString& textureFile)
 	else
 	{
 		wxImage image;
-		if (image.LoadFile(textureFile) && image.HasAlpha())
+		if (image.LoadFile(textureFile))
 		{
 			glGenTextures(1, &texture);
 			if (texture != GL_INVALID_VALUE)
@@ -721,7 +770,7 @@ GLuint ChessCanvas::GetTexture(const wxString& textureFile)
 				GLuint imageWidth = image.GetWidth();
 				GLuint imageHeight = image.GetHeight();
 				GLubyte* imageBuffer = image.GetData();
-				GLubyte* alphaBuffer = image.GetAlpha();
+				GLubyte* alphaBuffer = image.HasAlpha() ? image.GetAlpha() : nullptr;
 				GLuint bytesPerPixel = 3;
 				GLuint bytesPerAlpha = 1;
 				GLuint bytesPerTexel = 4;
@@ -733,13 +782,21 @@ GLuint ChessCanvas::GetTexture(const wxString& textureFile)
 					for (GLuint j = 0; j < imageWidth; j++)
 					{
 						GLubyte* pixel = &imageBuffer[(imageHeight - 1 - i) * imageWidth * bytesPerPixel + j * bytesPerPixel];
-						GLubyte* alpha = &alphaBuffer[(imageHeight - 1 - i) * imageWidth * bytesPerAlpha + j * bytesPerAlpha];
 						GLubyte* texel = &textureBuffer[i * imageWidth * bytesPerTexel + j * bytesPerTexel];
 
 						texel[0] = pixel[0];
 						texel[1] = pixel[1];
 						texel[2] = pixel[2];
-						texel[3] = alpha[0];
+
+						if (alphaBuffer)
+						{
+							GLubyte* alpha = &alphaBuffer[(imageHeight - 1 - i) * imageWidth * bytesPerAlpha + j * bytesPerAlpha];
+							texel[3] = alpha[0];
+						}
+						else
+						{
+							texel[3] = 255;
+						}
 					}
 				}
 

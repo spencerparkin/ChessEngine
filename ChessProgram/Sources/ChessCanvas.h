@@ -28,9 +28,9 @@ public:
 	void AnimateMove(const ChessEngine::ChessMove* move);
 	void Animate(double deltaTimeSeconds);
 	bool IsAnimating() { return this->animating; }
-	bool GetDrawCoordinates() { return this->drawCoordinates; }
+	bool GetDrawCoordinates() { return this->settings.drawCoordinates; }
 	void SetDrawCoordinates(bool draw);
-	bool GetDrawCaptures() { return this->drawCaptures; }
+	bool GetDrawCaptures() { return this->settings.drawCaptures; }
 	void SetDrawCaptures(bool draw);
 
 	enum class RenderOrientation
@@ -41,6 +41,22 @@ public:
 
 	RenderOrientation renderOrientation;
 
+	struct Settings
+	{
+		bool drawCoordinates;
+		bool drawCaptures;
+		int lightSquareNum;
+		int darkSquareNum;
+	};
+
+	enum class SquareShade
+	{
+		Light,
+		Dark
+	};
+
+	void CycleSquareTexture(SquareShade shade);
+
 private:
 
 	void RenderBoard();
@@ -49,6 +65,7 @@ private:
 	void RenderBoardSquareHighlight(const ChessEngine::ChessVector& squareLocation, const Box& box);
 	void RenderBoardCoordinates(const ChessEngine::ChessVector& squareLocation, const Box& box);
 	void RenderTexturedQuad(const Box& renderBox, GLuint texture);
+	void RenderSolidColorQuad(const Box& renderBox, float red, float green, float blue);
 	void RenderCaptures(const Box& marginBox, const std::vector<ChessEngine::ChessPiece*>& captureArray);
 
 	void ForEachBoardSquare(std::function<void(const ChessEngine::ChessVector&, const Box&)> renderFunc);
@@ -63,6 +80,7 @@ private:
 
 	bool FindLegalMoves(const ChessEngine::ChessVector& sourceLocation, const ChessEngine::ChessVector& destinationLocation, ChessEngine::ChessMoveArray& moveArray);
 
+	Settings settings;
 	wxGLContext* renderContext;
 	static int attributeList[];
 	TextureMap textureMap;
@@ -74,6 +92,4 @@ private:
 	Vector offsetVector;
 	Vector clickOrigin;
 	bool animating;
-	bool drawCoordinates;
-	bool drawCaptures;
 };

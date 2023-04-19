@@ -12,6 +12,8 @@
 #include <wx/aboutdlg.h>
 #include <wx/msgdlg.h>
 #include <wx/filedlg.h>
+#include <wx/toolbar.h>
+#include <wx/filename.h>
 
 ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size) : wxFrame(parent, wxID_ANY, "Chess", pos, size), timer(this)
 {
@@ -47,6 +49,28 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 
 	this->SetStatusBar(new wxStatusBar(this));
 
+	wxToolBar* toolBar = this->CreateToolBar();
+
+	wxBitmap computerWhiteBitmap, computerBlackBitmap;
+
+	computerWhiteBitmap.LoadFile(wxGetCwd() + "/Textures/computer_as_white_icon.bmp", wxBITMAP_TYPE_BMP);
+	computerBlackBitmap.LoadFile(wxGetCwd() + "/Textures/computer_as_black_icon.bmp", wxBITMAP_TYPE_BMP);
+
+	toolBar->AddTool(ID_WhitePlayedByComputer, "Computer as White", computerWhiteBitmap, "Let the computer control the white pieces.", wxITEM_CHECK);
+	toolBar->AddTool(ID_BlackPlayedByComputer, "Computer as Black", computerBlackBitmap, "Let the computer control the black pieces.", wxITEM_CHECK);
+
+	toolBar->AddSeparator();
+
+	wxBitmap cycleLightSquareBitmap, cycleDarkSquareBitmap;
+
+	cycleLightSquareBitmap.LoadFile(wxGetCwd() + "/Textures/light_square_cycle_icon.bmp", wxBITMAP_TYPE_BMP);
+	cycleDarkSquareBitmap.LoadFile(wxGetCwd() + "/Textures/dark_square_cycle_icon.bmp", wxBITMAP_TYPE_BMP);
+
+	toolBar->AddTool(ID_CycleLightSquareTexture, "Cycle Light Square Texture", cycleLightSquareBitmap, "Change the texture of the light squares.");
+	toolBar->AddTool(ID_CycleDarkSquareTexture, "Cycle Dark Square Texture", cycleDarkSquareBitmap, "Change the texture of the dark squares.");
+
+	toolBar->Realize();
+
 	this->Bind(wxEVT_MENU, &ChessFrame::OnNewGame, this, ID_NewGame);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnSaveGame, this, ID_SaveGame);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnLoadGame, this, ID_LoadGame);
@@ -60,6 +84,8 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	this->Bind(wxEVT_MENU, &ChessFrame::OnComputerDifficulty, this, ID_ComputerDifficultyHard);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnDrawCoordinates, this, ID_DrawCoordinates);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnDrawCaptures, this, ID_DrawCaptures);
+	this->Bind(wxEVT_MENU, &ChessFrame::OnCycleSquareTexture, this, ID_CycleLightSquareTexture);
+	this->Bind(wxEVT_MENU, &ChessFrame::OnCycleSquareTexture, this, ID_CycleDarkSquareTexture);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_FlipBoard);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_WhitePlayedByComputer);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_BlackPlayedByComputer);
@@ -115,6 +141,25 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 /*virtual*/ ChessFrame::~ChessFrame()
 {
 	ChessEngine::DeleteMoveArray(this->redoMoveArray);
+}
+
+void ChessFrame::OnCycleSquareTexture(wxCommandEvent& event)
+{
+	switch (event.GetId())
+	{
+		case ID_CycleDarkSquareTexture:
+		{
+			this->canvas->CycleSquareTexture(ChessCanvas::SquareShade::Dark);
+			break;
+		}
+		case ID_CycleLightSquareTexture:
+		{
+			this->canvas->CycleSquareTexture(ChessCanvas::SquareShade::Light);
+			break;
+		}
+	}
+
+	this->canvas->Refresh();
 }
 
 void ChessFrame::OnSaveGame(wxCommandEvent& event)

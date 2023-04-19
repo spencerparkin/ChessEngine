@@ -30,6 +30,7 @@ public:
 	void OnTimerTick(wxTimerEvent& event);
 	void OnDrawCoordinates(wxCommandEvent& event);
 	void OnDrawCaptures(wxCommandEvent& event);
+	void OnCycleSquareTexture(wxCommandEvent& event);
 
 	enum
 	{
@@ -45,7 +46,9 @@ public:
 		ID_ComputerDifficultyMedium,
 		ID_ComputerDifficultyHard,
 		ID_DrawCoordinates,
-		ID_DrawCaptures
+		ID_DrawCaptures,
+		ID_CycleLightSquareTexture,
+		ID_CycleDarkSquareTexture
 	};
 
 	void UpdateStatusBar();
