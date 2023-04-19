@@ -48,7 +48,7 @@ namespace ChessEngine
 		virtual int GetSortKey() const override;
 	};
 
-	class CHESS_ENGINE_API Capture : public ChessMove
+	class CHESS_ENGINE_API Capture : virtual public ChessMove
 	{
 	public:
 		Capture();
@@ -89,7 +89,7 @@ namespace ChessEngine
 		ChessVector rookDestinationLocation;
 	};
 
-	class CHESS_ENGINE_API Promotion : public ChessMove
+	class CHESS_ENGINE_API Promotion : virtual public ChessMove
 	{
 	public:
 		Promotion();
@@ -108,12 +108,30 @@ namespace ChessEngine
 
 		void SetPromotedPiece(ChessPiece* piece);
 
-	private:
+	protected:
 
 		ChessPiece* newPiece;
 		ChessPiece* oldPiece;
 
 		char cachedDesc[128];
+	};
+
+	// Braving uncharted territory here with multiple inheritance!!
+	class CHESS_ENGINE_API CapturePromotion : public Promotion, public Capture
+	{
+	public:
+		CapturePromotion();
+		virtual ~CapturePromotion();
+
+		virtual bool Do(ChessGame* game) override;
+		virtual bool Undo(ChessGame* game) override;
+
+		virtual std::string GetDescription() const override;
+		virtual int GetSortKey() const override;
+		virtual Code GetCode() const override;
+
+		virtual bool WriteToStream(std::ostream& stream) const override;
+		virtual bool ReadFromStream(std::istream& stream) override;
 	};
 
 	class CHESS_ENGINE_API EnPassant : public ChessMove

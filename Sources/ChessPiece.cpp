@@ -152,15 +152,45 @@ Pawn::Pawn(ChessGame* game, const ChessVector& location, ChessColor color) : Che
 		if (!this->game->IsLocationValid(this->location + forwardDirection + sideVector[i]))
 			continue;
 
-		ChessPiece* piece = this->game->GetSquareOccupant(this->location + forwardDirection + sideVector[i]);
+		ChessVector kittyCornerLocation = this->location + forwardDirection + sideVector[i];
+		ChessPiece* piece = this->game->GetSquareOccupant(kittyCornerLocation);
 		if (piece)
 		{
 			if (piece->color == opponentColor)
 			{
-				Capture* capture = new Capture();
-				capture->sourceLocation = this->location;
-				capture->destinationLocation = this->location + forwardDirection + sideVector[i];
-				moveArray.push_back(capture);
+				if (kittyCornerLocation.rank != finalRank)
+				{
+					Capture* capture = new Capture();
+					capture->sourceLocation = this->location;
+					capture->destinationLocation = kittyCornerLocation;
+					moveArray.push_back(capture);
+				}
+				else
+				{
+					CapturePromotion* capturePromotion = new CapturePromotion();
+					capturePromotion->sourceLocation = this->location;
+					capturePromotion->destinationLocation = kittyCornerLocation;
+					capturePromotion->SetPromotedPiece(new Knight(nullptr, ChessVector(-1, -1), this->color));
+					moveArray.push_back(capturePromotion);
+
+					capturePromotion = new CapturePromotion();
+					capturePromotion->sourceLocation = this->location;
+					capturePromotion->destinationLocation = kittyCornerLocation;
+					capturePromotion->SetPromotedPiece(new Bishop(nullptr, ChessVector(-1, -1), this->color));
+					moveArray.push_back(capturePromotion);
+
+					capturePromotion = new CapturePromotion();
+					capturePromotion->sourceLocation = this->location;
+					capturePromotion->destinationLocation = kittyCornerLocation;
+					capturePromotion->SetPromotedPiece(new Rook(nullptr, ChessVector(-1, -1), this->color));
+					moveArray.push_back(capturePromotion);
+
+					capturePromotion = new CapturePromotion();
+					capturePromotion->sourceLocation = this->location;
+					capturePromotion->destinationLocation = kittyCornerLocation;
+					capturePromotion->SetPromotedPiece(new Queen(nullptr, ChessVector(-1, -1), this->color));
+					moveArray.push_back(capturePromotion);
+				}
 			}
 		}
 		else
@@ -171,6 +201,7 @@ Pawn::Pawn(ChessGame* game, const ChessVector& location, ChessColor color) : Che
 				const Travel* travel = dynamic_cast<const Travel*>(this->game->GetMove(this->game->GetNumMoves() - 1));
 				if (travel && travel->sourceLocation == this->location + forwardDirection * 2 + sideVector[i] && travel->destinationLocation == this->location + sideVector[i])
 				{
+					// Thankfully, I don't think it's possible to en-passant & promote at the same time.
 					EnPassant* enPassant = new EnPassant();
 					enPassant->sourceLocation = this->location;
 					enPassant->destinationLocation = this->location + forwardDirection + sideVector[i];

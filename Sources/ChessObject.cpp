@@ -16,18 +16,19 @@ ChessObject::ChessObject()
 {
 	switch (code)
 	{
-		case Code::EMPTY:		return nullptr;
-		case Code::PAWN:		return new Pawn(nullptr, ChessVector(-1, -1), ChessColor::Black);
-		case Code::KNIGHT:		return new Knight(nullptr, ChessVector(-1, -1), ChessColor::Black);
-		case Code::BISHOP:		return new Bishop(nullptr, ChessVector(-1, -1), ChessColor::Black);
-		case Code::ROOK:		return new Rook(nullptr, ChessVector(-1, -1), ChessColor::Black);
-		case Code::QUEEN:		return new Queen(nullptr, ChessVector(-1, -1), ChessColor::Black);
-		case Code::KING:		return new King(nullptr, ChessVector(-1, -1), ChessColor::Black);
-		case Code::TRAVEL:		return new Travel();
-		case Code::CAPTURE:		return new Capture();
-		case Code::CASTLE:		return new Castle();
-		case Code::PROMOTION:	return new Promotion();
-		case Code::EN_PASSANT:	return new EnPassant();
+		case Code::EMPTY:					return nullptr;
+		case Code::PAWN:					return new Pawn(nullptr, ChessVector(-1, -1), ChessColor::Black);
+		case Code::KNIGHT:					return new Knight(nullptr, ChessVector(-1, -1), ChessColor::Black);
+		case Code::BISHOP:					return new Bishop(nullptr, ChessVector(-1, -1), ChessColor::Black);
+		case Code::ROOK:					return new Rook(nullptr, ChessVector(-1, -1), ChessColor::Black);
+		case Code::QUEEN:					return new Queen(nullptr, ChessVector(-1, -1), ChessColor::Black);
+		case Code::KING:					return new King(nullptr, ChessVector(-1, -1), ChessColor::Black);
+		case Code::TRAVEL:					return new Travel();
+		case Code::CAPTURE:					return new Capture();
+		case Code::CASTLE:					return new Castle();
+		case Code::PROMOTION:				return new Promotion();
+		case Code::CAPTURE_AND_PROMOTE:		return new CapturePromotion();
+		case Code::EN_PASSANT:				return new EnPassant();
 	}
 
 	return nullptr;

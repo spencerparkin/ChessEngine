@@ -407,6 +407,90 @@ void Promotion::SetPromotedPiece(ChessPiece* piece)
 	return true;
 }
 
+//---------------------------------------- CapturePromotion ----------------------------------------
+
+CapturePromotion::CapturePromotion()
+{
+}
+
+/*virtual*/ CapturePromotion::~CapturePromotion()
+{
+}
+
+/*virtual*/ bool CapturePromotion::Do(ChessGame* game)
+{
+	if (!this->newPiece)
+		return false;
+
+	this->oldPiece = game->GetSquareOccupant(this->sourceLocation);
+	if (!this->oldPiece)
+		return false;
+
+	if (!Capture::Do(game))
+		return false;
+
+	game->SetSquareOccupant(this->destinationLocation, this->newPiece);
+	this->newPiece = nullptr;
+	return true;
+}
+
+/*virtual*/ bool CapturePromotion::Undo(ChessGame* game)
+{
+	if (!this->oldPiece)
+		return false;
+
+	this->newPiece = game->GetSquareOccupant(this->destinationLocation);
+	if (!this->newPiece)
+		return false;
+
+	if (!Capture::Undo(game))
+		return false;
+
+	game->SetSquareOccupant(this->sourceLocation, this->oldPiece);
+	this->oldPiece = nullptr;
+	return true;
+}
+
+/*virtual*/ std::string CapturePromotion::GetDescription() const
+{
+	std::string descA = Capture::GetDescription();
+	std::string descB = Promotion::GetDescription();
+	return descA + " & " + descB;
+}
+
+/*virtual*/ int CapturePromotion::GetSortKey() const
+{
+	return 4;
+}
+
+/*virtual*/ ChessObject::Code CapturePromotion::GetCode() const
+{
+	return Code::CAPTURE_AND_PROMOTE;
+}
+
+/*virtual*/ bool CapturePromotion::WriteToStream(std::ostream& stream) const
+{
+	if (!Promotion::WriteToStream(stream))
+		return false;
+
+	// Here, the source & destination are written redundantly, but I'm okay with that.
+	if (!Capture::WriteToStream(stream))
+		return false;
+
+	return true;
+}
+
+/*virtual*/ bool CapturePromotion::ReadFromStream(std::istream& stream)
+{
+	if (!Promotion::ReadFromStream(stream))
+		return false;
+
+	if (!Capture::ReadFromStream(stream))
+		return false;
+
+	return true;
+}
+
 //---------------------------------------- EnPassant ----------------------------------------
 
 EnPassant::EnPassant()

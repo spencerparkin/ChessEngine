@@ -25,6 +25,7 @@ namespace ChessEngine
 			CAPTURE,
 			CASTLE,
 			PROMOTION,
+			CAPTURE_AND_PROMOTE,
 			EN_PASSANT,
 			GAME
 		};
