@@ -2,6 +2,8 @@
 #include "ChessFrame.h"
 #include "ChessBot.h"
 #include <wx/image.h>
+#include <wx/filename.h>
+#include <fstream>
 
 wxIMPLEMENT_APP(ChessApp);
 
@@ -27,6 +29,20 @@ ChessApp::ChessApp() : config("Chess")
 	if (!wxApp::OnInit())
 		return false;
 
+	wxFileName fileName(wxGetCwd() + "/last_game.chess");
+	if (fileName.Exists())
+	{
+		std::ifstream stream;
+		stream.open((const char*)fileName.GetFullPath().c_str(), std::ios::binary | std::ios::in);
+		if (stream.is_open())
+		{
+			if (!this->game->ReadFromStream(stream))
+				this->game->Reset();
+
+			stream.close();
+		}
+	}
+
 	// I'm getting some warnings when some square tile textures are loaded, complaining about
 	// inconsistent chunks in the PNG file format, so I'm suppressing the warning dialogs with
 	// this call.  The PNG files load just fine.
@@ -42,6 +58,18 @@ ChessApp::ChessApp() : config("Chess")
 
 /*virtual*/ int ChessApp::OnExit(void)
 {
+	wxFileName fileName(wxGetCwd() + "/last_game.chess");
+	if (fileName.Exists())
+		wxRemoveFile(fileName.GetFullPath());
+
+	std::ofstream stream;
+	stream.open((const char*)fileName.GetFullPath().c_str(), std::ios::binary | std::ios::out);
+	if (stream.is_open())
+	{
+		this->game->WriteToStream(stream);
+		stream.close();
+	}
+
 	return 0;
 }
 
