@@ -34,6 +34,7 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_ComputerDifficultyHard, "Computer Difficulty Hard", "Make the AI as smart as it can be.", wxITEM_CHECK));
 	optionsMenu->AppendSeparator();
 	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_DrawCoordinates, "Draw Coordinates", "Show the rand and file labels.", wxITEM_CHECK));
+	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_DrawCaptures, "Draw Captures", "Show the captured Chess pieces.", wxITEM_CHECK));
 
 	wxMenu* helpMenu = new wxMenu();
 	helpMenu->Append(new wxMenuItem(helpMenu, ID_About, "About", "Show the about-box."));
@@ -58,6 +59,7 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	this->Bind(wxEVT_MENU, &ChessFrame::OnComputerDifficulty, this, ID_ComputerDifficultyMedium);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnComputerDifficulty, this, ID_ComputerDifficultyHard);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnDrawCoordinates, this, ID_DrawCoordinates);
+	this->Bind(wxEVT_MENU, &ChessFrame::OnDrawCaptures, this, ID_DrawCaptures);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_FlipBoard);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_WhitePlayedByComputer);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_BlackPlayedByComputer);
@@ -65,6 +67,7 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_ComputerDifficultyMedium);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_ComputerDifficultyHard);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_DrawCoordinates);
+	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_DrawCaptures);
 	this->Bind(EVT_GAME_STATE_CHANGED, &ChessFrame::OnGameStateChanged, this);
 	this->Bind(wxEVT_TIMER, &ChessFrame::OnTimerTick, this);
 
@@ -269,6 +272,11 @@ void ChessFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 			event.Check(this->canvas->GetDrawCoordinates());
 			break;
 		}
+		case ID_DrawCaptures:
+		{
+			event.Check(this->canvas->GetDrawCaptures());
+			break;
+		}
 	}
 }
 
@@ -302,6 +310,11 @@ void ChessFrame::OnTimerTick(wxTimerEvent& event)
 void ChessFrame::OnDrawCoordinates(wxCommandEvent& event)
 {
 	this->canvas->SetDrawCoordinates(!this->canvas->GetDrawCoordinates());
+}
+
+void ChessFrame::OnDrawCaptures(wxCommandEvent& event)
+{
+	this->canvas->SetDrawCaptures(!this->canvas->GetDrawCaptures());
 }
 
 void ChessFrame::ComputerTakesTurn()

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ChessCommon.h"
+#include "ChessPiece.h"
 #include "Math.h"
 #include <wx/glcanvas.h>
 #include <wx/hashmap.h>
@@ -29,6 +30,8 @@ public:
 	bool IsAnimating() { return this->animating; }
 	bool GetDrawCoordinates() { return this->drawCoordinates; }
 	void SetDrawCoordinates(bool draw);
+	bool GetDrawCaptures() { return this->drawCaptures; }
+	void SetDrawCaptures(bool draw);
 
 	enum class RenderOrientation
 	{
@@ -46,6 +49,7 @@ private:
 	void RenderBoardSquareHighlight(const ChessEngine::ChessVector& squareLocation, const Box& box);
 	void RenderBoardCoordinates(const ChessEngine::ChessVector& squareLocation, const Box& box);
 	void RenderTexturedQuad(const Box& renderBox, GLuint texture);
+	void RenderCaptures(const Box& marginBox, const std::vector<ChessEngine::ChessPiece*>& captureArray);
 
 	void ForEachBoardSquare(std::function<void(const ChessEngine::ChessVector&, const Box&)> renderFunc);
 
@@ -53,6 +57,7 @@ private:
 	GLuint GetTexture(const wxString& textureFile);
 
 	void CalculateWorldBox(Box& worldBox) const;
+	bool CalculateMarginBoxes(Box& marginBoxA, Box& marginBoxB) const;
 	bool CalculateSquareLocation(const wxPoint& mousePoint, ChessEngine::ChessVector& squareLocation, Vector* worldPoint = nullptr);
 	bool CalculateSquareWorldCenter(const ChessEngine::ChessVector& squareLocation, Vector& worldCenter);
 
@@ -70,4 +75,5 @@ private:
 	Vector clickOrigin;
 	bool animating;
 	bool drawCoordinates;
+	bool drawCaptures;
 };

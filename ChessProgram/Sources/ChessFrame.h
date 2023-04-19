@@ -29,6 +29,7 @@ public:
 	void OnComputerDifficulty(wxCommandEvent& event);
 	void OnTimerTick(wxTimerEvent& event);
 	void OnDrawCoordinates(wxCommandEvent& event);
+	void OnDrawCaptures(wxCommandEvent& event);
 
 	enum
 	{
@@ -43,7 +44,8 @@ public:
 		ID_ComputerDifficultyEasy,
 		ID_ComputerDifficultyMedium,
 		ID_ComputerDifficultyHard,
-		ID_DrawCoordinates
+		ID_DrawCoordinates,
+		ID_DrawCaptures
 	};
 
 	void UpdateStatusBar();

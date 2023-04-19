@@ -17,6 +17,7 @@ ChessCanvas::ChessCanvas(wxWindow* parent) : wxGLCanvas(parent, wxID_ANY, attrib
 {
 	this->formulatingMove = false;
 	this->drawCoordinates = false;
+	this->drawCaptures = false;
 	this->animating = false;
 
 	this->renderContext = new wxGLContext(this);
@@ -53,6 +54,15 @@ void ChessCanvas::SetDrawCoordinates(bool draw)
 	if (draw != this->drawCoordinates)
 	{
 		this->drawCoordinates = draw;
+		this->Refresh();
+	}
+}
+
+void ChessCanvas::SetDrawCaptures(bool draw)
+{
+	if (draw != this->drawCaptures)
+	{
+		this->drawCaptures = draw;
 		this->Refresh();
 	}
 }
@@ -97,7 +107,7 @@ void ChessCanvas::OnPaint(wxPaintEvent& event)
 {
 	this->SetCurrent(*this->renderContext);
 
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glShadeModel(GL_FLAT);
@@ -280,6 +290,37 @@ void ChessCanvas::CalculateWorldBox(Box& worldBox) const
 	worldBox.ScaleToMatchAspectRatio(aspectRatio);
 }
 
+bool ChessCanvas::CalculateMarginBoxes(Box& marginBoxA, Box& marginBoxB) const
+{
+	Box worldBox;
+	this->CalculateWorldBox(worldBox);
+
+	if (worldBox.min.x < 0.0)
+	{
+		marginBoxA.min = worldBox.min;
+		marginBoxA.max.x = 0.0;
+		marginBoxA.max.y = 1.0;
+		marginBoxB.min.x = 1.0;
+		marginBoxB.min.y = 0.0;
+		marginBoxB.max.x = worldBox.max.x;
+		marginBoxB.max.y = 1.0;
+		return true;
+	}
+	else if(worldBox.min.y < 0.0)
+	{
+		marginBoxA.min = worldBox.min;
+		marginBoxA.max.x = 1.0;
+		marginBoxA.max.y = 0.0;
+		marginBoxB.min.x = 0.0;
+		marginBoxB.min.y = 1.0;
+		marginBoxB.max.x = 1.0;
+		marginBoxB.max.y = worldBox.max.y;
+		return true;
+	}
+
+	return false;
+}
+
 bool ChessCanvas::CalculateSquareLocation(const wxPoint& mousePoint, ChessEngine::ChessVector& squareLocation, Vector* worldPoint /*= nullptr*/)
 {
 	Vector worldPointStorage;
@@ -365,6 +406,79 @@ void ChessCanvas::RenderBoard()
 		this->ForEachBoardSquare([=](const ChessEngine::ChessVector& squareLocation, const Box& box) {
 			this->RenderBoardCoordinates(squareLocation, box);
 		});
+	}
+
+	if (this->drawCaptures)
+	{
+		Box marginBoxA, marginBoxB;
+		if (this->CalculateMarginBoxes(marginBoxA, marginBoxB))
+		{
+			std::vector<ChessEngine::ChessPiece*> captureArray[2];
+
+			for (int i = 0; i < wxGetApp().game->GetNumMoves(); i++)
+			{
+				const ChessEngine::ChessMove* move = wxGetApp().game->GetMove(i);
+				const ChessEngine::Capture* capture = dynamic_cast<const ChessEngine::Capture*>(move);
+				if (capture)
+					captureArray[int(capture->capturedPiece->color)].push_back(capture->capturedPiece);
+				else
+				{
+					const ChessEngine::EnPassant* enPassant = dynamic_cast<const ChessEngine::EnPassant*>(move);
+					if (enPassant)
+						captureArray[int(enPassant->capturedPiece->color)].push_back(enPassant->capturedPiece);
+				}
+			}
+
+			Box* whiteBox = nullptr;
+			Box* blackBox = nullptr;
+
+			switch (this->renderOrientation)
+			{
+				case RenderOrientation::RENDER_NORMAL:
+				{
+					whiteBox = &marginBoxA;
+					blackBox = &marginBoxB;
+					break;
+				}
+				case RenderOrientation::RENDER_FLIPPED:
+				{
+					whiteBox = &marginBoxB;
+					blackBox = &marginBoxA;
+					break;
+				}
+			}
+
+			this->RenderCaptures(*whiteBox, captureArray[int(ChessEngine::ChessColor::White)]);
+			this->RenderCaptures(*blackBox, captureArray[int(ChessEngine::ChessColor::Black)]);
+		}
+	}
+}
+
+void ChessCanvas::RenderCaptures(const Box& marginBox, const std::vector<ChessEngine::ChessPiece*>& captureArray)
+{
+	double aspectRatio = marginBox.AspectRatio();
+	double delta = 0.0;
+	if (aspectRatio > 1.0)
+		delta = (marginBox.Height() / double(captureArray.size())) / 0.9;
+	else
+		delta = (marginBox.Width() / double(captureArray.size())) / 0.9;
+
+	for (int i = 0; i < (signed)captureArray.size(); i++)
+	{
+		const ChessEngine::ChessPiece* piece = captureArray[i];
+		GLuint texture = this->GetTextureForChessPiece(piece->GetName(), piece->color);
+		double alpha = (float(i + 1)) / float(captureArray.size() + 1);
+		Box renderBox;
+		Vector center;
+		if (aspectRatio > 1.0)
+			marginBox.PointFromUVs(center, Vector(alpha, 0.5));
+		else
+			marginBox.PointFromUVs(center, Vector(0.5, alpha));
+
+		renderBox.min = center - Vector(delta, delta);
+		renderBox.max = center + Vector(delta, delta);
+
+		this->RenderTexturedQuad(renderBox, texture);
 	}
 }
 
