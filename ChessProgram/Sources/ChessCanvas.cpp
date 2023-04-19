@@ -22,8 +22,7 @@ ChessCanvas::ChessCanvas(wxWindow* parent) : wxGLCanvas(parent, wxID_ANY, attrib
 	this->settings.drawCaptures = false;
 	this->settings.lightSquareNum = 0;
 	this->settings.darkSquareNum = 0;
-
-	// TODO: Load settings from config.  Save them to config when the canvas closes.
+	this->settings.Load();
 
 	this->renderContext = new wxGLContext(this);
 
@@ -49,9 +48,27 @@ ChessCanvas::ChessCanvas(wxWindow* parent) : wxGLCanvas(parent, wxID_ANY, attrib
 
 /*virtual*/ ChessCanvas::~ChessCanvas()
 {
+	this->settings.Save();
+
 	delete this->renderContext;
 
 	ChessEngine::DeleteMoveArray(this->legalMoveArray);
+}
+
+void ChessCanvas::Settings::Load()
+{
+	this->drawCoordinates = wxGetApp().config.ReadBool("drawCoordinates", false);
+	this->drawCaptures = wxGetApp().config.ReadBool("drawCaptures", false);
+	this->lightSquareNum = (int)wxGetApp().config.ReadLong("lightSquareNum", 0);
+	this->darkSquareNum = (int)wxGetApp().config.ReadLong("darkSquareNum", 0);
+}
+
+void ChessCanvas::Settings::Save()
+{
+	wxGetApp().config.Write("drawCoordinates", this->drawCoordinates);
+	wxGetApp().config.Write("drawCaptures", this->drawCaptures);
+	wxGetApp().config.Write("lightSquareNum", this->lightSquareNum);
+	wxGetApp().config.Write("darkSquareNum", this->darkSquareNum);
 }
 
 void ChessCanvas::SetDrawCoordinates(bool draw)

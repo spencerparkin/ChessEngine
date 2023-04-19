@@ -5,7 +5,7 @@
 
 wxIMPLEMENT_APP(ChessApp);
 
-ChessApp::ChessApp()
+ChessApp::ChessApp() : config("Chess")
 {
 	this->frame = nullptr;
 	this->game = new ChessEngine::ChessGame();

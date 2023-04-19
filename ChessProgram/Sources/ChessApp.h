@@ -4,6 +4,7 @@
 #include <ChessAI.h>
 #include <wx/setup.h>
 #include <wx/app.h>
+#include <wx/config.h>
 
 class ChessFrame;
 class ChessBot;
@@ -36,6 +37,7 @@ public:
 	ChessEngine::ChessColor whoseTurn;
 	PlayerType playerType[2];
 	ChessBot* bot;
+	wxConfig config;
 };
 
 wxDECLARE_APP(ChessApp);

@@ -47,6 +47,9 @@ public:
 		bool drawCaptures;
 		int lightSquareNum;
 		int darkSquareNum;
+
+		void Load();
+		void Save();
 	};
 
 	enum class SquareShade
