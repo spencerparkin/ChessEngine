@@ -99,7 +99,7 @@ Pawn::Pawn(ChessGame* game, const ChessVector& location, ChessColor color) : Che
 	int initialRank = (this->color == ChessColor::White) ? 1 : 6;
 	int finalRank = (this->color == ChessColor::White) ? 7 : 0;
 
-	if (!this->game->GetSquareOccupant(this->location + forwardDirection))
+	if (!this->game->GetSquareOccupant(this->location + forwardDirection) && this->game->IsLocationValid(this->location + forwardDirection))
 	{
 		if ((this->location + forwardDirection).rank == finalRank)
 		{
