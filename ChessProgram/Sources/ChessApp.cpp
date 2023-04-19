@@ -27,6 +27,11 @@ ChessApp::ChessApp()
 	if (!wxApp::OnInit())
 		return false;
 
+	// I'm getting some warnings when some square tile textures are loaded, complaining about
+	// inconsistent chunks in the PNG file format, so I'm suppressing the warning dialogs with
+	// this call.  The PNG files load just fine.
+	wxLog::EnableLogging(false);
+
 	wxInitAllImageHandlers();
 
 	this->frame = new ChessFrame(nullptr, wxDefaultPosition, wxSize(1300, 700));
