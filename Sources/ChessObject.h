@@ -38,5 +38,8 @@ namespace ChessEngine
 
 		void WriteInt(std::ostream& stream, int value) const;
 		void ReadInt(std::istream& stream, int& value);
+
+		void WriteString(std::ostream& stream, const char* str) const;
+		void ReadString(std::istream& stream, char* str, int strSize);
 	};
 }

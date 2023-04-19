@@ -436,14 +436,14 @@ void ChessCanvas::RenderBoard()
 			{
 				case RenderOrientation::RENDER_NORMAL:
 				{
-					whiteBox = &marginBoxA;
-					blackBox = &marginBoxB;
+					whiteBox = &marginBoxB;
+					blackBox = &marginBoxA;
 					break;
 				}
 				case RenderOrientation::RENDER_FLIPPED:
 				{
-					whiteBox = &marginBoxB;
-					blackBox = &marginBoxA;
+					whiteBox = &marginBoxA;
+					blackBox = &marginBoxB;
 					break;
 				}
 			}

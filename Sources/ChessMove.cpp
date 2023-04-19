@@ -388,6 +388,7 @@ void Promotion::SetPromotedPiece(ChessPiece* piece)
 	if (!this->WritePiece(stream, this->oldPiece))
 		return false;
 
+	this->WriteString(stream, this->cachedDesc);
 	return true;
 }
 
@@ -402,6 +403,7 @@ void Promotion::SetPromotedPiece(ChessPiece* piece)
 	if (!this->ReadPiece(stream, this->oldPiece))
 		return false;
 
+	this->ReadString(stream, this->cachedDesc, sizeof(this->cachedDesc));
 	return true;
 }
 

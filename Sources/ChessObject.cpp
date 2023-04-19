@@ -42,3 +42,25 @@ void ChessObject::ReadInt(std::istream& stream, int& value)
 {
 	stream.read((char*)&value, sizeof(int));
 }
+
+void ChessObject::WriteString(std::ostream& stream, const char* str) const
+{
+	int i;
+	for (i = 0; str[i] != '\0'; i++)
+		stream.write(&str[i], 1);
+
+	stream.write(&str[i], 1);
+}
+
+void ChessObject::ReadString(std::istream& stream, char* str, int strSize)
+{
+	int i;
+	for (i = 0; i < strSize - 1; i++)
+	{
+		stream.read(&str[i], 1);
+		if (str[i] == '\0')
+			break;
+	}
+
+	str[i] = '\0';
+}
