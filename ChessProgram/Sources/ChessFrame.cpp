@@ -261,21 +261,19 @@ void ChessFrame::OnRedo(wxCommandEvent& event)
 
 void ChessFrame::OnFlipBoard(wxCommandEvent& event)
 {
-	switch (this->canvas->renderOrientation)
+	switch (this->canvas->GetRenderOrientation())
 	{
 		case ChessCanvas::RenderOrientation::RENDER_NORMAL:
 		{
-			this->canvas->renderOrientation = ChessCanvas::RenderOrientation::RENDER_FLIPPED;
+			this->canvas->SetRenderOrientation(ChessCanvas::RenderOrientation::RENDER_FLIPPED);
 			break;
 		}
 		case ChessCanvas::RenderOrientation::RENDER_FLIPPED:
 		{
-			this->canvas->renderOrientation = ChessCanvas::RenderOrientation::RENDER_NORMAL;
+			this->canvas->SetRenderOrientation(ChessCanvas::RenderOrientation::RENDER_NORMAL);
 			break;
 		}
 	}
-
-	this->canvas->Refresh();
 }
 
 void ChessFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
@@ -284,7 +282,7 @@ void ChessFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 	{
 		case ID_FlipBoard:
 		{
-			event.Check(this->canvas->renderOrientation == ChessCanvas::RenderOrientation::RENDER_FLIPPED);
+			event.Check(this->canvas->GetRenderOrientation() == ChessCanvas::RenderOrientation::RENDER_FLIPPED);
 			break;
 		}
 		case ID_WhitePlayedByComputer:

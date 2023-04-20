@@ -61,6 +61,7 @@ void ChessCanvas::Settings::Load()
 	this->drawCaptures = wxGetApp().config.ReadBool("drawCaptures", false);
 	this->lightSquareNum = (int)wxGetApp().config.ReadLong("lightSquareNum", 0);
 	this->darkSquareNum = (int)wxGetApp().config.ReadLong("darkSquareNum", 0);
+	this->renderOrientation = (RenderOrientation)wxGetApp().config.ReadLong("renderOrientation", (long)RenderOrientation::RENDER_NORMAL);
 }
 
 void ChessCanvas::Settings::Save()
@@ -69,6 +70,7 @@ void ChessCanvas::Settings::Save()
 	wxGetApp().config.Write("drawCaptures", this->drawCaptures);
 	wxGetApp().config.Write("lightSquareNum", this->lightSquareNum);
 	wxGetApp().config.Write("darkSquareNum", this->darkSquareNum);
+	wxGetApp().config.Write("renderOrientation", (long)this->renderOrientation);
 }
 
 void ChessCanvas::SetDrawCoordinates(bool draw)
@@ -85,6 +87,15 @@ void ChessCanvas::SetDrawCaptures(bool draw)
 	if (draw != this->settings.drawCaptures)
 	{
 		this->settings.drawCaptures = draw;
+		this->Refresh();
+	}
+}
+
+void ChessCanvas::SetRenderOrientation(RenderOrientation renderOrientation)
+{
+	if (renderOrientation != this->settings.renderOrientation)
+	{
+		this->settings.renderOrientation = renderOrientation;
 		this->Refresh();
 	}
 }
@@ -383,7 +394,7 @@ bool ChessCanvas::CalculateSquareLocation(const wxPoint& mousePoint, ChessEngine
 	squareLocation.file = int(::floor(double(CHESS_BOARD_FILES) * worldPoint->x));
 	squareLocation.rank = int(::floor(double(CHESS_BOARD_RANKS) * worldPoint->y));
 
-	if (this->renderOrientation == RenderOrientation::RENDER_FLIPPED)
+	if (this->settings.renderOrientation == RenderOrientation::RENDER_FLIPPED)
 	{
 		squareLocation.file = CHESS_BOARD_RANKS - 1 - squareLocation.file;
 		squareLocation.rank = CHESS_BOARD_RANKS - 1 - squareLocation.rank;
@@ -400,8 +411,8 @@ bool ChessCanvas::CalculateSquareWorldCenter(const ChessEngine::ChessVector& squ
 	double squareWidth = 1.0 / double(CHESS_BOARD_FILES);
 	double squareHeight = 1.0 / double(CHESS_BOARD_RANKS);
 
-	int i = (this->renderOrientation == RenderOrientation::RENDER_FLIPPED) ? (CHESS_BOARD_FILES - 1 - squareLocation.file) : squareLocation.file;
-	int j = (this->renderOrientation == RenderOrientation::RENDER_FLIPPED) ? (CHESS_BOARD_RANKS - 1 - squareLocation.rank) : squareLocation.rank;
+	int i = (this->settings.renderOrientation == RenderOrientation::RENDER_FLIPPED) ? (CHESS_BOARD_FILES - 1 - squareLocation.file) : squareLocation.file;
+	int j = (this->settings.renderOrientation == RenderOrientation::RENDER_FLIPPED) ? (CHESS_BOARD_RANKS - 1 - squareLocation.rank) : squareLocation.rank;
 
 	worldCenter.x = double(i) * squareWidth + squareWidth / 2.0;
 	worldCenter.y = double(j) * squareHeight + squareHeight / 2.0;
@@ -454,7 +465,7 @@ void ChessCanvas::RenderBoard()
 			Box* whiteBox = nullptr;
 			Box* blackBox = nullptr;
 
-			switch (this->renderOrientation)
+			switch (this->settings.renderOrientation)
 			{
 				case RenderOrientation::RENDER_NORMAL:
 				{
@@ -521,7 +532,7 @@ void ChessCanvas::ForEachBoardSquare(std::function<void(const ChessEngine::Chess
 
 			ChessEngine::ChessVector squareLocation;
 
-			switch (this->renderOrientation)
+			switch (this->settings.renderOrientation)
 			{
 				case RenderOrientation::RENDER_NORMAL:
 				{
@@ -701,7 +712,7 @@ void ChessCanvas::RenderBoardCoordinates(const ChessEngine::ChessVector& squareL
 		{
 			Box renderBox;
 
-			switch (this->renderOrientation)
+			switch (this->settings.renderOrientation)
 			{
 				case RenderOrientation::RENDER_NORMAL:
 				{
@@ -731,7 +742,7 @@ void ChessCanvas::RenderBoardCoordinates(const ChessEngine::ChessVector& squareL
 		{
 			Box renderBox;
 
-			switch (this->renderOrientation)
+			switch (this->settings.renderOrientation)
 			{
 				case RenderOrientation::RENDER_NORMAL:
 				{

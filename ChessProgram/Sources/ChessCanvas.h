@@ -39,7 +39,8 @@ public:
 		RENDER_FLIPPED
 	};
 
-	RenderOrientation renderOrientation;
+	RenderOrientation GetRenderOrientation() { return this->settings.renderOrientation; }
+	void SetRenderOrientation(RenderOrientation renderOrientation);
 
 	struct Settings
 	{
@@ -47,6 +48,7 @@ public:
 		bool drawCaptures;
 		int lightSquareNum;
 		int darkSquareNum;
+		RenderOrientation renderOrientation;
 
 		void Load();
 		void Save();
