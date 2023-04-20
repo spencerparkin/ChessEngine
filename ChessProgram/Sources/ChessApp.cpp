@@ -39,7 +39,11 @@ ChessApp::ChessApp() : config("Chess")
 			if (!this->game->ReadFromStream(stream))
 				this->game->Reset();
 
+			char colorByte = 0;
+			stream >> colorByte;
 			stream.close();
+
+			this->whoseTurn = (ChessEngine::ChessColor)colorByte;
 		}
 	}
 
@@ -67,6 +71,7 @@ ChessApp::ChessApp() : config("Chess")
 	if (stream.is_open())
 	{
 		this->game->WriteToStream(stream);
+		stream << (char)this->whoseTurn;
 		stream.close();
 	}
 
