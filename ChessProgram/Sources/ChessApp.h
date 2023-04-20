@@ -32,6 +32,9 @@ public:
 	void SetCurrentPlayerType(PlayerType playerType);
 	void SetPlayerType(ChessEngine::ChessColor color, PlayerType playerType);
 
+	bool LoadGame(const wxString& gameFile);
+	bool SaveGame(const wxString& gameFile);
+
 	ChessFrame* frame;
 	ChessEngine::ChessGame* game;
 	ChessEngine::ChessColor whoseTurn;

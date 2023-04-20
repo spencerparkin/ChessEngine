@@ -167,17 +167,9 @@ void ChessFrame::OnSaveGame(wxCommandEvent& event)
 	wxFileDialog fileDialog(this, "Choose Chess file save location", wxEmptyString, wxEmptyString, "Chess Files (*.chess)|*.chess", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 	if (wxID_OK == fileDialog.ShowModal())
 	{
-		std::ofstream stream;
-		stream.open((const char*)fileDialog.GetPath().c_str(), std::ios::binary | std::ios::out);
-		if (!stream.is_open())
-			wxMessageBox(wxString::Format("Failed to open file: %s", (const char*)fileDialog.GetPath().c_str()), "Error", wxICON_ERROR | wxOK, this);
-		else
+		if (!wxGetApp().SaveGame(fileDialog.GetPath()))
 		{
-			if (!wxGetApp().game->WriteToStream(stream))
-				wxMessageBox(wxString::Format("Failed to write file: %s", (const char*)fileDialog.GetPath().c_str()), "Error", wxICON_ERROR | wxOK, this);
-
-			stream << (char)wxGetApp().whoseTurn;
-			stream.close();
+			wxMessageBox(wxString::Format("Failed to save game file: %s", (const char*)fileDialog.GetPath().c_str()), "Error", wxICON_ERROR | wxOK, this);
 		}
 	}
 }
@@ -187,30 +179,14 @@ void ChessFrame::OnLoadGame(wxCommandEvent& event)
 	wxFileDialog fileDialog(this, "Choose a Chess file to open.", wxEmptyString, wxEmptyString, "Chess Files (*.chess)|*.chess", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 	if (wxID_OK == fileDialog.ShowModal())
 	{
-		std::ifstream stream;
-		stream.open((const char*)fileDialog.GetPath().c_str(), std::ios::binary | std::ios::in);
-		if (!stream.is_open())
-			wxMessageBox(wxString::Format("Failed to open file: %s", (const char*)fileDialog.GetPath().c_str()), "Error", wxICON_ERROR | wxOK, this);
+		if (!wxGetApp().LoadGame(fileDialog.GetPath()))
+			wxMessageBox(wxString::Format("Failed to open game file: %s", (const char*)fileDialog.GetPath().c_str()), "Error", wxICON_ERROR | wxOK, this);
 		else
 		{
-			if (!wxGetApp().game->ReadFromStream(stream))
-			{
-				wxMessageBox(wxString::Format("Failed to read file: %s", (const char*)fileDialog.GetPath().c_str()), "Error", wxICON_ERROR | wxOK, this);
-				wxGetApp().game->Reset();
-			}
-			else
-			{
-				char colorByte = 0;
-				stream >> colorByte;
-				wxGetApp().whoseTurn = (ChessEngine::ChessColor)colorByte;
+			wxCommandEvent stateChangedEvent(EVT_GAME_STATE_CHANGED);
+			wxPostEvent(this, stateChangedEvent);
 
-				wxCommandEvent stateChangedEvent(EVT_GAME_STATE_CHANGED);
-				wxPostEvent(this, stateChangedEvent);
-
-				this->canvas->Refresh();
-			}
-
-			stream.close();
+			this->canvas->Refresh();
 		}
 	}
 }

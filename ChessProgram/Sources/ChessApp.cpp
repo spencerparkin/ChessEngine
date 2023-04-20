@@ -31,21 +31,7 @@ ChessApp::ChessApp() : config("Chess")
 
 	wxFileName fileName(wxGetCwd() + "/last_game.chess");
 	if (fileName.Exists())
-	{
-		std::ifstream stream;
-		stream.open((const char*)fileName.GetFullPath().c_str(), std::ios::binary | std::ios::in);
-		if (stream.is_open())
-		{
-			if (!this->game->ReadFromStream(stream))
-				this->game->Reset();
-
-			char colorByte = 0;
-			stream >> colorByte;
-			stream.close();
-
-			this->whoseTurn = (ChessEngine::ChessColor)colorByte;
-		}
-	}
+		this->LoadGame(fileName.GetFullPath());
 
 	// I'm getting some warnings when some square tile textures are loaded, complaining about
 	// inconsistent chunks in the PNG file format, so I'm suppressing the warning dialogs with
@@ -66,16 +52,41 @@ ChessApp::ChessApp() : config("Chess")
 	if (fileName.Exists())
 		wxRemoveFile(fileName.GetFullPath());
 
-	std::ofstream stream;
-	stream.open((const char*)fileName.GetFullPath().c_str(), std::ios::binary | std::ios::out);
-	if (stream.is_open())
+	this->SaveGame(fileName.GetFullPath());
+	return 0;
+}
+
+bool ChessApp::LoadGame(const wxString& gameFile)
+{
+	std::ifstream stream;
+	stream.open((const char*)gameFile.c_str(), std::ios::binary | std::ios::in);
+	if (!stream.is_open())
+		return false;
+	
+	if (!this->game->ReadFromStream(stream))
 	{
-		this->game->WriteToStream(stream);
-		stream << (char)this->whoseTurn;
-		stream.close();
+		this->game->Reset();
+		return false;
 	}
 
-	return 0;
+	char colorByte = 0;
+	stream >> colorByte;
+	stream.close();
+	this->whoseTurn = (ChessEngine::ChessColor)colorByte;
+	return true;
+}
+
+bool ChessApp::SaveGame(const wxString& gameFile)
+{
+	std::ofstream stream;
+	stream.open((const char*)gameFile.c_str(), std::ios::binary | std::ios::out);
+	if (!stream.is_open())
+		return false;
+	
+	this->game->WriteToStream(stream);
+	stream << (char)this->whoseTurn;
+	stream.close();
+	return true;
 }
 
 void ChessApp::FlipTurn()
