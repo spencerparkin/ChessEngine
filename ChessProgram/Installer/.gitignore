@@ -1,0 +1,5 @@
+# Ignore VS stuff...
+bin/
+obj/
+AppPackages/
+BundleArtifacts/
