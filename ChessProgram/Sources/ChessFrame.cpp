@@ -472,7 +472,7 @@ void ChessFrame::OnAbout(wxCommandEvent& event)
 
 	aboutDialogInfo.SetName("Chess");
 	aboutDialogInfo.SetVersion("1.0");
-	aboutDialogInfo.SetDescription("This is a simple Chess program.\n\nArt credit: JohnPablok's improved Cburnett chess set.");
+	aboutDialogInfo.SetDescription("This is a simple Chess program.\n\nArt credit: JohnPablok's improved Cburnett chess set.  (License: CC BY-SA 3.0)");
 	aboutDialogInfo.SetCopyright("Copyright (C) 2023 -- Spencer T. Parkin <SpencerTParkin@gmail.com>");
 
 	wxAboutBox(aboutDialogInfo);
