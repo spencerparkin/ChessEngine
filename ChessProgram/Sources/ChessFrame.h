@@ -32,6 +32,7 @@ public:
 	void OnDrawCaptures(wxCommandEvent& event);
 	void OnCycleSquareTexture(wxCommandEvent& event);
 	void OnHowToPlay(wxCommandEvent& event);
+	void OnDoubleUndoRedo(wxCommandEvent& event);
 
 	enum
 	{
@@ -50,7 +51,9 @@ public:
 		ID_DrawCaptures,
 		ID_CycleLightSquareTexture,
 		ID_CycleDarkSquareTexture,
-		ID_HowToPlay
+		ID_HowToPlay,
+		ID_DoubleUndo,
+		ID_DoubleRedo
 	};
 
 	void UpdateStatusBar();

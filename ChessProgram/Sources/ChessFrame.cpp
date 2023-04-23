@@ -71,6 +71,16 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	toolBar->AddTool(ID_CycleLightSquareTexture, "Cycle Light Square Texture", cycleLightSquareBitmap, "Change the texture of the light squares.");
 	toolBar->AddTool(ID_CycleDarkSquareTexture, "Cycle Dark Square Texture", cycleDarkSquareBitmap, "Change the texture of the dark squares.");
 
+	toolBar->AddSeparator();
+
+	wxBitmap doubleUndoBitmap, doubleRedoBitmap;
+
+	doubleUndoBitmap.LoadFile(wxGetCwd() + "/Textures/double_undo_icon.bmp", wxBITMAP_TYPE_BMP);
+	doubleRedoBitmap.LoadFile(wxGetCwd() + "/Textures/double_redo_icon.bmp", wxBITMAP_TYPE_BMP);
+
+	toolBar->AddTool(ID_DoubleUndo, "Double Undo", doubleUndoBitmap, "Undo two moves at a time.");
+	toolBar->AddTool(ID_DoubleRedo, "Double Redo", doubleRedoBitmap, "Redo two moves at a time.");
+
 	toolBar->Realize();
 
 	this->Bind(wxEVT_MENU, &ChessFrame::OnNewGame, this, ID_NewGame);
@@ -89,6 +99,8 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	this->Bind(wxEVT_MENU, &ChessFrame::OnCycleSquareTexture, this, ID_CycleLightSquareTexture);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnCycleSquareTexture, this, ID_CycleDarkSquareTexture);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnHowToPlay, this, ID_HowToPlay);
+	this->Bind(wxEVT_MENU, &ChessFrame::OnDoubleUndoRedo, this, ID_DoubleUndo);
+	this->Bind(wxEVT_MENU, &ChessFrame::OnDoubleUndoRedo, this, ID_DoubleRedo);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_FlipBoard);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_WhitePlayedByComputer);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_BlackPlayedByComputer);
@@ -144,6 +156,51 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 /*virtual*/ ChessFrame::~ChessFrame()
 {
 	ChessEngine::DeleteMoveArray(this->redoMoveArray);
+}
+
+void ChessFrame::OnDoubleUndoRedo(wxCommandEvent& event)
+{
+	int numMoves = wxGetApp().game->GetNumMoves();
+
+	wxCommandEvent stateChangedEvent(EVT_GAME_STATE_CHANGED);
+
+	// Double undo/redo is nice, because it doesn't turn off the AI players.
+	// I'm not sure how to do single undo/redo without doing that, because you
+	// can't have the computer interfearing with trying to go back and forth
+	// through your game history.
+	switch (event.GetId())
+	{
+		case ID_DoubleUndo:
+		{
+			if (numMoves >= 2)
+			{
+				this->redoMoveArray.push_back(wxGetApp().game->PopMove());
+				this->redoMoveArray.push_back(wxGetApp().game->PopMove());
+			}
+
+			stateChangedEvent.SetString("undo");
+			break;
+		}
+		case ID_DoubleRedo:
+		{
+			if (this->redoMoveArray.size() >= 2)
+			{
+				wxGetApp().game->PushMove(this->redoMoveArray.back());
+				this->redoMoveArray.pop_back();
+				wxGetApp().game->PushMove(this->redoMoveArray.back());
+				this->redoMoveArray.pop_back();
+			}
+
+			stateChangedEvent.SetString("redo");
+			break;
+		}
+	}
+
+	if (wxGetApp().game->GetNumMoves() != numMoves)
+	{
+		wxPostEvent(this, stateChangedEvent);
+		this->canvas->Refresh();
+	}
 }
 
 void ChessFrame::OnHowToPlay(wxCommandEvent& event)
