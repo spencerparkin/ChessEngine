@@ -31,6 +31,7 @@ public:
 	void OnDrawCoordinates(wxCommandEvent& event);
 	void OnDrawCaptures(wxCommandEvent& event);
 	void OnCycleSquareTexture(wxCommandEvent& event);
+	void OnHowToPlay(wxCommandEvent& event);
 
 	enum
 	{
@@ -48,7 +49,8 @@ public:
 		ID_DrawCoordinates,
 		ID_DrawCaptures,
 		ID_CycleLightSquareTexture,
-		ID_CycleDarkSquareTexture
+		ID_CycleDarkSquareTexture,
+		ID_HowToPlay
 	};
 
 	void UpdateStatusBar();

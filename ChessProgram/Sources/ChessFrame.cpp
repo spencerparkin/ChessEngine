@@ -39,6 +39,8 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_DrawCaptures, "Draw Captures", "Show the captured Chess pieces.", wxITEM_CHECK));
 
 	wxMenu* helpMenu = new wxMenu();
+	helpMenu->Append(new wxMenuItem(helpMenu, ID_HowToPlay, "How to play...", "Show a web-page with info about how to play, FWIW."));
+	helpMenu->AppendSeparator();
 	helpMenu->Append(new wxMenuItem(helpMenu, ID_About, "About", "Show the about-box."));
 
 	wxMenuBar* menuBar = new wxMenuBar();
@@ -86,6 +88,7 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	this->Bind(wxEVT_MENU, &ChessFrame::OnDrawCaptures, this, ID_DrawCaptures);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnCycleSquareTexture, this, ID_CycleLightSquareTexture);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnCycleSquareTexture, this, ID_CycleDarkSquareTexture);
+	this->Bind(wxEVT_MENU, &ChessFrame::OnHowToPlay, this, ID_HowToPlay);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_FlipBoard);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_WhitePlayedByComputer);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_BlackPlayedByComputer);
@@ -141,6 +144,12 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 /*virtual*/ ChessFrame::~ChessFrame()
 {
 	ChessEngine::DeleteMoveArray(this->redoMoveArray);
+}
+
+void ChessFrame::OnHowToPlay(wxCommandEvent& event)
+{
+	wxString url = wxGetCwd() + "/Help/how_to_play_chess.html";
+	wxLaunchDefaultBrowser(url, wxBROWSER_NEW_WINDOW);
 }
 
 void ChessFrame::OnCycleSquareTexture(wxCommandEvent& event)
