@@ -24,6 +24,9 @@ namespace ChessEngine
 		// implementors of various chess solvers.
 		virtual bool ProgressUpdate(float percentage);
 
+		// Derivatives of this class might implement a different evaluation function.
+		virtual int EvaluationFunction(ChessColor favoredColor, const ChessGame* game);
+
 		// These serve a similar purpose.
 		virtual void ProgressBegin();
 		virtual void ProgressEnd();
@@ -38,9 +41,6 @@ namespace ChessEngine
 
 		virtual ChessMove* CalculateRecommendedMove(ChessColor favoredColor, ChessGame* game) override;
 
-		// Derivatives of this class might implement a different evaluation function.
-		virtual int EvaluationFunction(ChessColor favoredColor, const ChessGame* game);
-
 		enum class Goal
 		{
 			MINIMIZE,
@@ -51,5 +51,39 @@ namespace ChessEngine
 
 		ChessMoveArray* bestMoveArray;
 		int maxDepth;
+	};
+
+	// Useful resource: https://www.youtube.com/watch?v=UXW2yZndl7U
+	class CHESS_ENGINE_API ChessMonteCarloTreeSearchAI : public ChessAI
+	{
+	public:
+		ChessMonteCarloTreeSearchAI(time_t maxTimeSeconds, int maxIterations);
+		virtual ~ChessMonteCarloTreeSearchAI();
+
+		virtual ChessMove* CalculateRecommendedMove(ChessColor favoredColor, ChessGame* game) override;
+
+	private:
+
+		double PerformRollout(ChessColor favoredColor, ChessColor whoseTurn, ChessGame* game);
+
+		class Node
+		{
+		public:
+			Node(ChessMove* move, Node* parent);
+			virtual ~Node();
+
+			double CalcUCB() const;
+
+			Node* parent;
+			std::vector<Node*> childArray;
+			ChessMove* move;
+			double totalScore;
+			double numVisits;
+			mutable double cachedUCB;
+			mutable bool cachedUCBValid;
+		};
+
+		time_t maxTimeSeconds;
+		int maxIterations;
 	};
 }

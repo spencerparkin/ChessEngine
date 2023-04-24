@@ -5,6 +5,9 @@
 #include <algorithm>
 #include <cstdlib>
 #include <time.h>
+#include <math.h>
+#include <limits.h>
+#include <assert.h>
 
 using namespace ChessEngine;
 
@@ -29,6 +32,37 @@ ChessAI::ChessAI()
 
 /*virtual*/ void ChessAI::ProgressEnd()
 {
+}
+
+
+/*virtual*/ int ChessAI::EvaluationFunction(ChessColor favoredColor, const ChessGame* game)
+{
+	int totalScore = 0;
+
+	// This is one possible way to boil the position down to a score indicating how well the given color is doing.
+	// There are, of course, perhaps others, each taking their own verying degree of time to evaluate.  This one is
+	// quick and simple.  It also makes clear the zero-sum nature of the game.
+	for (int i = 0; i < CHESS_BOARD_FILES; i++)
+	{
+		for (int j = 0; j < CHESS_BOARD_RANKS; j++)
+		{
+			const ChessPiece* piece = game->GetSquareOccupant(ChessVector(i, j));
+			if (piece)
+			{
+				int score = piece->GetScore();
+
+				// Bonus points for being closer to the center of the board.
+				score += piece->location.ShortestDistanceToBoardEdge();
+
+				if (piece->color == favoredColor)
+					totalScore += score;
+				else
+					totalScore -= score;
+			}
+		}
+	}
+
+	return totalScore;
 }
 
 //---------------------------------------- ChessMinimaxAI ----------------------------------------
@@ -78,7 +112,6 @@ ChessMinimaxAI::ChessMinimaxAI(int maxDepth)
 	return chosenMove;
 }
 
-// TODO: Could this be sped up using memoization?  It's hard to reconcile this with moves that depend on the move history, such as castling or en passant.
 bool ChessMinimaxAI::Minimax(Goal goal, ChessColor favoredColor, ChessColor whoseTurn, ChessGame* game, int depth, int& score, int* currentSuperScore /*= nullptr*/)
 {
 	if (depth >= this->maxDepth)
@@ -202,32 +235,187 @@ bool ChessMinimaxAI::Minimax(Goal goal, ChessColor favoredColor, ChessColor whos
 	return success;
 }
 
-/*virtual*/ int ChessMinimaxAI::EvaluationFunction(ChessColor favoredColor, const ChessGame* game)
+//---------------------------------------- ChessMontoCarloTreeSearchAI ----------------------------------------
+
+ChessMonteCarloTreeSearchAI::ChessMonteCarloTreeSearchAI(time_t maxTimeSeconds, int maxIterations)
 {
-	int totalScore = 0;
+	this->maxTimeSeconds = maxTimeSeconds;
+	this->maxIterations = maxIterations;
+}
 
-	// This is one possible way to boild the position down to a score indicating how well the given color is doing.
-	// There are, of course, perhaps others, each taking their own verying degree of time to evaluate.  This one is
-	// quick and simple.  It also makes clear the zero-sum nature of the game.
-	for (int i = 0; i < CHESS_BOARD_FILES; i++)
+/*virtual*/ ChessMonteCarloTreeSearchAI::~ChessMonteCarloTreeSearchAI()
+{
+}
+
+/*virtual*/ ChessMove* ChessMonteCarloTreeSearchAI::CalculateRecommendedMove(ChessColor favoredColor, ChessGame* game)
+{
+	this->ProgressBegin();
+
+	Node* root = new Node(nullptr, nullptr);
+
+	time_t startTimeSeconds = time(nullptr);
+	int iterationCount = 0;
+
+	while (true)
 	{
-		for (int j = 0; j < CHESS_BOARD_RANKS; j++)
+		if (this->maxIterations > 0)
 		{
-			const ChessPiece* piece = game->GetSquareOccupant(ChessVector(i, j));
-			if (piece)
+			iterationCount++;
+			this->ProgressUpdate(float(iterationCount) / float(this->maxIterations));
+			if (iterationCount >= this->maxIterations)
+				break;
+		}
+		else if (this->maxTimeSeconds > 0.0)
+		{
+			time_t currentTimeSeconds = time(nullptr);
+			time_t elapsedTimeSeconds = currentTimeSeconds - startTimeSeconds;
+			this->ProgressUpdate(float(elapsedTimeSeconds) / float(this->maxTimeSeconds));
+			if (elapsedTimeSeconds >= this->maxTimeSeconds)
+				break;
+		}
+		else
+		{
+			break;
+		}
+
+		int originalNumMoves = game->GetNumMoves();
+		ChessColor whoseTurn = favoredColor;
+
+		//
+		// SELECTION PHASE
+		//
+
+		Node* selectedNode = root;
+		while (selectedNode->childArray.size() > 0)
+		{
+			Node* nextNode = nullptr;
+			double highestUCB = FLT_MIN;
+			for (Node* child : selectedNode->childArray)
 			{
-				int score = piece->GetScore();
-
-				// Bonus points for being closer to the center of the board.
-				score += piece->location.ShortestDistanceToBoardEdge();
-
-				if (piece->color == favoredColor)
-					totalScore += score;
-				else
-					totalScore -= score;
+				double childUCB = child->CalcUCB();
+				if (childUCB > highestUCB)
+				{
+					highestUCB = childUCB;
+					nextNode = child;
+				}
 			}
+
+			assert(nextNode != nullptr);
+			game->PushMove(nextNode->move);
+			selectedNode = nextNode;
+			whoseTurn = (whoseTurn == ChessColor::Black) ? ChessColor::White : ChessColor::Black;
+		}
+
+		//
+		// EXPANSION PHASE
+		//
+
+		if (selectedNode->numVisits > 0.0)
+		{
+			ChessMoveArray legalMoveArray;
+			GameResult result = game->GenerateAllLegalMovesForColor(whoseTurn, legalMoveArray);
+			// TODO: Examine game result here?
+			if (legalMoveArray.size() > 0)
+			{
+				for (ChessMove* move : legalMoveArray)
+				{
+					Node* node = new Node(move, selectedNode);
+					selectedNode->childArray.push_back(node);
+				}
+
+				selectedNode = selectedNode->childArray.back();
+			}
+		}
+		
+		//
+		// ROLLOUT PHASE
+		//
+
+		double rolloutScore = this->PerformRollout(favoredColor, whoseTurn, game);
+
+		//
+		// BACKPROPAGATION PHASE
+		//
+
+		for(Node* node = selectedNode; node; node = node->parent)
+		{
+			node->totalScore += rolloutScore;
+			node->numVisits++;
+			node->cachedUCBValid = false;
+			game->PopMove();
+		}
+
+		// Make sure we leave the game state untouched after each iteration.
+		assert(game->GetNumMoves() == originalNumMoves);
+	}
+
+	// Finally, choose the move from the root with the highest total score.
+	ChessMove* bestMove = nullptr;
+	double highestTotalScore = FLT_MIN;
+	for (Node* child : root->childArray)
+	{
+		if (child->totalScore > highestTotalScore)
+		{
+			bestMove = child->move;
+			highestTotalScore = child->totalScore;
 		}
 	}
 
-	return totalScore;
+	for (Node* child : root->childArray)
+		if (child->move == bestMove)
+			child->move = nullptr;
+
+	delete root;
+	this->ProgressEnd();
+	return bestMove;
+}
+
+double ChessMonteCarloTreeSearchAI::PerformRollout(ChessColor favoredColor, ChessColor whoseTurn, ChessGame* game)
+{
+	// TODO: Do random moves to a terminal state.  This is a state where the game is
+	//       decided, or we're far enough along to make a judgement call on whoe is
+	//       most likely to win based on a given threshold.  We then need to assign
+	//       a value to the roll-out, scoring the result against the favored player.
+
+	return 0.0;
+}
+
+//---------------------------------------- ChessMontoCarloTreeSearchAI::Node ----------------------------------------	
+	
+ChessMonteCarloTreeSearchAI::Node::Node(ChessMove* move, Node* parent)
+{
+	this->move = move;
+	this->parent = parent;
+	this->totalScore = 0.0;
+	this->numVisits = 0.0;
+	this->cachedUCB = FLT_MAX;
+	this->cachedUCBValid = true;
+}
+
+/*virtual*/ ChessMonteCarloTreeSearchAI::Node::~Node()
+{
+	delete this->move;
+
+	for (Node* child : this->childArray)
+		delete child;
+}
+
+double ChessMonteCarloTreeSearchAI::Node::CalcUCB() const
+{
+	if (!this->cachedUCBValid)
+	{
+		if (this->numVisits == 0.0 || !this->parent)
+			this->cachedUCB = FLT_MAX;
+		else
+		{
+			static double C = 2.0;
+			double exploitationTerm = this->totalScore / this->numVisits;
+			double explorationTerm = C * ::sqrt(::log(this->parent->numVisits) / this->numVisits);
+			this->cachedUCB = explorationTerm + exploitationTerm;
+		}
+
+		this->cachedUCBValid = true;
+	}
+
+	return this->cachedUCB;
 }
