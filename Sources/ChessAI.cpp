@@ -4,6 +4,7 @@
 #include "ChessMove.h"
 #include <algorithm>
 #include <cstdlib>
+#include <time.h>
 
 using namespace ChessEngine;
 
@@ -36,7 +37,7 @@ ChessMinimaxAI::ChessMinimaxAI(int maxDepth)
 {
 	this->bestMoveArray = new ChessMoveArray();
 	this->maxDepth = maxDepth;
-	std::srand(0);
+	std::srand((unsigned int)time(nullptr));
 }
 
 /*virtual*/ ChessMinimaxAI::~ChessMinimaxAI()
