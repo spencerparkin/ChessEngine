@@ -55,8 +55,8 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 
 	wxBitmap computerWhiteBitmap, computerBlackBitmap;
 
-	computerWhiteBitmap.LoadFile(wxGetCwd() + "/Textures/computer_as_white_icon.bmp", wxBITMAP_TYPE_BMP);
-	computerBlackBitmap.LoadFile(wxGetCwd() + "/Textures/computer_as_black_icon.bmp", wxBITMAP_TYPE_BMP);
+	computerWhiteBitmap.LoadFile(wxGetCwd() + "/Textures/computer_as_white_icon.png", wxBITMAP_TYPE_PNG);
+	computerBlackBitmap.LoadFile(wxGetCwd() + "/Textures/computer_as_black_icon.png", wxBITMAP_TYPE_PNG);
 
 	toolBar->AddTool(ID_WhitePlayedByComputer, "Computer as White", computerWhiteBitmap, "Let the computer control the white pieces.", wxITEM_CHECK);
 	toolBar->AddTool(ID_BlackPlayedByComputer, "Computer as Black", computerBlackBitmap, "Let the computer control the black pieces.", wxITEM_CHECK);
@@ -75,8 +75,8 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 
 	wxBitmap doubleUndoBitmap, doubleRedoBitmap;
 
-	doubleUndoBitmap.LoadFile(wxGetCwd() + "/Textures/double_undo_icon.bmp", wxBITMAP_TYPE_BMP);
-	doubleRedoBitmap.LoadFile(wxGetCwd() + "/Textures/double_redo_icon.bmp", wxBITMAP_TYPE_BMP);
+	doubleUndoBitmap.LoadFile(wxGetCwd() + "/Textures/double_undo_icon.png", wxBITMAP_TYPE_PNG);
+	doubleRedoBitmap.LoadFile(wxGetCwd() + "/Textures/double_redo_icon.png", wxBITMAP_TYPE_PNG);
 
 	toolBar->AddTool(ID_DoubleUndo, "Double Undo", doubleUndoBitmap, "Undo two moves at a time.");
 	toolBar->AddTool(ID_DoubleRedo, "Double Redo", doubleRedoBitmap, "Redo two moves at a time.");
