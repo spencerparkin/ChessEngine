@@ -313,8 +313,7 @@ ChessMonteCarloTreeSearchAI::ChessMonteCarloTreeSearchAI(time_t maxTimeSeconds, 
 		if (selectedNode->numVisits > 0.0)
 		{
 			ChessMoveArray legalMoveArray;
-			GameResult result = game->GenerateAllLegalMovesForColor(whoseTurn, legalMoveArray);
-			// TODO: Examine game result here?
+			game->GenerateAllLegalMovesForColor(whoseTurn, legalMoveArray);
 			if (legalMoveArray.size() > 0)
 			{
 				for (ChessMove* move : legalMoveArray)
@@ -373,7 +372,7 @@ ChessMonteCarloTreeSearchAI::ChessMonteCarloTreeSearchAI(time_t maxTimeSeconds, 
 double ChessMonteCarloTreeSearchAI::PerformRollout(ChessColor favoredColor, ChessColor whoseTurn, ChessGame* game)
 {
 	// TODO: Do random moves to a terminal state.  This is a state where the game is
-	//       decided, or we're far enough along to make a judgement call on whoe is
+	//       decided, or we're far enough along to make a judgement call on who is
 	//       most likely to win based on a given threshold.  We then need to assign
 	//       a value to the roll-out, scoring the result against the favored player.
 
