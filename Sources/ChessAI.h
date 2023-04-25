@@ -30,6 +30,8 @@ namespace ChessEngine
 		// These serve a similar purpose.
 		virtual void ProgressBegin();
 		virtual void ProgressEnd();
+
+		int Random(int min, int max);
 	};
 
 	// Useful resource: https://medium.com/@SereneBiologist/the-anatomy-of-a-chess-ai-2087d0d565

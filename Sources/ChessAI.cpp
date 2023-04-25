@@ -34,7 +34,6 @@ ChessAI::ChessAI()
 {
 }
 
-
 /*virtual*/ int ChessAI::EvaluationFunction(ChessColor favoredColor, const ChessGame* game)
 {
 	int totalScore = 0;
@@ -63,6 +62,17 @@ ChessAI::ChessAI()
 	}
 
 	return totalScore;
+}
+
+int ChessAI::Random(int min, int max)
+{
+	double alpha = double(std::rand()) / double(RAND_MAX);
+	int i = min + (int)::round(alpha * double(max - min));
+	if (i < min)
+		i = min;
+	if (i > max)
+		i = max;
+	return i;
 }
 
 //---------------------------------------- ChessMinimaxAI ----------------------------------------
@@ -96,12 +106,7 @@ ChessMinimaxAI::ChessMinimaxAI(int maxDepth)
 
 	if (success && this->bestMoveArray->size() > 0)
 	{
-		double alpha = double(std::rand()) / float(RAND_MAX);
-		int i = (int)::round(alpha * double(this->bestMoveArray->size()));
-		if (i < 0)
-			i = 0;
-		if (i >= (signed)this->bestMoveArray->size())
-			i = (signed)this->bestMoveArray->size() - 1;
+		int i = this->Random(0, this->bestMoveArray->size() - 1);
 		chosenMove = (*this->bestMoveArray)[i];
 		(*this->bestMoveArray)[i] = nullptr;
 		DeleteMoveArray(*this->bestMoveArray);
@@ -289,7 +294,7 @@ ChessMonteCarloTreeSearchAI::ChessMonteCarloTreeSearchAI(time_t maxTimeSeconds, 
 		while (selectedNode->childArray.size() > 0)
 		{
 			Node* nextNode = nullptr;
-			double highestUCB = FLT_MIN;
+			double highestUCB = DBL_MIN;
 			for (Node* child : selectedNode->childArray)
 			{
 				double childUCB = child->CalcUCB();
@@ -312,11 +317,11 @@ ChessMonteCarloTreeSearchAI::ChessMonteCarloTreeSearchAI(time_t maxTimeSeconds, 
 
 		if (selectedNode->numVisits > 0.0)
 		{
-			ChessMoveArray legalMoveArray;
-			game->GenerateAllLegalMovesForColor(whoseTurn, legalMoveArray);
-			if (legalMoveArray.size() > 0)
+			ChessMoveArray moveArray;
+			game->GenerateAllLegalMovesForColor(whoseTurn, moveArray);
+			if (moveArray.size() > 0)
 			{
-				for (ChessMove* move : legalMoveArray)
+				for (ChessMove* move : moveArray)
 				{
 					Node* node = new Node(move, selectedNode);
 					selectedNode->childArray.push_back(node);
@@ -350,7 +355,7 @@ ChessMonteCarloTreeSearchAI::ChessMonteCarloTreeSearchAI(time_t maxTimeSeconds, 
 
 	// Finally, choose the move from the root with the highest total score.
 	ChessMove* bestMove = nullptr;
-	double highestTotalScore = FLT_MIN;
+	double highestTotalScore = DBL_MIN;
 	for (Node* child : root->childArray)
 	{
 		if (child->totalScore > highestTotalScore)
@@ -371,12 +376,55 @@ ChessMonteCarloTreeSearchAI::ChessMonteCarloTreeSearchAI(time_t maxTimeSeconds, 
 
 double ChessMonteCarloTreeSearchAI::PerformRollout(ChessColor favoredColor, ChessColor whoseTurn, ChessGame* game)
 {
-	// TODO: Do random moves to a terminal state.  This is a state where the game is
-	//       decided, or we're far enough along to make a judgement call on who is
-	//       most likely to win based on a given threshold.  We then need to assign
-	//       a value to the roll-out, scoring the result against the favored player.
+	double rolloutScore = 0.0;
+	int numMoves = game->GetNumMoves();
 
-	return 0.0;
+	while (true)
+	{
+		ChessMoveArray moveArray;
+		GameResult result = game->GenerateAllLegalMovesForColor(whoseTurn, moveArray);
+
+		// Have we reached the end of the game?
+		if (result == GameResult::CheckMate)
+		{
+			rolloutScore = (whoseTurn == favoredColor) ? -2000.0 : 2000.0;
+			DeleteMoveArray(moveArray);
+			break;
+		}
+		else if (result == GameResult::StaleMate)
+		{
+			rolloutScore = -1000.0;
+			DeleteMoveArray(moveArray);
+			break;
+		}
+
+		// Have we reached far enough into the game that we can accurately predict who's going to win?
+		double score = (double)this->EvaluationFunction(favoredColor, game);
+		static double threshold = 150.0;
+		if (fabs(score) > threshold)
+		{
+			rolloutScore = score;
+			DeleteMoveArray(moveArray);
+			break;
+		}
+
+		// Pick a random move and go with it.
+		int i = this->Random(0, moveArray.size() - 1);
+		ChessMove* move = moveArray[i];
+		moveArray[i] = moveArray[moveArray.size() - 1];
+		moveArray.pop_back();
+		DeleteMoveArray(moveArray);
+		game->PushMove(move);
+		whoseTurn = (whoseTurn == ChessColor::Black) ? ChessColor::White : ChessColor::Black;
+	}
+
+	while (game->GetNumMoves() > numMoves)
+	{
+		ChessMove* move = game->PopMove();
+		delete move;
+	}
+
+	return rolloutScore;
 }
 
 //---------------------------------------- ChessMontoCarloTreeSearchAI::Node ----------------------------------------	
@@ -387,7 +435,7 @@ ChessMonteCarloTreeSearchAI::Node::Node(ChessMove* move, Node* parent)
 	this->parent = parent;
 	this->totalScore = 0.0;
 	this->numVisits = 0.0;
-	this->cachedUCB = FLT_MAX;
+	this->cachedUCB = DBL_MAX;
 	this->cachedUCBValid = true;
 }
 
@@ -404,7 +452,7 @@ double ChessMonteCarloTreeSearchAI::Node::CalcUCB() const
 	if (!this->cachedUCBValid)
 	{
 		if (this->numVisits == 0.0 || !this->parent)
-			this->cachedUCB = FLT_MAX;
+			this->cachedUCB = DBL_MAX;
 		else
 		{
 			static double C = 2.0;		// TODO: How do we tune this value?  Might the range of possible roll-out values factor into it?
