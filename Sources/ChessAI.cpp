@@ -477,7 +477,7 @@ double ChessMonteCarloTreeSearchAI::Node::CalcUCB() const
 			this->cachedUCB = DBL_MAX;
 		else
 		{
-			static double C = 10.0;		// TODO: How do we tune this value?  Might the range of possible roll-out values factor into it?
+			static double C = 500.0;		// TODO: How do we tune this value?  Might the range of possible roll-out values factor into it?
 			double exploitationTerm = this->totalScore / this->numVisits;
 			double explorationTerm = C * ::sqrt(::log(this->parent->numVisits) / this->numVisits);
 			this->cachedUCB = explorationTerm + exploitationTerm;
