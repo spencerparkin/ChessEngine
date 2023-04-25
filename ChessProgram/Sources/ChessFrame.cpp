@@ -572,6 +572,9 @@ void ChessFrame::OnComputerType(wxCommandEvent& event)
 			break;
 		}
 	}
+
+	ChessBotInterface* iface = dynamic_cast<ChessBotInterface*>(wxGetApp().bot);
+	iface->SetDifficulty(iface->GetDifficulty());
 }
 
 void ChessFrame::OnAbout(wxCommandEvent& event)
