@@ -35,6 +35,9 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_ComputerDifficultyMedium, "Computer Difficulty Medium", "Make the AI somewhat smart.", wxITEM_CHECK));
 	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_ComputerDifficultyHard, "Computer Difficulty Hard", "Make the AI as smart as it can be.", wxITEM_CHECK));
 	optionsMenu->AppendSeparator();
+	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_ComputerTypeMinimax, "Computer Type Minimax", "Have the computer use the Minimax algorithm.", wxITEM_CHECK));
+	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_ComputerTypeMCTS, "Computer Type MCTS", "Have the computer use the Monti Carlo Tree Search algorithm.", wxITEM_CHECK));
+	optionsMenu->AppendSeparator();
 	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_DrawCoordinates, "Draw Coordinates", "Show the rand and file labels.", wxITEM_CHECK));
 	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_DrawCaptures, "Draw Captures", "Show the captured Chess pieces.", wxITEM_CHECK));
 
@@ -94,6 +97,8 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	this->Bind(wxEVT_MENU, &ChessFrame::OnComputerDifficulty, this, ID_ComputerDifficultyEasy);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnComputerDifficulty, this, ID_ComputerDifficultyMedium);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnComputerDifficulty, this, ID_ComputerDifficultyHard);
+	this->Bind(wxEVT_MENU, &ChessFrame::OnComputerType, this, ID_ComputerTypeMinimax);
+	this->Bind(wxEVT_MENU, &ChessFrame::OnComputerType, this, ID_ComputerTypeMCTS);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnDrawCoordinates, this, ID_DrawCoordinates);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnDrawCaptures, this, ID_DrawCaptures);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnCycleSquareTexture, this, ID_CycleLightSquareTexture);
@@ -107,6 +112,8 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_ComputerDifficultyEasy);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_ComputerDifficultyMedium);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_ComputerDifficultyHard);
+	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_ComputerTypeMinimax);
+	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_ComputerTypeMCTS);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_DrawCoordinates);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_DrawCaptures);
 	this->Bind(EVT_GAME_STATE_CHANGED, &ChessFrame::OnGameStateChanged, this);
@@ -339,17 +346,27 @@ void ChessFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 		}
 		case ID_ComputerDifficultyEasy:
 		{
-			event.Check(wxGetApp().bot->maxDepth == COMPUTER_EASY_MAX_DEPTH);
+			event.Check(dynamic_cast<ChessBotInterface*>(wxGetApp().bot)->GetDifficulty() == ChessBotInterface::Difficulty::EASY);
 			break;
 		}
 		case ID_ComputerDifficultyMedium:
 		{
-			event.Check(wxGetApp().bot->maxDepth == COMPUTER_MEDIUM_MAX_DEPTH);
+			event.Check(dynamic_cast<ChessBotInterface*>(wxGetApp().bot)->GetDifficulty() == ChessBotInterface::Difficulty::MEDIUM);
 			break;
 		}
 		case ID_ComputerDifficultyHard:
 		{
-			event.Check(wxGetApp().bot->maxDepth == COMPUTER_HARD_MAX_DEPTH);
+			event.Check(dynamic_cast<ChessBotInterface*>(wxGetApp().bot)->GetDifficulty() == ChessBotInterface::Difficulty::HARD);
+			break;
+		}
+		case ID_ComputerTypeMinimax:
+		{
+			event.Check(dynamic_cast<ChessMinimaxBot*>(wxGetApp().bot) ? true : false);
+			break;
+		}
+		case ID_ComputerTypeMCTS:
+		{
+			event.Check(dynamic_cast<ChessMCTSBot*>(wxGetApp().bot) ? true : false);
 			break;
 		}
 		case ID_DrawCoordinates:
@@ -516,17 +533,42 @@ void ChessFrame::OnComputerDifficulty(wxCommandEvent& event)
 	{
 		case ID_ComputerDifficultyEasy:
 		{
-			wxGetApp().bot->maxDepth = COMPUTER_EASY_MAX_DEPTH;
+			dynamic_cast<ChessBotInterface*>(wxGetApp().bot)->SetDifficulty(ChessBotInterface::Difficulty::EASY);
 			break;
 		}
 		case ID_ComputerDifficultyMedium:
 		{
-			wxGetApp().bot->maxDepth = COMPUTER_MEDIUM_MAX_DEPTH;
+			dynamic_cast<ChessBotInterface*>(wxGetApp().bot)->SetDifficulty(ChessBotInterface::Difficulty::MEDIUM);
 			break;
 		}
 		case ID_ComputerDifficultyHard:
 		{
-			wxGetApp().bot->maxDepth = COMPUTER_HARD_MAX_DEPTH;
+			dynamic_cast<ChessBotInterface*>(wxGetApp().bot)->SetDifficulty(ChessBotInterface::Difficulty::HARD);
+			break;
+		}
+	}
+}
+
+void ChessFrame::OnComputerType(wxCommandEvent& event)
+{
+	switch (event.GetId())
+	{
+		case ID_ComputerTypeMinimax:
+		{
+			if (!dynamic_cast<ChessMinimaxBot*>(wxGetApp().bot))
+			{
+				delete wxGetApp().bot;
+				wxGetApp().bot = new ChessMinimaxBot();
+			}
+			break;
+		}
+		case ID_ComputerTypeMCTS:
+		{
+			if (!dynamic_cast<ChessMCTSBot*>(wxGetApp().bot))
+			{
+				delete wxGetApp().bot;
+				wxGetApp().bot = new ChessMCTSBot();
+			}
 			break;
 		}
 	}

@@ -7,6 +7,17 @@ namespace ChessEngine
 	class ChessGame;
 	class ChessMove;
 
+	class CHESS_ENGINE_API ChessAIProgressIndicator
+	{
+	public:
+		ChessAIProgressIndicator();
+		virtual ~ChessAIProgressIndicator();
+		
+		virtual bool ProgressUpdate(float alpha);
+		virtual void ProgressBegin();
+		virtual void ProgressEnd();
+	};
+
 	class CHESS_ENGINE_API ChessAI
 	{
 	public:
@@ -18,20 +29,12 @@ namespace ChessEngine
 		// call, so it should be safe to manipulate the given game and then restore it before returning.
 		virtual ChessMove* CalculateRecommendedMove(ChessColor favoredColor, ChessGame* game) = 0;
 
-		// While thinking, the class can call this periodically to let the user know how far along
-		// it is in the process.  If this call returns false, thinking should stop and the entire
-		// process should be canceled.  This is meant to be overridden by users of the engine, not
-		// implementors of various chess solvers.
-		virtual bool ProgressUpdate(float percentage);
-
 		// Derivatives of this class might implement a different evaluation function.
 		virtual int EvaluationFunction(ChessColor favoredColor, const ChessGame* game);
 
-		// These serve a similar purpose.
-		virtual void ProgressBegin();
-		virtual void ProgressEnd();
-
 		int Random(int min, int max);
+
+		ChessAIProgressIndicator* progressIndicator;
 	};
 
 	// Useful resource: https://medium.com/@SereneBiologist/the-anatomy-of-a-chess-ai-2087d0d565
@@ -84,6 +87,8 @@ namespace ChessEngine
 			mutable double cachedUCB;
 			mutable bool cachedUCBValid;
 		};
+
+	public:
 
 		time_t maxTimeSeconds;
 		int maxIterations;

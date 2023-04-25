@@ -38,8 +38,8 @@ public:
 	ChessFrame* frame;
 	ChessEngine::ChessGame* game;
 	ChessEngine::ChessColor whoseTurn;
+	ChessEngine::ChessAI* bot;
 	PlayerType playerType[2];
-	ChessBot* bot;
 	wxConfig config;
 };
 

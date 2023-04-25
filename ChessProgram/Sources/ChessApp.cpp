@@ -15,7 +15,8 @@ ChessApp::ChessApp() : config("Chess")
 	this->whoseTurn = ChessEngine::ChessColor::White;
 	this->playerType[0] = PlayerType::HUMAN;
 	this->playerType[1] = PlayerType::HUMAN;
-	this->bot = new ChessBot(COMPUTER_MEDIUM_MAX_DEPTH);
+	this->bot = new ChessMCTSBot(); //new ChessMinimaxBot();
+	dynamic_cast<ChessBotInterface*>(this->bot)->SetDifficulty(ChessBotInterface::Difficulty::MEDIUM);
 }
 
 /*virtual*/ ChessApp::~ChessApp()

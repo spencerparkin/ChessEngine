@@ -2,21 +2,57 @@
 
 #include "ChessAI.h"
 #include <wx/progdlg.h>
+#include <time.h>
 
-#define COMPUTER_EASY_MAX_DEPTH		2
-#define COMPUTER_MEDIUM_MAX_DEPTH	3
-#define COMPUTER_HARD_MAX_DEPTH		4
-
-class ChessBot : public ChessEngine::ChessMinimaxAI
+class ChessBotProgressIndicator : public ChessEngine::ChessAIProgressIndicator
 {
 public:
-	ChessBot(int maxDepth);
-	virtual ~ChessBot();
+	ChessBotProgressIndicator();
+	virtual ~ChessBotProgressIndicator();
 
+	virtual bool ProgressUpdate(float alpha) override;
 	virtual void ProgressBegin() override;
 	virtual void ProgressEnd() override;
 
-	virtual bool ProgressUpdate(float percentage) override;
-
+	clock_t startTimeTicks;
+	double dialogTimeoutSeconds;
 	wxProgressDialog* progressDialog;
+};
+
+class ChessBotInterface
+{
+public:
+	ChessBotInterface();
+	virtual ~ChessBotInterface();
+
+	enum class Difficulty
+	{
+		EASY,
+		MEDIUM,
+		HARD
+	};
+
+	virtual void SetDifficulty(Difficulty difficulty);
+	virtual Difficulty GetDifficulty();
+
+protected:
+	Difficulty difficulty;
+};
+
+class ChessMinimaxBot : public ChessEngine::ChessMinimaxAI, public ChessBotInterface
+{
+public:
+	ChessMinimaxBot();
+	virtual ~ChessMinimaxBot();
+
+	virtual void SetDifficulty(Difficulty difficulty) override;
+};
+
+class ChessMCTSBot : public ChessEngine::ChessMonteCarloTreeSearchAI, public ChessBotInterface
+{
+public:
+	ChessMCTSBot();
+	virtual ~ChessMCTSBot();
+
+	virtual void SetDifficulty(Difficulty difficulty) override;
 };

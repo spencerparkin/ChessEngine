@@ -2,29 +2,49 @@
 #include "ChessApp.h"
 #include "ChessFrame.h"
 
-ChessBot::ChessBot(int maxDepth) : ChessEngine::ChessMinimaxAI(maxDepth)
+//---------------------------------------- ChessBotProgressIndicator ----------------------------------------
+
+ChessBotProgressIndicator::ChessBotProgressIndicator()
 {
+	this->startTimeTicks = 0;
+	this->dialogTimeoutSeconds = 2.0;
 	this->progressDialog = nullptr;
 }
 
-/*virtual*/ ChessBot::~ChessBot()
+/*virtual*/ ChessBotProgressIndicator::~ChessBotProgressIndicator()
 {
 }
 
-/*virtual*/ void ChessBot::ProgressBegin()
+/*virtual*/ void ChessBotProgressIndicator::ProgressBegin()
 {
-	if (this->maxDepth == COMPUTER_HARD_MAX_DEPTH)
-	{
-		this->progressDialog = new wxProgressDialog("Chess AI", "Thinking...", 100, wxGetApp().frame, wxPD_APP_MODAL | wxPD_AUTO_HIDE | wxPD_CAN_ABORT);
-		this->progressDialog->SetPosition(wxGetApp().frame->GetPosition());
-	}
-	else
-	{
-		wxGetApp().frame->gaugeBar->SetValue(0);
-	}
+	this->startTimeTicks = ::clock();
+	wxGetApp().frame->gaugeBar->SetValue(0);
 }
 
-/*virtual*/ void ChessBot::ProgressEnd()
+/*virtual*/ bool ChessBotProgressIndicator::ProgressUpdate(float alpha)
+{
+	wxGetApp().frame->gaugeBar->SetValue((int)::roundf(alpha * float(wxGetApp().frame->gaugeBar->GetRange())));
+
+	if (!this->progressDialog)
+	{
+		clock_t currentTimeTicks = ::clock();
+		clock_t elapsedTimeTicks = currentTimeTicks - this->startTimeTicks;
+		double elapsedTimeSeconds = double(elapsedTimeTicks) / double(CLOCKS_PER_SEC);
+		if (elapsedTimeSeconds > this->dialogTimeoutSeconds)
+		{
+			this->progressDialog = new wxProgressDialog("Chess AI", "Thinking...", 100, wxGetApp().frame, wxPD_APP_MODAL | wxPD_AUTO_HIDE | wxPD_CAN_ABORT);
+			this->progressDialog->SetPosition(wxGetApp().frame->GetPosition());
+		}
+	}
+
+	bool keepGoing = true;
+	if (this->progressDialog)
+		keepGoing = this->progressDialog->Update((int)::roundf(alpha * float(this->progressDialog->GetRange())));
+
+	return keepGoing;
+}
+
+/*virtual*/ void ChessBotProgressIndicator::ProgressEnd()
 {
 	wxGetApp().frame->gaugeBar->SetValue(0);
 
@@ -35,21 +55,95 @@ ChessBot::ChessBot(int maxDepth) : ChessEngine::ChessMinimaxAI(maxDepth)
 	}
 }
 
-/*virtual*/ bool ChessBot::ProgressUpdate(float percentage)
+//---------------------------------------- ChessBotInterface ----------------------------------------
+
+ChessBotInterface::ChessBotInterface()
 {
-	float range = 1.0f;
-	if (this->maxDepth == COMPUTER_HARD_MAX_DEPTH)
-		range = (float)this->progressDialog->GetRange();
-	else
-		range = (float)wxGetApp().frame->gaugeBar->GetRange();
+	this->difficulty = Difficulty::MEDIUM;
+}
 
-	int progressValue = (int)::roundf(percentage * range);
-	bool keepGoing = true;
+/*virtual*/ ChessBotInterface::~ChessBotInterface()
+{
+}
 
-	if (this->maxDepth == COMPUTER_HARD_MAX_DEPTH)
-		keepGoing = this->progressDialog->Update(progressValue);
-	else
-		wxGetApp().frame->gaugeBar->SetValue(progressValue);
+/*virtual*/ void ChessBotInterface::SetDifficulty(Difficulty difficulty)
+{
+	this->difficulty = Difficulty::MEDIUM;
+}
 
-	return keepGoing;
+/*virtual*/ ChessBotInterface::Difficulty ChessBotInterface::GetDifficulty()
+{
+	return this->difficulty;
+}
+
+//---------------------------------------- ChessMinimaxBot ----------------------------------------
+
+ChessMinimaxBot::ChessMinimaxBot() : ChessEngine::ChessMinimaxAI(1)
+{
+	this->progressIndicator = new ChessBotProgressIndicator();
+}
+
+/*virtual*/ ChessMinimaxBot::~ChessMinimaxBot()
+{
+	delete this->progressIndicator;
+}
+
+/*virtual*/ void ChessMinimaxBot::SetDifficulty(Difficulty difficulty)
+{
+	ChessBotInterface::SetDifficulty(difficulty);
+
+	switch (difficulty)
+	{
+		case Difficulty::EASY:
+		{
+			this->maxDepth = 2;
+			break;
+		}
+		case Difficulty::MEDIUM:
+		{
+			this->maxDepth = 3;
+			break;
+		}
+		case Difficulty::HARD:
+		{
+			this->maxDepth = 4;
+			break;
+		}
+	}
+}
+
+//---------------------------------------- ChessMCTSBot ----------------------------------------
+
+ChessMCTSBot::ChessMCTSBot() : ChessEngine::ChessMonteCarloTreeSearchAI(0, 0)
+{
+	this->progressIndicator = new ChessBotProgressIndicator();
+}
+
+/*virtual*/ ChessMCTSBot::~ChessMCTSBot()
+{
+	delete this->progressIndicator;
+}
+
+/*virtual*/ void ChessMCTSBot::SetDifficulty(Difficulty difficulty)
+{
+	ChessBotInterface::SetDifficulty(difficulty);
+
+	switch (difficulty)
+	{
+		case Difficulty::EASY:
+		{
+			this->maxIterations = 100;
+			break;
+		}
+		case Difficulty::MEDIUM:
+		{
+			this->maxIterations = 200;
+			break;
+		}
+		case Difficulty::HARD:
+		{
+			this->maxIterations = 300;
+			break;
+		}
+	}
 }

@@ -11,26 +11,37 @@
 
 using namespace ChessEngine;
 
-//---------------------------------------- ChessAI ----------------------------------------
+//---------------------------------------- ProgressIndicator ----------------------------------------
 
-ChessAI::ChessAI()
+ChessAIProgressIndicator::ChessAIProgressIndicator()
 {
 }
 
-/*virtual*/ ChessAI::~ChessAI()
+/*virtual*/ ChessAIProgressIndicator::~ChessAIProgressIndicator()
 {
 }
 
-/*virtual*/ bool ChessAI::ProgressUpdate(float percentage)
+/*virtual*/ bool ChessAIProgressIndicator::ProgressUpdate(float alpha)
 {
 	return true;
 }
 
-/*virtual*/ void ChessAI::ProgressBegin()
+/*virtual*/ void ChessAIProgressIndicator::ProgressBegin()
 {
 }
 
-/*virtual*/ void ChessAI::ProgressEnd()
+/*virtual*/ void ChessAIProgressIndicator::ProgressEnd()
+{
+}
+
+//---------------------------------------- ChessAI ----------------------------------------
+
+ChessAI::ChessAI()
+{
+	this->progressIndicator = nullptr;
+}
+
+/*virtual*/ ChessAI::~ChessAI()
 {
 }
 
@@ -93,7 +104,8 @@ ChessMinimaxAI::ChessMinimaxAI(int maxDepth)
 {
 	ChessMove* chosenMove = nullptr;
 
-	this->ProgressBegin();
+	if(this->progressIndicator)
+		this->progressIndicator->ProgressBegin();
 
 	this->bestMoveArray->clear();
 
@@ -112,7 +124,8 @@ ChessMinimaxAI::ChessMinimaxAI(int maxDepth)
 		DeleteMoveArray(*this->bestMoveArray);
 	}
 
-	this->ProgressEnd();
+	if (this->progressIndicator)
+		this->progressIndicator->ProgressEnd();
 
 	return chosenMove;
 }
@@ -204,10 +217,10 @@ bool ChessMinimaxAI::Minimax(Goal goal, ChessColor favoredColor, ChessColor whos
 			this->bestMoveArray->push_back(legalMove);
 		}
 
-		if (depth == 0)
+		if (depth == 0 && this->progressIndicator)
 		{
 			float percentage = float(i + 1) / float(legalMoveArray.size());
-			if (!this->ProgressUpdate(percentage))
+			if (!this->progressIndicator->ProgressUpdate(percentage))
 			{
 				success = false;
 				break;
@@ -254,7 +267,8 @@ ChessMonteCarloTreeSearchAI::ChessMonteCarloTreeSearchAI(time_t maxTimeSeconds, 
 
 /*virtual*/ ChessMove* ChessMonteCarloTreeSearchAI::CalculateRecommendedMove(ChessColor favoredColor, ChessGame* game)
 {
-	this->ProgressBegin();
+	if (this->progressIndicator)
+		this->progressIndicator->ProgressBegin();
 
 	Node* root = new Node(nullptr, nullptr);
 
@@ -266,7 +280,8 @@ ChessMonteCarloTreeSearchAI::ChessMonteCarloTreeSearchAI(time_t maxTimeSeconds, 
 		if (this->maxIterations > 0)
 		{
 			iterationCount++;
-			this->ProgressUpdate(float(iterationCount) / float(this->maxIterations));
+			if (this->progressIndicator)
+				this->progressIndicator->ProgressUpdate(float(iterationCount) / float(this->maxIterations));
 			if (iterationCount >= this->maxIterations)
 				break;
 		}
@@ -274,7 +289,8 @@ ChessMonteCarloTreeSearchAI::ChessMonteCarloTreeSearchAI(time_t maxTimeSeconds, 
 		{
 			time_t currentTimeSeconds = time(nullptr);
 			time_t elapsedTimeSeconds = currentTimeSeconds - startTimeSeconds;
-			this->ProgressUpdate(float(elapsedTimeSeconds) / float(this->maxTimeSeconds));
+			if (this->progressIndicator)
+				this->progressIndicator->ProgressUpdate(float(elapsedTimeSeconds) / float(this->maxTimeSeconds));
 			if (elapsedTimeSeconds >= this->maxTimeSeconds)
 				break;
 		}
@@ -370,7 +386,10 @@ ChessMonteCarloTreeSearchAI::ChessMonteCarloTreeSearchAI(time_t maxTimeSeconds, 
 			child->move = nullptr;
 
 	delete root;
-	this->ProgressEnd();
+
+	if (this->progressIndicator)
+		this->progressIndicator->ProgressEnd();
+
 	return bestMove;
 }
 

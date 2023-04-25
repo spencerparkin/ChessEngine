@@ -27,6 +27,7 @@ public:
 	void OnRedo(wxCommandEvent& event);
 	void OnColorPlayerdByComputer(wxCommandEvent& event);
 	void OnComputerDifficulty(wxCommandEvent& event);
+	void OnComputerType(wxCommandEvent& event);
 	void OnTimerTick(wxTimerEvent& event);
 	void OnDrawCoordinates(wxCommandEvent& event);
 	void OnDrawCaptures(wxCommandEvent& event);
@@ -47,6 +48,8 @@ public:
 		ID_ComputerDifficultyEasy,
 		ID_ComputerDifficultyMedium,
 		ID_ComputerDifficultyHard,
+		ID_ComputerTypeMinimax,
+		ID_ComputerTypeMCTS,
 		ID_DrawCoordinates,
 		ID_DrawCaptures,
 		ID_CycleLightSquareTexture,
