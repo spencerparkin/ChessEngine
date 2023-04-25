@@ -132,17 +132,17 @@ ChessMCTSBot::ChessMCTSBot() : ChessEngine::ChessMonteCarloTreeSearchAI(0, 0)
 	{
 		case Difficulty::EASY:
 		{
-			this->maxIterations = 100;
+			this->maxIterations = 30;
 			break;
 		}
 		case Difficulty::MEDIUM:
 		{
-			this->maxIterations = 200;
+			this->maxIterations = 40;
 			break;
 		}
 		case Difficulty::HARD:
 		{
-			this->maxIterations = 300;
+			this->maxIterations = 50;
 			break;
 		}
 	}

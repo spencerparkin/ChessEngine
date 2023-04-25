@@ -37,6 +37,8 @@ namespace ChessEngine
 
 		bool PieceEverMovedFromLocation(const ChessVector& location) const;
 
+		int GetNumPiecesOnBoard() const;
+
 	protected:
 
 		void Clear();

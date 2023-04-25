@@ -310,7 +310,7 @@ ChessMonteCarloTreeSearchAI::ChessMonteCarloTreeSearchAI(time_t maxTimeSeconds, 
 		while (selectedNode->childArray.size() > 0)
 		{
 			Node* nextNode = nullptr;
-			double highestUCB = DBL_MIN;
+			double highestUCB = -DBL_MAX;
 			for (Node* child : selectedNode->childArray)
 			{
 				double childUCB = child->CalcUCB();
@@ -322,8 +322,8 @@ ChessMonteCarloTreeSearchAI::ChessMonteCarloTreeSearchAI(time_t maxTimeSeconds, 
 			}
 
 			assert(nextNode != nullptr);
-			game->PushMove(nextNode->move);
 			selectedNode = nextNode;
+			game->PushMove(nextNode->move);
 			whoseTurn = (whoseTurn == ChessColor::Black) ? ChessColor::White : ChessColor::Black;
 		}
 
@@ -344,6 +344,8 @@ ChessMonteCarloTreeSearchAI::ChessMonteCarloTreeSearchAI(time_t maxTimeSeconds, 
 				}
 
 				selectedNode = selectedNode->childArray.back();
+				game->PushMove(selectedNode->move);
+				whoseTurn = (whoseTurn == ChessColor::Black) ? ChessColor::White : ChessColor::Black;
 			}
 		}
 		
@@ -362,7 +364,8 @@ ChessMonteCarloTreeSearchAI::ChessMonteCarloTreeSearchAI(time_t maxTimeSeconds, 
 			node->totalScore += rolloutScore;
 			node->numVisits++;
 			node->cachedUCBValid = false;
-			game->PopMove();
+			if (node != root)
+				game->PopMove();
 		}
 
 		// Make sure we leave the game state untouched after each iteration.
@@ -371,7 +374,7 @@ ChessMonteCarloTreeSearchAI::ChessMonteCarloTreeSearchAI(time_t maxTimeSeconds, 
 
 	// Finally, choose the move from the root with the highest total score.
 	ChessMove* bestMove = nullptr;
-	double highestTotalScore = DBL_MIN;
+	double highestTotalScore = -DBL_MAX;
 	for (Node* child : root->childArray)
 	{
 		if (child->totalScore > highestTotalScore)
@@ -420,7 +423,7 @@ double ChessMonteCarloTreeSearchAI::PerformRollout(ChessColor favoredColor, Ches
 		// Have we reached far enough into the game that we can accurately predict who's going to win?
 		double score = (double)this->EvaluationFunction(favoredColor, game);
 		static double threshold = 150.0;
-		if (fabs(score) > threshold)
+		if (fabs(score) > threshold || game->GetNumPiecesOnBoard() <= 2)
 		{
 			rolloutScore = score;
 			DeleteMoveArray(moveArray);
@@ -474,7 +477,7 @@ double ChessMonteCarloTreeSearchAI::Node::CalcUCB() const
 			this->cachedUCB = DBL_MAX;
 		else
 		{
-			static double C = 2.0;		// TODO: How do we tune this value?  Might the range of possible roll-out values factor into it?
+			static double C = 10.0;		// TODO: How do we tune this value?  Might the range of possible roll-out values factor into it?
 			double exploitationTerm = this->totalScore / this->numVisits;
 			double explorationTerm = C * ::sqrt(::log(this->parent->numVisits) / this->numVisits);
 			this->cachedUCB = explorationTerm + exploitationTerm;

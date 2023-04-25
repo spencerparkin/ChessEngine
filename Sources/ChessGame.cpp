@@ -316,3 +316,14 @@ bool ChessGame::PieceEverMovedFromLocation(const ChessVector& location) const
 
 	return false;
 }
+
+int ChessGame::GetNumPiecesOnBoard() const
+{
+	int numPieces = 0;
+	for (int i = 0; i < CHESS_BOARD_FILES; i++)
+		for (int j = 0; j < CHESS_BOARD_RANKS; j++)
+			if (this->boardMatrix[i][j])
+				numPieces++;
+
+	return numPieces;
+}
