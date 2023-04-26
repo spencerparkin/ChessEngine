@@ -255,7 +255,7 @@ bool ChessMinimaxAI::Minimax(Goal goal, ChessColor favoredColor, ChessColor whos
 
 //---------------------------------------- ChessMontoCarloTreeSearchAI ----------------------------------------
 
-ChessMonteCarloTreeSearchAI::ChessMonteCarloTreeSearchAI(time_t maxTimeSeconds, int maxIterations)
+ChessMonteCarloTreeSearchAI::ChessMonteCarloTreeSearchAI(double maxTimeSeconds, int maxIterations)
 {
 	this->maxTimeSeconds = maxTimeSeconds;
 	this->maxIterations = maxIterations;
@@ -272,7 +272,7 @@ ChessMonteCarloTreeSearchAI::ChessMonteCarloTreeSearchAI(time_t maxTimeSeconds, 
 
 	Node* root = new Node(nullptr, nullptr);
 
-	time_t startTimeSeconds = time(nullptr);
+	clock_t startTimeTicks = ::clock();
 	int iterationCount = 0;
 
 	while (true)
@@ -287,12 +287,13 @@ ChessMonteCarloTreeSearchAI::ChessMonteCarloTreeSearchAI(time_t maxTimeSeconds, 
 		}
 		else if (this->maxTimeSeconds > 0.0)
 		{
-			time_t currentTimeSeconds = time(nullptr);
-			time_t elapsedTimeSeconds = currentTimeSeconds - startTimeSeconds;
+			clock_t currentTimeTicks = ::clock();
+			clock_t elapsedTimeTicks = currentTimeTicks - startTimeTicks;
+			double elapsedTimeSeconds = double(elapsedTimeTicks) / double(CLOCKS_PER_SEC);
+			if (elapsedTimeSeconds > this->maxTimeSeconds)
+				break;
 			if (this->progressIndicator)
 				this->progressIndicator->ProgressUpdate(float(elapsedTimeSeconds) / float(this->maxTimeSeconds));
-			if (elapsedTimeSeconds >= this->maxTimeSeconds)
-				break;
 		}
 		else
 		{
@@ -409,28 +410,21 @@ double ChessMonteCarloTreeSearchAI::PerformRollout(ChessColor favoredColor, Ches
 		// Have we reached the end of the game?
 		if (result == GameResult::CheckMate)
 		{
-			rolloutScore = (whoseTurn == favoredColor) ? -2000.0 : 2000.0;
+			rolloutScore = (whoseTurn == favoredColor) ? -1.0 : 1.0;
 			DeleteMoveArray(moveArray);
 			break;
 		}
-		else if (result == GameResult::StaleMate)
+		else if (result == GameResult::StaleMate || game->GetNumPiecesOnBoard() <= 2)
 		{
-			rolloutScore = -1000.0;
-			DeleteMoveArray(moveArray);
-			break;
-		}
-
-		// Have we reached far enough into the game that we can accurately predict who's going to win?
-		double score = (double)this->EvaluationFunction(favoredColor, game);
-		static double threshold = 150.0;
-		if (fabs(score) > threshold || game->GetNumPiecesOnBoard() <= 2)
-		{
-			rolloutScore = score;
+			rolloutScore = 0.0;
 			DeleteMoveArray(moveArray);
 			break;
 		}
 
 		// Pick a random move and go with it.
+		// TODO: Doing roll-outs that are purely random play gives us the traditional monte carlo method, but
+		//       I've read that modern implementations perform roll-outs (or play-outs) based on nueral-networks,
+		//       or east least something that will give a better measure of the efficacy of the board position.
 		int i = this->Random(0, moveArray.size() - 1);
 		ChessMove* move = moveArray[i];
 		moveArray[i] = moveArray[moveArray.size() - 1];
@@ -477,7 +471,7 @@ double ChessMonteCarloTreeSearchAI::Node::CalcUCB() const
 			this->cachedUCB = DBL_MAX;
 		else
 		{
-			static double C = 700.0;		// TODO: How do we tune this value?  Might the range of possible roll-out values factor into it?
+			static double C = 2.0;
 			double exploitationTerm = this->totalScore / this->numVisits;
 			double explorationTerm = C * ::sqrt(::log(this->parent->numVisits) / this->numVisits);
 			this->cachedUCB = explorationTerm + exploitationTerm;

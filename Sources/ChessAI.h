@@ -58,11 +58,11 @@ namespace ChessEngine
 		int maxDepth;
 	};
 
-	// Useful resource: https://www.youtube.com/watch?v=UXW2yZndl7U
+	// Useful resources: https://www.youtube.com/watch?v=UXW2yZndl7U, https://www.chessprogramming.org/Monte-Carlo_Tree_Search
 	class CHESS_ENGINE_API ChessMonteCarloTreeSearchAI : public ChessAI
 	{
 	public:
-		ChessMonteCarloTreeSearchAI(time_t maxTimeSeconds, int maxIterations);
+		ChessMonteCarloTreeSearchAI(double maxTimeSeconds, int maxIterations);
 		virtual ~ChessMonteCarloTreeSearchAI();
 
 		virtual ChessMove* CalculateRecommendedMove(ChessColor favoredColor, ChessGame* game) override;
@@ -90,7 +90,7 @@ namespace ChessEngine
 
 	public:
 
-		time_t maxTimeSeconds;
+		double maxTimeSeconds;
 		int maxIterations;
 	};
 }

@@ -114,7 +114,7 @@ ChessMinimaxBot::ChessMinimaxBot() : ChessEngine::ChessMinimaxAI(1)
 
 //---------------------------------------- ChessMCTSBot ----------------------------------------
 
-ChessMCTSBot::ChessMCTSBot() : ChessEngine::ChessMonteCarloTreeSearchAI(0, 0)
+ChessMCTSBot::ChessMCTSBot() : ChessEngine::ChessMonteCarloTreeSearchAI(0.0, 0)
 {
 	this->progressIndicator = new ChessBotProgressIndicator();
 }
