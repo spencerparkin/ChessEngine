@@ -259,6 +259,7 @@ ChessMonteCarloTreeSearchAI::ChessMonteCarloTreeSearchAI(double maxTimeSeconds, 
 {
 	this->maxTimeSeconds = maxTimeSeconds;
 	this->maxIterations = maxIterations;
+	this->numGamesPerRollout = 8;
 }
 
 /*virtual*/ ChessMonteCarloTreeSearchAI::~ChessMonteCarloTreeSearchAI()
@@ -332,7 +333,7 @@ ChessMonteCarloTreeSearchAI::ChessMonteCarloTreeSearchAI(double maxTimeSeconds, 
 		// EXPANSION PHASE
 		//
 
-		if (selectedNode->numVisits > 0.0)
+		if (selectedNode->numVisits > 0.0 || selectedNode == root)
 		{
 			ChessMoveArray moveArray;
 			game->GenerateAllLegalMovesForColor(whoseTurn, moveArray);
@@ -397,50 +398,71 @@ ChessMonteCarloTreeSearchAI::ChessMonteCarloTreeSearchAI(double maxTimeSeconds, 
 	return bestMove;
 }
 
+// MCTS has some re-enforcement learning built into it, but the main principle upon which it is built is
+// the law of large numbers.  Specifically, the more random samples we take of a board position (in the form
+// of playing random games from it all the way to the very end), the more accurate becomes our view of how
+// good or bad that particular board position is.  This is how we choose our move.  We want to move to the most
+// advantageous board position.  Note also that this main principle replaces the evaluation function used in
+// mini-max.  It's much slower in practice, but it's better in theory, because it captures, by experience, all
+// the subtlies and nuonces of the game.  We could possibly do better here if we could draw from a database of
+// board positions or maybe a trained nueral network or something like that, but I don't know much about either.
+// Anyhow, a tree is built during the MCTS algorithm, but in theory, you don't even need that if you were able to
+// play, say, an infinite number of random games from each possible board position of each possible move you're
+// considering, then you would just know which one is the best.  The tree, however, can help us take more samples
+// where there's more promise, and the UCB stuff can help us keep exploring so that we don't overlook other areas
+// of the game tree.  Anyhow, that's my current understanding of all this.
 double ChessMonteCarloTreeSearchAI::PerformRollout(ChessColor favoredColor, ChessColor whoseTurn, ChessGame* game)
 {
-	double rolloutScore = 0.0;
-	int numMoves = game->GetNumMoves();
+	// TODO: Optimize them function using a thread-pool.  Divide the work-load of playing the games out to threads to
+	//       get it all done much quicker.  This might also make it possible to play more games per roll-out.
 
-	while (true)
+	double gameResultsTotal = 0.0;
+
+	assert(this->numGamesPerRollout > 0);
+	for (int i = 0; i < this->numGamesPerRollout; i++)
 	{
-		ChessMoveArray moveArray;
-		GameResult result = game->GenerateAllLegalMovesForColor(whoseTurn, moveArray);
+		int numMoves = game->GetNumMoves();
+		double gameResultValue = 0.0;
 
-		// Have we reached the end of the game?
-		if (result == GameResult::CheckMate)
+		while (true)
 		{
-			rolloutScore = (whoseTurn == favoredColor) ? -1.0 : 1.0;
+			ChessMoveArray moveArray;
+			GameResult result = game->GenerateAllLegalMovesForColor(whoseTurn, moveArray);
+
+			// Have we reached the end of the game?
+			if (result == GameResult::CheckMate)
+			{
+				gameResultValue = (whoseTurn == favoredColor) ? -1.0 : 1.0;
+				DeleteMoveArray(moveArray);
+				break;
+			}
+			else if (result == GameResult::StaleMate || game->GetNumPiecesOnBoard() <= 2)
+			{
+				gameResultValue = 0.0;
+				DeleteMoveArray(moveArray);
+				break;
+			}
+
+			// Pick a random move and go with it.
+			int j = this->Random(0, moveArray.size() - 1);
+			ChessMove* move = moveArray[j];
+			moveArray[j] = moveArray[moveArray.size() - 1];
+			moveArray.pop_back();
 			DeleteMoveArray(moveArray);
-			break;
-		}
-		else if (result == GameResult::StaleMate || game->GetNumPiecesOnBoard() <= 2)
-		{
-			rolloutScore = 0.0;
-			DeleteMoveArray(moveArray);
-			break;
+			game->PushMove(move);
+			whoseTurn = (whoseTurn == ChessColor::Black) ? ChessColor::White : ChessColor::Black;
 		}
 
-		// Pick a random move and go with it.
-		// TODO: Doing roll-outs that are purely random play gives us the traditional monte carlo method, but
-		//       I've read that modern implementations perform roll-outs (or play-outs) based on nueral-networks,
-		//       or east least something that will give a better measure of the efficacy of the board position.
-		int i = this->Random(0, moveArray.size() - 1);
-		ChessMove* move = moveArray[i];
-		moveArray[i] = moveArray[moveArray.size() - 1];
-		moveArray.pop_back();
-		DeleteMoveArray(moveArray);
-		game->PushMove(move);
-		whoseTurn = (whoseTurn == ChessColor::Black) ? ChessColor::White : ChessColor::Black;
+		while (game->GetNumMoves() > numMoves)
+		{
+			ChessMove* move = game->PopMove();
+			delete move;
+		}
+
+		gameResultsTotal += gameResultValue;
 	}
 
-	while (game->GetNumMoves() > numMoves)
-	{
-		ChessMove* move = game->PopMove();
-		delete move;
-	}
-
-	return rolloutScore;
+	return gameResultsTotal / double(this->numGamesPerRollout);
 }
 
 //---------------------------------------- ChessMontoCarloTreeSearchAI::Node ----------------------------------------	

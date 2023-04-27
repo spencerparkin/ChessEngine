@@ -63,6 +63,7 @@ namespace ChessEngine
 	//		* https://www.youtube.com/watch?v=UXW2yZndl7U
 	//      * https://www.chessprogramming.org/Monte-Carlo_Tree_Search
 	//		* https://en.wikipedia.org/wiki/Monte_Carlo_tree_search
+	//      * https://philippmuens.com/minimax-and-mcts
 	class CHESS_ENGINE_API ChessMonteCarloTreeSearchAI : public ChessAI
 	{
 	public:
@@ -96,5 +97,6 @@ namespace ChessEngine
 
 		double maxTimeSeconds;
 		int maxIterations;
+		int numGamesPerRollout;
 	};
 }
