@@ -158,7 +158,40 @@ void ChessGame::Reset()
 
 ChessGame* ChessGame::Clone() const
 {
-	return nullptr;
+	class MemoryBuffer : public std::basic_streambuf<char>
+	{
+	public:
+		MemoryBuffer(int size)
+		{
+			this->bufferSize = size;
+			this->buffer = new char[size];
+		}
+
+		virtual ~MemoryBuffer()
+		{
+			delete[] this->buffer;
+		}
+
+		void Reset()
+		{
+			this->setg(this->buffer, this->buffer, this->buffer + this->bufferSize);
+		}
+
+		char* buffer;
+		int bufferSize;
+	};
+
+	MemoryBuffer memoryBuffer(64 * 1024);
+	memoryBuffer.Reset();
+	std::ostream outputStream(&memoryBuffer);
+	this->WriteToStream(outputStream);
+
+	memoryBuffer.Reset();
+	std::istream inputStream(&memoryBuffer);
+	ChessGame* game = new ChessGame();
+	game->ReadFromStream(inputStream);
+
+	return game;
 }
 
 bool ChessGame::IsLocationValid(const ChessVector& location) const
