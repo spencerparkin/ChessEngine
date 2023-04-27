@@ -248,7 +248,7 @@ ChessMonteCarloTreeSearchAI::ChessMonteCarloTreeSearchAI(double maxTimeSeconds, 
 {
 	this->maxTimeSeconds = maxTimeSeconds;
 	this->maxIterations = maxIterations;
-	this->numGamesPerRollout = 16;
+	this->numGamesPerRollout = 32;
 	this->numRolloutThreads = 8;
 	this->rolloutThreadArray = new RolloutThreadArray();
 }

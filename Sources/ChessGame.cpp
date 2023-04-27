@@ -165,6 +165,8 @@ ChessGame* ChessGame::Clone() const
 		{
 			this->bufferSize = size;
 			this->buffer = new char[size];
+			this->setg(this->buffer, this->buffer, this->buffer + this->bufferSize);
+			this->setp(this->buffer, this->buffer, this->buffer + this->bufferSize);
 		}
 
 		virtual ~MemoryBuffer()
@@ -172,21 +174,14 @@ ChessGame* ChessGame::Clone() const
 			delete[] this->buffer;
 		}
 
-		void Reset()
-		{
-			this->setg(this->buffer, this->buffer, this->buffer + this->bufferSize);
-		}
-
 		char* buffer;
 		int bufferSize;
 	};
 
 	MemoryBuffer memoryBuffer(64 * 1024);
-	memoryBuffer.Reset();
 	std::ostream outputStream(&memoryBuffer);
 	this->WriteToStream(outputStream);
 
-	memoryBuffer.Reset();
 	std::istream inputStream(&memoryBuffer);
 	ChessGame* game = new ChessGame();
 	game->ReadFromStream(inputStream);
