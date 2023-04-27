@@ -34,9 +34,11 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_ComputerDifficultyEasy, "Computer Difficulty Easy", "Make the AI dumb.", wxITEM_CHECK));
 	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_ComputerDifficultyMedium, "Computer Difficulty Medium", "Make the AI somewhat smart.", wxITEM_CHECK));
 	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_ComputerDifficultyHard, "Computer Difficulty Hard", "Make the AI as smart as it can be.", wxITEM_CHECK));
+#if 0		// Don't expose these options while MCTS is just a complete failure.
 	optionsMenu->AppendSeparator();
 	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_ComputerTypeMinimax, "Computer Type Minimax", "Have the computer use the Minimax algorithm.", wxITEM_CHECK));
 	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_ComputerTypeMCTS, "Computer Type MCTS", "Have the computer use the Monti Carlo Tree Search algorithm.", wxITEM_CHECK));
+#endif
 	optionsMenu->AppendSeparator();
 	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_DrawCoordinates, "Draw Coordinates", "Show the rand and file labels.", wxITEM_CHECK));
 	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_DrawCaptures, "Draw Captures", "Show the captured Chess pieces.", wxITEM_CHECK));

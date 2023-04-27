@@ -63,6 +63,9 @@ namespace ChessEngine
 	//      * https://www.chessprogramming.org/Monte-Carlo_Tree_Search
 	//		* https://en.wikipedia.org/wiki/Monte_Carlo_tree_search
 	//      * https://philippmuens.com/minimax-and-mcts
+	// 
+	// So far, my attempt here to implement this type of AI has just been a complete failure.
+	// It doesn't seem smart at all.  Clearly there's something I'm not understanding correctly here.
 	class CHESS_ENGINE_API ChessMonteCarloTreeSearchAI : public ChessAI
 	{
 	public:
