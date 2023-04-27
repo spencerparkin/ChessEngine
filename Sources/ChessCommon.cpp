@@ -97,4 +97,15 @@ namespace ChessEngine
 
 		moveArray.clear();
 	}
+
+	int Random(int min, int max)
+	{
+		double alpha = double(std::rand()) / double(RAND_MAX);
+		int i = min + (int)::round(alpha * double(max - min));
+		if (i < min)
+			i = min;
+		if (i > max)
+			i = max;
+		return i;
+	}
 }

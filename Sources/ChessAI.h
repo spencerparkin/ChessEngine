@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ChessCommon.h"
+#include "ChessUtils.h"
 
 namespace ChessEngine
 {
@@ -31,8 +32,6 @@ namespace ChessEngine
 
 		// Derivatives of this class might implement a different evaluation function.
 		virtual int EvaluationFunction(ChessColor favoredColor, const ChessGame* game);
-
-		int Random(int min, int max);
 
 		ChessAIProgressIndicator* progressIndicator;
 	};
@@ -93,10 +92,42 @@ namespace ChessEngine
 			mutable bool cachedUCBValid;
 		};
 
+		class RolloutThread : public Thread
+		{
+		public:
+			RolloutThread();
+			virtual ~RolloutThread();
+
+			virtual int ThreadFunc() override;
+
+			struct Work
+			{
+				ChessColor favoredColor;
+				ChessColor whoseTurn;
+				ChessGame* game;
+				std::function<void(double)> aggregateGameResultFunc;
+				Event* completionEvent;
+			};
+
+			void EnqueueRandomGame(const Work& work);
+			void SignalShutdown();
+
+		private:
+
+			ThreadSafeList<Work> workQueue;
+			Semaphore workQueueSem;
+		};
+
 	public:
 
 		double maxTimeSeconds;
 		int maxIterations;
 		int numGamesPerRollout;
+		int numRolloutThreads;
+
+	private:
+
+		typedef std::vector<RolloutThread*> RolloutThreadArray;
+		RolloutThreadArray* rolloutThreadArray;
 	};
 }

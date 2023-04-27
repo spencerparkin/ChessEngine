@@ -15,6 +15,7 @@
 #include <math.h>
 #include <limits.h>
 #include <assert.h>
+#include <functional>
 
 #define CHESS_BOARD_RANKS		8
 #define CHESS_BOARD_FILES		8
@@ -64,4 +65,5 @@ namespace ChessEngine
 	typedef std::vector<ChessMove*> ChessMoveArray;
 
 	CHESS_ENGINE_API void DeleteMoveArray(ChessMoveArray& moveArray);
+	CHESS_ENGINE_API int Random(int min, int max);
 }

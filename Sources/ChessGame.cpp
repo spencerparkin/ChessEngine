@@ -156,6 +156,11 @@ void ChessGame::Reset()
 	return true;
 }
 
+ChessGame* ChessGame::Clone() const
+{
+	return nullptr;
+}
+
 bool ChessGame::IsLocationValid(const ChessVector& location) const
 {
 	if (location.file < 0 || location.file >= CHESS_BOARD_FILES)

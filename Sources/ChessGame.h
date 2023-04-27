@@ -19,6 +19,8 @@ namespace ChessEngine
 		virtual bool WriteToStream(std::ostream& stream) const override;
 		virtual bool ReadFromStream(std::istream& stream) override;
 
+		ChessGame* Clone() const;
+
 		virtual Code GetCode() const override;
 
 		bool IsLocationValid(const ChessVector& location) const;

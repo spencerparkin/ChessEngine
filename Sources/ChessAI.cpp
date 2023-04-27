@@ -75,17 +75,6 @@ ChessAI::ChessAI()
 	return totalScore;
 }
 
-int ChessAI::Random(int min, int max)
-{
-	double alpha = double(std::rand()) / double(RAND_MAX);
-	int i = min + (int)::round(alpha * double(max - min));
-	if (i < min)
-		i = min;
-	if (i > max)
-		i = max;
-	return i;
-}
-
 //---------------------------------------- ChessMinimaxAI ----------------------------------------
 
 ChessMinimaxAI::ChessMinimaxAI(int maxDepth)
@@ -118,7 +107,7 @@ ChessMinimaxAI::ChessMinimaxAI(int maxDepth)
 
 	if (success && this->bestMoveArray->size() > 0)
 	{
-		int i = this->Random(0, this->bestMoveArray->size() - 1);
+		int i = Random(0, this->bestMoveArray->size() - 1);
 		chosenMove = (*this->bestMoveArray)[i];
 		(*this->bestMoveArray)[i] = nullptr;
 		DeleteMoveArray(*this->bestMoveArray);
@@ -259,17 +248,28 @@ ChessMonteCarloTreeSearchAI::ChessMonteCarloTreeSearchAI(double maxTimeSeconds, 
 {
 	this->maxTimeSeconds = maxTimeSeconds;
 	this->maxIterations = maxIterations;
-	this->numGamesPerRollout = 8;
+	this->numGamesPerRollout = 16;
+	this->numRolloutThreads = 8;
+	this->rolloutThreadArray = new RolloutThreadArray();
 }
 
 /*virtual*/ ChessMonteCarloTreeSearchAI::~ChessMonteCarloTreeSearchAI()
 {
+	delete this->rolloutThreadArray;
 }
 
 /*virtual*/ ChessMove* ChessMonteCarloTreeSearchAI::CalculateRecommendedMove(ChessColor favoredColor, ChessGame* game)
 {
 	if (this->progressIndicator)
 		this->progressIndicator->ProgressBegin();
+
+	// Spin up a thread pool we can use to accelerate the processing of roll-outs.
+	for (int i = 0; i < this->numRolloutThreads; i++)
+	{
+		RolloutThread* thread = new RolloutThread();
+		thread->SpawnThread();
+		this->rolloutThreadArray->push_back(thread);
+	}
 
 	Node* root = new Node(nullptr, nullptr);
 
@@ -392,6 +392,15 @@ ChessMonteCarloTreeSearchAI::ChessMonteCarloTreeSearchAI(double maxTimeSeconds, 
 
 	delete root;
 
+	for (RolloutThread* thread : *this->rolloutThreadArray)
+	{
+		thread->SignalShutdown();
+		thread->WaitForThreadExit();
+		delete thread;
+	}
+
+	this->rolloutThreadArray->clear();
+
 	if (this->progressIndicator)
 		this->progressIndicator->ProgressEnd();
 
@@ -413,54 +422,34 @@ ChessMonteCarloTreeSearchAI::ChessMonteCarloTreeSearchAI(double maxTimeSeconds, 
 // of the game tree.  Anyhow, that's my current understanding of all this.
 double ChessMonteCarloTreeSearchAI::PerformRollout(ChessColor favoredColor, ChessColor whoseTurn, ChessGame* game)
 {
-	// TODO: Optimize them function using a thread-pool.  Divide the work-load of playing the games out to threads to
-	//       get it all done much quicker.  This might also make it possible to play more games per roll-out.
+	assert(this->numGamesPerRollout > 0);
 
 	double gameResultsTotal = 0.0;
+	int numGamesPlayed = 0;
+	Mutex gameResultMutex;
+	std::function<void(double)> aggregateGameResultFunc = [&](double gameResultValue) {
+		MutexLocker locker(gameResultMutex);
+		gameResultsTotal += gameResultValue;
+		numGamesPlayed++;
+	};
 
-	assert(this->numGamesPerRollout > 0);
+	// Evenly distribute the workload of performing all the games per roll-out.
+	// Each thread gets a copy of the game, so there is no need to unwind the move stack after each game.
+	std::vector<Event*> completionEventArray;
 	for (int i = 0; i < this->numGamesPerRollout; i++)
 	{
-		int numMoves = game->GetNumMoves();
-		double gameResultValue = 0.0;
-
-		while (true)
-		{
-			ChessMoveArray moveArray;
-			GameResult result = game->GenerateAllLegalMovesForColor(whoseTurn, moveArray);
-
-			// Have we reached the end of the game?
-			if (result == GameResult::CheckMate)
-			{
-				gameResultValue = (whoseTurn == favoredColor) ? -1.0 : 1.0;
-				DeleteMoveArray(moveArray);
-				break;
-			}
-			else if (result == GameResult::StaleMate || game->GetNumPiecesOnBoard() <= 2)
-			{
-				gameResultValue = 0.0;
-				DeleteMoveArray(moveArray);
-				break;
-			}
-
-			// Pick a random move and go with it.
-			int j = this->Random(0, moveArray.size() - 1);
-			ChessMove* move = moveArray[j];
-			moveArray[j] = moveArray[moveArray.size() - 1];
-			moveArray.pop_back();
-			DeleteMoveArray(moveArray);
-			game->PushMove(move);
-			whoseTurn = (whoseTurn == ChessColor::Black) ? ChessColor::White : ChessColor::Black;
-		}
-
-		while (game->GetNumMoves() > numMoves)
-		{
-			ChessMove* move = game->PopMove();
-			delete move;
-		}
-
-		gameResultsTotal += gameResultValue;
+		int j = i % this->rolloutThreadArray->size();
+		RolloutThread* thread = (*this->rolloutThreadArray)[j];
+		Event* completionEvent = new Event();
+		RolloutThread::Work work{ favoredColor, whoseTurn, game->Clone(), aggregateGameResultFunc, completionEvent };
+		thread->EnqueueRandomGame(work);
+		completionEventArray.push_back(completionEvent);
 	}
+
+	Event::WaitMultiple(completionEventArray);
+
+	for (Event* completionEvent : completionEventArray)
+		delete completionEvent;
 
 	return gameResultsTotal / double(this->numGamesPerRollout);
 }
@@ -503,4 +492,74 @@ double ChessMonteCarloTreeSearchAI::Node::CalcUCB() const
 	}
 
 	return this->cachedUCB;
+}
+
+//---------------------------------------- ChessMontoCarloTreeSearchAI::RolloutThread ----------------------------------------	
+
+ChessMonteCarloTreeSearchAI::RolloutThread::RolloutThread() : workQueueSem(128)
+{
+}
+
+/*virtual*/ ChessMonteCarloTreeSearchAI::RolloutThread::~RolloutThread()
+{
+}
+
+void ChessMonteCarloTreeSearchAI::RolloutThread::EnqueueRandomGame(const Work& work)
+{
+	this->workQueue.AddTail(work);
+	this->workQueueSem.Increment();
+}
+
+void ChessMonteCarloTreeSearchAI::RolloutThread::SignalShutdown()
+{
+	Work work{ ChessColor::Black, ChessColor::Black, nullptr, [](double) {} };
+	this->workQueue.AddTail(work);
+	this->workQueueSem.Increment();
+}
+
+/*virtual*/ int ChessMonteCarloTreeSearchAI::RolloutThread::ThreadFunc()
+{
+	while (true)
+	{
+		this->workQueueSem.Decrement();
+		
+		Work work;
+		if (!this->workQueue.RemoveHead(work) || !work.game)
+			break;
+
+		double gameResultValue = 0.0;
+		while (true)
+		{
+			ChessMoveArray moveArray;
+			GameResult result = work.game->GenerateAllLegalMovesForColor(work.whoseTurn, moveArray);
+
+			// Have we reached the end of the game?
+			if (result == GameResult::CheckMate)
+			{
+				gameResultValue = (work.whoseTurn == work.favoredColor) ? -1.0 : 1.0;
+				DeleteMoveArray(moveArray);
+				break;
+			}
+			else if (result == GameResult::StaleMate || work.game->GetNumPiecesOnBoard() <= 2)
+			{
+				gameResultValue = 0.0;
+				DeleteMoveArray(moveArray);
+				break;
+			}
+
+			// Pick a random move and go with it.
+			int i = Random(0, moveArray.size() - 1);
+			ChessMove* move = moveArray[i];
+			moveArray[i] = moveArray[moveArray.size() - 1];
+			moveArray.pop_back();
+			DeleteMoveArray(moveArray);
+			work.game->PushMove(move);
+			work.whoseTurn = (work.whoseTurn == ChessColor::Black) ? ChessColor::White : ChessColor::Black;
+		}
+
+		work.aggregateGameResultFunc(gameResultValue);
+		work.completionEvent->Signal();
+	}
+
+	return 0;
 }
