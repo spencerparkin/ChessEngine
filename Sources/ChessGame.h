@@ -41,12 +41,14 @@ namespace ChessEngine
 
 		int GetNumPiecesOnBoard() const;
 
+		// Find all the ways the given color's pieces can move, barring the rules of check.
+		void GatherAllMovesForColor(ChessColor color, ChessMoveArray& moveArray);
+
 	protected:
 
 		void Clear();
 
 		bool IsColorInCheck(ChessColor color);
-		void GatherAllMovesForColor(ChessColor color, ChessMoveArray& moveArray);
 
 		ChessPiece* boardMatrix[CHESS_BOARD_FILES][CHESS_BOARD_RANKS];
 		ChessMoveArray* chessMoveStack;

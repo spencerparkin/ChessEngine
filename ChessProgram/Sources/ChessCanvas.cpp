@@ -329,14 +329,14 @@ void ChessCanvas::RecalculateVisibilityArrows()
 	ChessEngine::ChessMoveArray blackMoveArray;
 	ChessEngine::ChessPiece* whitePawn = new ChessEngine::Pawn(nullptr, ChessEngine::ChessVector(-1, -1), ChessEngine::ChessColor::White);
 	game->SetSquareOccupant(this->hoverLocation, whitePawn);
-	game->GenerateAllLegalMovesForColor(ChessEngine::ChessColor::Black, blackMoveArray);
+	game->GatherAllMovesForColor(ChessEngine::ChessColor::Black, blackMoveArray);
 	game->SetSquareOccupant(this->hoverLocation, nullptr);
 	delete whitePawn;
 
 	ChessEngine::ChessMoveArray whiteMoveArray;
 	ChessEngine::ChessPiece* blackPawn = new ChessEngine::Pawn(nullptr, ChessEngine::ChessVector(-1, -1), ChessEngine::ChessColor::Black);
 	game->SetSquareOccupant(this->hoverLocation, blackPawn);
-	game->GenerateAllLegalMovesForColor(ChessEngine::ChessColor::White, whiteMoveArray);
+	game->GatherAllMovesForColor(ChessEngine::ChessColor::White, whiteMoveArray);
 	game->SetSquareOccupant(this->hoverLocation, nullptr);
 	delete blackPawn;
 
