@@ -17,6 +17,8 @@ public:
 	double Dot(const Vector& vector) const;
 	double Cross(const Vector& vector) const;
 	double Length() const;
+	Vector Rotated90CCW() const;
+	bool Normalize();
 
 	double x, y;
 };
@@ -25,6 +27,25 @@ Vector operator+(const Vector& leftVector, const Vector& rightVector);
 Vector operator-(const Vector& leftVector, const Vector& rightVector);
 Vector operator*(const Vector& leftVector, double rightScalar);
 Vector operator*(double leftScalar, const Vector& rightVector);
+
+class Transform
+{
+public:
+	Transform();
+	Transform(const Transform& transform);
+	virtual ~Transform();
+
+	void operator=(const Transform& transform);
+	Vector operator()(const Vector& vector) const;
+
+	Vector TransformVector(const Vector& vector) const;
+	Vector TransformPoint(const Vector& point) const;
+
+	Vector xAxis, yAxis;
+	Vector translation;
+};
+
+Transform operator*(const Transform& leftTransform, const Transform& rightTransform);
 
 class Box
 {
@@ -41,6 +62,8 @@ public:
 
 	void PointToUVs(const Vector& point, Vector& uvs) const;
 	void PointFromUVs(Vector& point, const Vector& uvs) const;
+
+	Vector Center() const;
 
 	bool ContainsPoint(const Vector& point) const;
 

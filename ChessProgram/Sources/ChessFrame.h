@@ -31,6 +31,7 @@ public:
 	void OnTimerTick(wxTimerEvent& event);
 	void OnDrawCoordinates(wxCommandEvent& event);
 	void OnDrawCaptures(wxCommandEvent& event);
+	void OnDrawVisibilityArrows(wxCommandEvent& event);
 	void OnCycleSquareTexture(wxCommandEvent& event);
 	void OnHowToPlay(wxCommandEvent& event);
 	void OnDoubleUndoRedo(wxCommandEvent& event);
@@ -52,6 +53,7 @@ public:
 		ID_ComputerTypeMCTS,
 		ID_DrawCoordinates,
 		ID_DrawCaptures,
+		ID_DrawVisibilityArrows,
 		ID_CycleLightSquareTexture,
 		ID_CycleDarkSquareTexture,
 		ID_HowToPlay,

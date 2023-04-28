@@ -42,6 +42,7 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	optionsMenu->AppendSeparator();
 	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_DrawCoordinates, "Draw Coordinates", "Show the rand and file labels.", wxITEM_CHECK));
 	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_DrawCaptures, "Draw Captures", "Show the captured Chess pieces.", wxITEM_CHECK));
+	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_DrawVisibilityArrows, "Draw Visibility Arrows", "Show arrows indicating what pieces can see the square hovered over.", wxITEM_CHECK));
 
 	wxMenu* helpMenu = new wxMenu();
 	helpMenu->Append(new wxMenuItem(helpMenu, ID_HowToPlay, "How to play...", "Show a web-page with info about how to play, FWIW."));
@@ -103,6 +104,7 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	this->Bind(wxEVT_MENU, &ChessFrame::OnComputerType, this, ID_ComputerTypeMCTS);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnDrawCoordinates, this, ID_DrawCoordinates);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnDrawCaptures, this, ID_DrawCaptures);
+	this->Bind(wxEVT_MENU, &ChessFrame::OnDrawVisibilityArrows, this, ID_DrawVisibilityArrows);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnCycleSquareTexture, this, ID_CycleLightSquareTexture);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnCycleSquareTexture, this, ID_CycleDarkSquareTexture);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnHowToPlay, this, ID_HowToPlay);
@@ -118,6 +120,7 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_ComputerTypeMCTS);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_DrawCoordinates);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_DrawCaptures);
+	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_DrawVisibilityArrows);
 	this->Bind(EVT_GAME_STATE_CHANGED, &ChessFrame::OnGameStateChanged, this);
 	this->Bind(wxEVT_TIMER, &ChessFrame::OnTimerTick, this);
 
@@ -381,6 +384,11 @@ void ChessFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 			event.Check(this->canvas->GetDrawCaptures());
 			break;
 		}
+		case ID_DrawVisibilityArrows:
+		{
+			event.Check(this->canvas->GetDrawVisibilityArrows());
+			break;
+		}
 	}
 }
 
@@ -419,6 +427,11 @@ void ChessFrame::OnDrawCoordinates(wxCommandEvent& event)
 void ChessFrame::OnDrawCaptures(wxCommandEvent& event)
 {
 	this->canvas->SetDrawCaptures(!this->canvas->GetDrawCaptures());
+}
+
+void ChessFrame::OnDrawVisibilityArrows(wxCommandEvent& event)
+{
+	this->canvas->SetDrawVisibilityArrows(!this->canvas->GetDrawVisibilityArrows());
 }
 
 void ChessFrame::ComputerTakesTurn()

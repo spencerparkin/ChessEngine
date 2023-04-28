@@ -20,6 +20,7 @@ ChessCanvas::ChessCanvas(wxWindow* parent) : wxGLCanvas(parent, wxID_ANY, attrib
 
 	this->settings.drawCoordinates = false;
 	this->settings.drawCaptures = false;
+	this->settings.drawVisibilityArrows = false;
 	this->settings.lightSquareNum = 0;
 	this->settings.darkSquareNum = 0;
 	this->settings.Load();
@@ -59,6 +60,7 @@ void ChessCanvas::Settings::Load()
 {
 	this->drawCoordinates = wxGetApp().config.ReadBool("drawCoordinates", false);
 	this->drawCaptures = wxGetApp().config.ReadBool("drawCaptures", false);
+	this->drawVisibilityArrows = wxGetApp().config.ReadBool("drawVisibilityArrows", false);
 	this->lightSquareNum = (int)wxGetApp().config.ReadLong("lightSquareNum", 0);
 	this->darkSquareNum = (int)wxGetApp().config.ReadLong("darkSquareNum", 0);
 	this->renderOrientation = (RenderOrientation)wxGetApp().config.ReadLong("renderOrientation", (long)RenderOrientation::RENDER_NORMAL);
@@ -68,6 +70,7 @@ void ChessCanvas::Settings::Save()
 {
 	wxGetApp().config.Write("drawCoordinates", this->drawCoordinates);
 	wxGetApp().config.Write("drawCaptures", this->drawCaptures);
+	wxGetApp().config.Write("drawVisibilityArrows", this->drawVisibilityArrows);
 	wxGetApp().config.Write("lightSquareNum", this->lightSquareNum);
 	wxGetApp().config.Write("darkSquareNum", this->darkSquareNum);
 	wxGetApp().config.Write("renderOrientation", (long)this->renderOrientation);
@@ -87,6 +90,15 @@ void ChessCanvas::SetDrawCaptures(bool draw)
 	if (draw != this->settings.drawCaptures)
 	{
 		this->settings.drawCaptures = draw;
+		this->Refresh();
+	}
+}
+
+void ChessCanvas::SetDrawVisibilityArrows(bool draw)
+{
+	if (draw != this->settings.drawVisibilityArrows)
+	{
+		this->settings.drawVisibilityArrows = draw;
 		this->Refresh();
 	}
 }
@@ -185,9 +197,12 @@ void ChessCanvas::OnMouseMotion(wxMouseEvent& event)
 	if (location != this->hoverLocation || this->formulatingMove)
 	{
 		this->hoverLocation = location;
+		this->arrowArray.clear();
 
 		if (this->formulatingMove)
 			this->offsetVector = worldPoint - this->clickOrigin;
+		else
+			this->RecalculateVisibilityArrows();
 
 		this->Refresh();
 	}
@@ -296,6 +311,77 @@ void ChessCanvas::OnCaptureLost(wxMouseCaptureLostEvent& event)
 		ChessEngine::DeleteMoveArray(this->legalMoveArray);
 		this->Refresh();
 	}
+}
+
+void ChessCanvas::RecalculateVisibilityArrows()
+{
+	this->arrowArray.clear();
+
+	if (!this->settings.drawVisibilityArrows)
+		return;
+
+	ChessEngine::ChessGame* game = wxGetApp().game;
+
+	ChessEngine::ChessPiece* originalPiece = game->GetSquareOccupant(this->hoverLocation);
+	if (originalPiece)
+		game->SetSquareOccupant(this->hoverLocation, nullptr);
+
+	ChessEngine::ChessMoveArray blackMoveArray;
+	ChessEngine::ChessPiece* whitePawn = new ChessEngine::Pawn(nullptr, ChessEngine::ChessVector(-1, -1), ChessEngine::ChessColor::White);
+	game->SetSquareOccupant(this->hoverLocation, whitePawn);
+	game->GenerateAllLegalMovesForColor(ChessEngine::ChessColor::Black, blackMoveArray);
+	game->SetSquareOccupant(this->hoverLocation, nullptr);
+	delete whitePawn;
+
+	ChessEngine::ChessMoveArray whiteMoveArray;
+	ChessEngine::ChessPiece* blackPawn = new ChessEngine::Pawn(nullptr, ChessEngine::ChessVector(-1, -1), ChessEngine::ChessColor::Black);
+	game->SetSquareOccupant(this->hoverLocation, blackPawn);
+	game->GenerateAllLegalMovesForColor(ChessEngine::ChessColor::White, whiteMoveArray);
+	game->SetSquareOccupant(this->hoverLocation, nullptr);
+	delete blackPawn;
+
+	ChessEngine::ChessMoveArray moveArray;
+	for (ChessEngine::ChessMove* move : blackMoveArray)
+		moveArray.push_back(move);
+	for (ChessEngine::ChessMove* move : whiteMoveArray)
+		moveArray.push_back(move);
+
+	for (ChessEngine::ChessMove* move : moveArray)
+	{
+		if (move->destinationLocation == this->hoverLocation)
+		{
+			Arrow arrow;
+
+			ChessEngine::ChessPiece* movingPiece = game->GetSquareOccupant(move->sourceLocation);
+			assert(movingPiece);
+
+			if (movingPiece->color == wxGetApp().whoseTurn)
+			{
+				arrow.r = 0.0f;
+				arrow.g = 0.8f;
+				arrow.b = 0.0f;
+			}
+			else
+			{
+				arrow.r = 0.9f;
+				arrow.g = 0.0f;
+				arrow.b = 0.0f;
+			}
+
+			Box tailBox, headBox;
+			this->CalculateBoardSquareBox(move->sourceLocation, tailBox);
+			this->CalculateBoardSquareBox(move->destinationLocation, headBox);
+
+			arrow.tail = tailBox.Center();
+			arrow.head = headBox.Center();
+
+			this->arrowArray.push_back(arrow);
+		}
+	}
+
+	ChessEngine::DeleteMoveArray(moveArray);
+
+	game->SetSquareOccupant(this->hoverLocation, originalPiece);
 }
 
 bool ChessCanvas::FindLegalMoves(const ChessEngine::ChessVector& sourceLocation, const ChessEngine::ChessVector& destinationLocation, ChessEngine::ChessMoveArray& moveArray)
@@ -441,6 +527,8 @@ void ChessCanvas::RenderBoard()
 		});
 	}
 
+	this->RenderArrows();
+
 	if (this->settings.drawCaptures)
 	{
 		Box marginBoxA, marginBoxB;
@@ -516,37 +604,44 @@ void ChessCanvas::RenderCaptures(const Box& marginBox, const std::vector<ChessEn
 	}
 }
 
+void ChessCanvas::CalculateBoardSquareBox(const ChessEngine::ChessVector& squareLocation, Box& renderBox)
+{
+	int i = -1, j = -1;
+
+	switch (this->settings.renderOrientation)
+	{
+		case RenderOrientation::RENDER_NORMAL:
+		{
+			i = squareLocation.file;
+			j = squareLocation.rank;
+			break;
+		}
+		case RenderOrientation::RENDER_FLIPPED:
+		{
+			i = CHESS_BOARD_FILES - 1 - squareLocation.file;
+			j = CHESS_BOARD_RANKS - 1 - squareLocation.rank;
+			break;
+		}
+	}
+
+	renderBox.min.x = float(i) / float(CHESS_BOARD_FILES);
+	renderBox.max.x = float(i + 1) / float(CHESS_BOARD_FILES);
+	renderBox.min.y = float(j) / float(CHESS_BOARD_FILES);
+	renderBox.max.y = float(j + 1) / float(CHESS_BOARD_FILES);
+}
+
 void ChessCanvas::ForEachBoardSquare(std::function<void(const ChessEngine::ChessVector&, const Box&)> renderFunc)
 {
-	Box box;
-
 	for (int i = 0; i < CHESS_BOARD_FILES; i++)
 	{
-		box.min.x = float(i) / float(CHESS_BOARD_FILES);
-		box.max.x = float(i + 1) / float(CHESS_BOARD_FILES);
-
 		for (int j = 0; j < CHESS_BOARD_RANKS; j++)
 		{
-			box.min.y = float(j) / float(CHESS_BOARD_FILES);
-			box.max.y = float(j + 1) / float(CHESS_BOARD_FILES);
+			ChessEngine::ChessVector squareLocation(i, j);
 
-			ChessEngine::ChessVector squareLocation;
+			Box renderBox;
+			this->CalculateBoardSquareBox(squareLocation, renderBox);
 
-			switch (this->settings.renderOrientation)
-			{
-				case RenderOrientation::RENDER_NORMAL:
-				{
-					squareLocation = ChessEngine::ChessVector(i, j);
-					break;
-				}
-				case RenderOrientation::RENDER_FLIPPED:
-				{
-					squareLocation = ChessEngine::ChessVector(CHESS_BOARD_FILES - 1 - i, CHESS_BOARD_RANKS - 1 - j);
-					break;
-				}
-			}
-
-			renderFunc(squareLocation, box);
+			renderFunc(squareLocation, renderBox);
 		}
 	}
 }
@@ -760,6 +855,65 @@ void ChessCanvas::RenderBoardCoordinates(const ChessEngine::ChessVector& squareL
 
 			this->RenderTexturedQuad(renderBox, texture);
 		}
+	}
+}
+
+void ChessCanvas::RenderArrows()
+{
+	glDisable(GL_TEXTURE_2D);
+	glLineWidth(3.0f);
+
+	for (const Arrow& arrow : this->arrowArray)
+	{
+		Transform transform;
+		transform.translation = arrow.tail;
+		transform.yAxis = arrow.head - arrow.tail;
+		transform.xAxis = transform.yAxis.Rotated90CCW();
+		transform.xAxis.Normalize();
+		transform.yAxis.Normalize();
+
+		double arrowLength = (arrow.head - arrow.tail).Length();
+		double arrowHeadLength = 0.025;
+		double arrowHeadWidth = 0.05;
+		double arrowStemWidth = 0.015;
+		double arrowStemLength = arrowLength - arrowHeadLength;
+
+		Vector arrowPoints[] = {
+			Vector(-arrowStemWidth / 2.0, 0.0),
+			Vector(arrowStemWidth / 2.0, 0.0),
+			Vector(arrowStemWidth / 2.0, arrowStemLength),
+			Vector(arrowHeadWidth / 2.0, arrowStemLength),
+			Vector(0.0, arrowLength),
+			Vector(-arrowHeadWidth / 2.0, arrowStemLength),
+			Vector(-arrowStemWidth / 2.0, arrowStemLength)
+		};
+		int arrowPointCount = sizeof(arrowPoints) / sizeof(Vector);
+
+		glColor4f(arrow.r, arrow.g, arrow.b, 1.0f);
+		glBegin(GL_QUADS);
+		int quadIndices[] = { 0, 1, 2, 6 };
+		for (int i = 0; i < 4; i++)
+		{
+			Vector point = transform(arrowPoints[quadIndices[i]]);
+			glVertex2f(point.x, point.y);
+		}
+		glEnd();
+		glBegin(GL_TRIANGLES);
+		int triIndices[] = { 3, 4, 5 };
+		for (int i = 0; i < 3; i++)
+		{
+			Vector point = transform(arrowPoints[triIndices[i]]);
+			glVertex2f(point.x, point.y);
+		}
+		glEnd();
+		glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+		glBegin(GL_LINE_LOOP);
+		for (int i = 0; i < arrowPointCount; i++)
+		{
+			Vector point = transform(arrowPoints[i]);
+			glVertex2f(point.x, point.y);
+		}
+		glEnd();
 	}
 }
 

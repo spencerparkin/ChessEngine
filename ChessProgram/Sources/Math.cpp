@@ -70,6 +70,23 @@ double Vector::Length() const
 	return ::sqrt(this->Dot(*this));
 }
 
+Vector Vector::Rotated90CCW() const
+{
+	return Vector(-this->y, this->x);
+}
+
+bool Vector::Normalize()
+{
+	double length = this->Length();
+	if (length == 0.0)
+		return false;
+
+	double scale = 1.0 / length;
+	this->x *= scale;
+	this->y *= scale;
+	return true;
+}
+
 Vector operator+(const Vector& leftVector, const Vector& rightVector)
 {
 	return Vector(leftVector.x + rightVector.x, leftVector.y + rightVector.y);
@@ -88,6 +105,56 @@ Vector operator*(const Vector& leftVector, double rightScalar)
 Vector operator*(double leftScalar, const Vector& rightVector)
 {
 	return Vector(rightVector.x * leftScalar, rightVector.y * leftScalar);
+}
+
+//---------------------------------------- Transform ----------------------------------------
+
+Transform::Transform()
+{
+	this->xAxis.x = 1.0;
+	this->xAxis.y = 0.0;
+	this->yAxis.x = 0.0;
+	this->yAxis.y = 1.0;
+}
+
+Transform::Transform(const Transform& transform)
+{
+	this->xAxis = transform.xAxis;
+	this->yAxis = transform.yAxis;
+}
+
+/*virtual*/ Transform::~Transform()
+{
+}
+
+void Transform::operator=(const Transform& transform)
+{
+	this->xAxis = transform.xAxis;
+	this->yAxis = transform.yAxis;
+}
+
+Vector Transform::operator()(const Vector& vector) const
+{
+	return this->TransformPoint(vector);
+}
+
+Vector Transform::TransformVector(const Vector& vector) const
+{
+	return this->xAxis* vector.x + this->yAxis * vector.y;
+}
+
+Vector Transform::TransformPoint(const Vector& point) const
+{
+	return this->TransformVector(point) + this->translation;
+}
+
+Transform operator*(const Transform& leftTransform, const Transform& rightTransform)
+{
+	Transform product;
+	product.xAxis = leftTransform.TransformVector(rightTransform.xAxis);
+	product.yAxis = leftTransform.TransformVector(rightTransform.yAxis);
+	product.translation = leftTransform.TransformVector(rightTransform.translation) + leftTransform.translation;
+	return product;
 }
 
 //---------------------------------------- Box ----------------------------------------
@@ -150,6 +217,11 @@ bool Box::ContainsPoint(const Vector& point) const
 	}
 
 	return false;
+}
+
+Vector Box::Center() const
+{
+	return (this->min + this->max) * 0.5;
 }
 
 double Box::Width() const
