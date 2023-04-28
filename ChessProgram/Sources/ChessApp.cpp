@@ -3,6 +3,7 @@
 #include "ChessBot.h"
 #include <wx/image.h>
 #include <wx/filename.h>
+#include <wx/stdpaths.h>
 #include <fstream>
 
 wxIMPLEMENT_APP(ChessApp);
@@ -30,7 +31,7 @@ ChessApp::ChessApp() : config("Chess")
 	if (!wxApp::OnInit())
 		return false;
 
-	wxFileName fileName(wxGetCwd() + "/last_game.chess");
+	wxFileName fileName(wxStandardPaths::Get().GetTempDir() + "/last_game.chess");
 	if (fileName.Exists())
 		this->LoadGame(fileName.GetFullPath());
 
@@ -49,7 +50,7 @@ ChessApp::ChessApp() : config("Chess")
 
 /*virtual*/ int ChessApp::OnExit(void)
 {
-	wxFileName fileName(wxGetCwd() + "/last_game.chess");
+	wxFileName fileName(wxStandardPaths::Get().GetTempDir() + "/last_game.chess");
 	if (fileName.Exists())
 		wxRemoveFile(fileName.GetFullPath());
 
