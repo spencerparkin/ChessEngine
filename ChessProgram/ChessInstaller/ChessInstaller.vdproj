@@ -21,6 +21,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_013864729E4643D2A1ED3110F19FBAE6"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_07F80609024245B78B455EE2F2D91FC0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -490,6 +496,26 @@
             "TargetName" = "8:white_knight.png"
             "Tag" = "8:"
             "Folder" = "8:_935A560E01144C918BADD179F9566330"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_013864729E4643D2A1ED3110F19FBAE6"
+            {
+            "SourcePath" = "8:..\\chess.bmp"
+            "TargetName" = "8:chess.bmp"
+            "Tag" = "8:"
+            "Folder" = "8:_9A820EB79A194C70BEB9B9B8C1CEDB85"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"

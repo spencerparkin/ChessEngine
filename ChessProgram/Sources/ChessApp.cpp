@@ -43,6 +43,20 @@ ChessApp::ChessApp() : config("Chess")
 	wxInitAllImageHandlers();
 
 	this->frame = new ChessFrame(nullptr, wxDefaultPosition, wxSize(1300, 700));
+
+	wxFileName iconFile(wxGetCwd() + "/chess.bmp");
+	if (iconFile.Exists())
+	{
+		wxString iconFilePath = iconFile.GetFullPath();
+		wxImage iconImage;
+		if (iconImage.LoadFile(iconFilePath, wxBITMAP_TYPE_BMP))
+		{
+			wxIcon icon;
+			icon.CopyFromBitmap(iconImage);
+			this->frame->SetIcon(icon);
+		}
+	}
+
 	this->frame->Show();
 
 	return true;
