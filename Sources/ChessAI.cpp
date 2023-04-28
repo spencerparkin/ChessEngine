@@ -527,6 +527,13 @@ void ChessMonteCarloTreeSearchAI::RolloutThread::SignalShutdown()
 		if (!this->workQueue.RemoveHead(work) || !work.game)
 			break;
 
+		// TODO: Could we maybe get better results if instead of playing to the end of the game, we
+		//       just played about 3 or 4 moves ahead?  This would allow us to play many, many more
+		//       games (or partial games) per rollout, and then maybe give a more accurate estimation
+		//       of the value of the position.  This would add back an evaluation function, though,
+		//       and the theory of MCTS is that random playouts (to the very end) replace the traditional
+		//       evaluation function.  I don't know.  I think I've just completely failed to apply the
+		//       MCTS technique to Chess.  I'm ready to give up for a while.  Maybe revisit this later.
 		double gameResultValue = 0.0;
 		while (true)
 		{
