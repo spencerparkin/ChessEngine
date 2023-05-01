@@ -794,8 +794,16 @@ void ChessCanvas::RenderBoardSquareHighlight(const ChessEngine::ChessVector& squ
 
 	glDisable(GL_TEXTURE_2D);
 	glLineWidth(5.0f);
-
 	glBegin(GL_LINE_LOOP);	
+
+	glVertex2f(box.min.x, box.min.y);
+	glVertex2f(box.max.x, box.min.y);
+	glVertex2f(box.max.x, box.max.y);
+	glVertex2f(box.min.x, box.max.y);
+
+	glEnd();
+	glPointSize(2.0f);
+	glBegin(GL_POINTS);
 
 	glVertex2f(box.min.x, box.min.y);
 	glVertex2f(box.max.x, box.min.y);
