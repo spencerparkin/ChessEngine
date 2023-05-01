@@ -513,7 +513,12 @@ void ChessCanvas::RenderBoard()
 	});
 
 	this->ForEachBoardSquare([=](const ChessEngine::ChessVector& squareLocation, const Box& box) {
-		this->RenderBoardSquarePiece(squareLocation, box);
+		this->RenderBoardSquarePiece(squareLocation, box, PieceRenderType::STATIC);
+	});
+
+	// Make sure the moving pieces draw over the top of the stationary ones.
+	this->ForEachBoardSquare([=](const ChessEngine::ChessVector& squareLocation, const Box& box) {
+		this->RenderBoardSquarePiece(squareLocation, box, PieceRenderType::DYNAMIC);
 	});
 
 	this->ForEachBoardSquare([=](const ChessEngine::ChessVector& squareLocation, const Box& box) {
@@ -733,23 +738,27 @@ void ChessCanvas::RenderTexturedQuad(const Box& renderBox, GLuint texture)
 	glEnd();
 }
 
-void ChessCanvas::RenderBoardSquarePiece(const ChessEngine::ChessVector& squareLocation, const Box& box)
+void ChessCanvas::RenderBoardSquarePiece(const ChessEngine::ChessVector& squareLocation, const Box& box, PieceRenderType renderType)
 {
-	ChessEngine::ChessGame* game = wxGetApp().game;
-	if (game)
+	if ((squareLocation == this->offsetLocation && renderType == PieceRenderType::DYNAMIC) ||
+		(squareLocation != this->offsetLocation && renderType == PieceRenderType::STATIC))
 	{
-		ChessEngine::ChessPiece* piece = game->GetSquareOccupant(squareLocation);
-		if (piece)
+		ChessEngine::ChessGame* game = wxGetApp().game;
+		if (game)
 		{
-			int texture = this->GetTextureForChessPiece(piece->GetName().c_str(), piece->color);
-			if (texture != GL_INVALID_VALUE)
+			ChessEngine::ChessPiece* piece = game->GetSquareOccupant(squareLocation);
+			if (piece)
 			{
-				Box renderBox(box);
+				int texture = this->GetTextureForChessPiece(piece->GetName().c_str(), piece->color);
+				if (texture != GL_INVALID_VALUE)
+				{
+					Box renderBox(box);
 
-				if (squareLocation == this->offsetLocation)
-					renderBox += this->offsetVector;
+					if (squareLocation == this->offsetLocation)
+						renderBox += this->offsetVector;
 
-				this->RenderTexturedQuad(renderBox, texture);
+					this->RenderTexturedQuad(renderBox, texture);
+				}
 			}
 		}
 	}

@@ -67,9 +67,15 @@ public:
 
 private:
 
+	enum PieceRenderType
+	{
+		STATIC,
+		DYNAMIC
+	};
+
 	void RenderBoard();
 	void RenderBoardSquare(const ChessEngine::ChessVector& squareLocation, const Box& box);
-	void RenderBoardSquarePiece(const ChessEngine::ChessVector& squareLocation, const Box& box);
+	void RenderBoardSquarePiece(const ChessEngine::ChessVector& squareLocation, const Box& box, PieceRenderType renderType);
 	void RenderBoardSquareHighlight(const ChessEngine::ChessVector& squareLocation, const Box& box);
 	void RenderBoardCoordinates(const ChessEngine::ChessVector& squareLocation, const Box& box);
 	void RenderTexturedQuad(const Box& renderBox, GLuint texture);
