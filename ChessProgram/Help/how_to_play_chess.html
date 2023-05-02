@@ -116,7 +116,7 @@
     <h3>King</h3>
     <p>
     The king is just like the queen, except that it cannot move further than an immediately adjacent
-    or kitty-corner square.  Consider the situation below.
+    or kitty-corner square, except in the case of castling.  (More on that later.)  Consider the situation below.
     </p>
     <img src="fig9.png"/>
     <p>
@@ -134,6 +134,31 @@
     where it can be captured by the black king.  In general, a king cannot move anywhere on the board
     where it can be captured by an any opponent's piece.  More generally, no piece on
     the board can be moved for a player if it puts that player's king in a position to be captured.
+    </p>
+    <p>
+    As mentioned, there is one case where a king can move further than one square, and it's called
+    a castle, or castling move, and it's quite special, because you get to move a rook at the same time.
+    There are three catches, however.  First, a castling move cannot be performed between a king and one of
+    its rooks if either have already moved one or more times during the course of the game.  Second,
+    you cannot use the castling move to avoid check (more on that in a bit.)  And lastly, the king and
+    rook in question can jump over each other, but neither can jump over any other pieces.
+    </p>
+    <p>
+    In the following figure, it is black's turn to move, and they are neither in a position to queen-side
+    castle, or king-side castle.  In the former case, a knight is in the way.  In the latter, a bishop
+    and knight prevent the castling move.
+    </p>
+    <img src="fig20.png"/>
+    <p>
+    When it becomes white's turn to move, however, they can, if they so choose, perform a queen-side
+    castle.  Doing so, the board would become as follows.
+    </p>
+    <img src="fig21.png"/>
+    <p>
+    Here you can see that the king moved two squares to the left, and then the rook was placed to the right of it,
+    all in a single turn!
+    In a king-side castle, it's just the opposite.  The king would move two squares right, and then the rook would
+    be placed left of it.
     </p>
     <h2>Special Situations</h2>
     <h3>Check & Check-Mate</h3>
