@@ -257,6 +257,8 @@ GameResult ChessGame::GenerateAllLegalMovesForColor(ChessColor color, ChessMoveA
 {
 	DeleteMoveArray(moveArray);
 
+	bool inCheck = this->IsColorInCheck(color);
+
 	ChessMoveArray tentativeMoveArray;
 	this->GatherAllMovesForColor(color, tentativeMoveArray);
 	for (ChessMove* move : tentativeMoveArray)
@@ -268,6 +270,12 @@ GameResult ChessGame::GenerateAllLegalMovesForColor(ChessColor color, ChessMoveA
 		// We cannot make a move that puts us in check.
 		if (this->IsColorInCheck(color))
 			canDoMove = false;
+		else
+		{
+			// Special case: You cannot castle out of check.
+			if (inCheck && dynamic_cast<Castle*>(move))
+				canDoMove = false;
+		}
 
 		this->PopMove();
 
@@ -276,8 +284,6 @@ GameResult ChessGame::GenerateAllLegalMovesForColor(ChessColor color, ChessMoveA
 		else
 			delete move;
 	}
-
-	bool inCheck = this->IsColorInCheck(color);
 
 	if (moveArray.size() == 0)
 	{
