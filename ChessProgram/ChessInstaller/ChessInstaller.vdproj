@@ -27,6 +27,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_02EB450B26FB4DBC820700456CF20F6E"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_07F80609024245B78B455EE2F2D91FC0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -279,6 +285,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_C59FD9427C8F491ABDE5FA3715CDC2C8"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_C9C2C384ECD844B196504FE3B4CC752E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -516,6 +528,26 @@
             "TargetName" = "8:chess.bmp"
             "Tag" = "8:"
             "Folder" = "8:_9A820EB79A194C70BEB9B9B8C1CEDB85"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_02EB450B26FB4DBC820700456CF20F6E"
+            {
+            "SourcePath" = "8:..\\Help\\fig21.png"
+            "TargetName" = "8:fig21.png"
+            "Tag" = "8:"
+            "Folder" = "8:_5FE36E7972A64F2A947A5E217CC95CAA"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1354,6 +1386,26 @@
             {
             "SourcePath" = "8:..\\Help\\fig1.png"
             "TargetName" = "8:fig1.png"
+            "Tag" = "8:"
+            "Folder" = "8:_5FE36E7972A64F2A947A5E217CC95CAA"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C59FD9427C8F491ABDE5FA3715CDC2C8"
+            {
+            "SourcePath" = "8:..\\Help\\fig20.png"
+            "TargetName" = "8:fig20.png"
             "Tag" = "8:"
             "Folder" = "8:_5FE36E7972A64F2A947A5E217CC95CAA"
             "Condition" = "8:"
