@@ -1,9 +1,11 @@
 #include "ChessApp.h"
 #include "ChessFrame.h"
 #include "ChessBot.h"
+#include "ChessSound.h"
 #include <wx/image.h>
 #include <wx/filename.h>
 #include <wx/stdpaths.h>
+#include <wx/msgdlg.h>
 #include <fstream>
 
 wxIMPLEMENT_APP(ChessApp);
@@ -11,6 +13,7 @@ wxIMPLEMENT_APP(ChessApp);
 ChessApp::ChessApp() : config("Chess")
 {
 	this->frame = nullptr;
+	this->sound = nullptr;
 	this->game = new ChessEngine::ChessGame();
 	this->game->Reset();
 	this->whoseTurn = ChessEngine::ChessColor::White;
@@ -24,6 +27,7 @@ ChessApp::ChessApp() : config("Chess")
 {
 	delete this->game;
 	delete this->bot;
+	delete this->sound;
 }
 
 /*virtual*/ bool ChessApp::OnInit(void)
@@ -59,11 +63,24 @@ ChessApp::ChessApp() : config("Chess")
 
 	this->frame->Show();
 
+#if __WXMSW__
+	this->sound = new ChessSound_DirectSound();
+#else
+	this->sound = new ChessSound();
+#endif
+	if (!this->sound->Initialize())
+	{
+		wxMessageBox("Failed to initialize sound system.", "Error!", wxICON_ERROR | wxOK);
+		// Don't let this be a fatal error.  Continue on...
+	}
+
 	return true;
 }
 
 /*virtual*/ int ChessApp::OnExit(void)
 {
+	this->sound->Shutdown();
+
 	wxFileName fileName(wxStandardPaths::Get().GetTempDir() + "/last_game.chess");
 	if (fileName.Exists())
 		wxRemoveFile(fileName.GetFullPath());

@@ -19,10 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Sources\AudioFile\AudioFile.h" />
     <ClInclude Include="Sources\ChessApp.h" />
     <ClInclude Include="Sources\ChessBot.h" />
     <ClInclude Include="Sources\ChessCanvas.h" />
     <ClInclude Include="Sources\ChessFrame.h" />
+    <ClInclude Include="Sources\ChessSound.h" />
     <ClInclude Include="Sources\Math.h" />
   </ItemGroup>
   <ItemGroup>
@@ -30,6 +32,7 @@
     <ClCompile Include="Sources\ChessBot.cpp" />
     <ClCompile Include="Sources\ChessCanvas.cpp" />
     <ClCompile Include="Sources\ChessFrame.cpp" />
+    <ClCompile Include="Sources\ChessSound.cpp" />
     <ClCompile Include="Sources\Math.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -103,12 +106,13 @@
       <PreprocessorDefinitions>WIN32;__WXMSW__;_CRT_SECURE_NO_WARNINGS;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>E:\wxWidgets\include;E:\wxWidgets\include\msvc;$(SolutionDir)\Sources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>E:\wxWidgets\lib\vc_lib;$(SolutionDir)\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ChessEngine.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ChessEngine.lib;Dsound.lib;Dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -120,6 +124,7 @@
       <PreprocessorDefinitions>WIN32;__WXMSW__;_CRT_SECURE_NO_WARNINGS;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>E:\wxWidgets\include;E:\wxWidgets\include\msvc;$(SolutionDir)\Sources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -127,7 +132,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>E:\wxWidgets\lib\vc_lib;$(SolutionDir)\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ChessEngine.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ChessEngine.lib;Dsound.lib;Dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

@@ -3,6 +3,7 @@
 #include "ChessApp.h"
 #include "ChessBot.h"
 #include "ChessMove.h"
+#include "ChessSound.h"
 #include <fstream>
 #include <wx/menu.h>
 #include <wx/sizer.h>
@@ -43,6 +44,8 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_DrawCoordinates, "Draw Coordinates", "Show the rand and file labels.", wxITEM_CHECK));
 	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_DrawCaptures, "Draw Captures", "Show the captured Chess pieces.", wxITEM_CHECK));
 	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_DrawVisibilityArrows, "Draw Visibility Arrows", "Show arrows indicating what pieces can see the square hovered over.", wxITEM_CHECK));
+	optionsMenu->AppendSeparator();
+	optionsMenu->Append(new wxMenuItem(optionsMenu, ID_SoundFX, "Sound FX", "Play sound effects.", wxITEM_CHECK));
 
 	wxMenu* helpMenu = new wxMenu();
 	helpMenu->Append(new wxMenuItem(helpMenu, ID_HowToPlay, "How to play...", "Show a web-page with info about how to play, FWIW."));
@@ -110,6 +113,7 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	this->Bind(wxEVT_MENU, &ChessFrame::OnHowToPlay, this, ID_HowToPlay);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnDoubleUndoRedo, this, ID_DoubleUndo);
 	this->Bind(wxEVT_MENU, &ChessFrame::OnDoubleUndoRedo, this, ID_DoubleRedo);
+	this->Bind(wxEVT_MENU, &ChessFrame::OnToggleSoundFX, this, ID_SoundFX);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_FlipBoard);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_WhitePlayedByComputer);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_BlackPlayedByComputer);
@@ -121,6 +125,7 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_DrawCoordinates);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_DrawCaptures);
 	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_DrawVisibilityArrows);
+	this->Bind(wxEVT_UPDATE_UI, &ChessFrame::OnUpdateMenuItemUI, this, ID_SoundFX);
 	this->Bind(EVT_GAME_STATE_CHANGED, &ChessFrame::OnGameStateChanged, this);
 	this->Bind(wxEVT_TIMER, &ChessFrame::OnTimerTick, this);
 
@@ -168,6 +173,11 @@ ChessFrame::ChessFrame(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 /*virtual*/ ChessFrame::~ChessFrame()
 {
 	ChessEngine::DeleteMoveArray(this->redoMoveArray);
+}
+
+void ChessFrame::OnToggleSoundFX(wxCommandEvent& event)
+{
+	wxGetApp().sound->enabled = !wxGetApp().sound->enabled;
 }
 
 void ChessFrame::OnDoubleUndoRedo(wxCommandEvent& event)
@@ -389,6 +399,11 @@ void ChessFrame::OnUpdateMenuItemUI(wxUpdateUIEvent& event)
 			event.Check(this->canvas->GetDrawVisibilityArrows());
 			break;
 		}
+		case ID_SoundFX:
+		{
+			event.Check(wxGetApp().sound->enabled);
+			break;
+		}
 	}
 }
 
@@ -397,6 +412,8 @@ void ChessFrame::OnGameStateChanged(wxCommandEvent& event)
 	if (event.GetString() != "undo" && event.GetString() != "redo")
 	{
 		ChessEngine::DeleteMoveArray(this->redoMoveArray);
+
+		wxGetApp().sound->PlaySoundEventForGameState(wxGetApp().game);
 	}
 
 	this->UpdateStatusBar();

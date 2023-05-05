@@ -5,6 +5,9 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Sources\AudioFile">
+      <UniqueIdentifier>{ef70ff2c-c58f-4b0f-9e05-e78de325b8f9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sources\ChessApp.h">
@@ -22,6 +25,12 @@
     <ClInclude Include="Sources\Math.h">
       <Filter>Sources</Filter>
     </ClInclude>
+    <ClInclude Include="Sources\ChessSound.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\AudioFile\AudioFile.h">
+      <Filter>Sources\AudioFile</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Sources\ChessApp.cpp">
@@ -37,6 +46,9 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="Sources\Math.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\ChessSound.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>

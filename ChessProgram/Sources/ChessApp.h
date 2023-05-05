@@ -7,6 +7,7 @@
 #include <wx/config.h>
 
 class ChessFrame;
+class ChessSound;
 class ChessBot;
 
 class ChessApp : public wxApp
@@ -36,6 +37,7 @@ public:
 	bool SaveGame(const wxString& gameFile);
 
 	ChessFrame* frame;
+	ChessSound* sound;
 	ChessEngine::ChessGame* game;
 	ChessEngine::ChessColor whoseTurn;
 	ChessEngine::ChessAI* bot;

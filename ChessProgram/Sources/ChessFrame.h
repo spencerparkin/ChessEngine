@@ -35,6 +35,7 @@ public:
 	void OnCycleSquareTexture(wxCommandEvent& event);
 	void OnHowToPlay(wxCommandEvent& event);
 	void OnDoubleUndoRedo(wxCommandEvent& event);
+	void OnToggleSoundFX(wxCommandEvent& event);
 
 	enum
 	{
@@ -58,7 +59,8 @@ public:
 		ID_CycleDarkSquareTexture,
 		ID_HowToPlay,
 		ID_DoubleUndo,
-		ID_DoubleRedo
+		ID_DoubleRedo,
+		ID_SoundFX
 	};
 
 	void UpdateStatusBar();
