@@ -45,6 +45,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_14B16FAE03884B75922A57E7465C3C9D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_150432E33138434BB3F4CAA758689AF2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -75,6 +81,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_23FFC25CD753429CABAC99D38A124FF7"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_2E296D7D30E54E21A0AAAE0C7DAD5455"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -88,6 +100,12 @@
         "Entry"
         {
         "MsmKey" = "8:_313139AF9E23424B9423D81122E049BB"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_36F235DC0DD64F16BBE000153646B51B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -153,6 +171,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_67FD5602B85B49749F2054499F4DE681"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_6B1430DA598A4AE2801A2F239E4A13ED"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -178,6 +202,12 @@
         "Entry"
         {
         "MsmKey" = "8:_855A18AFF03146A88919D1B2225C96A5"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_86A4472A6C3543AD9EB253209C772D3C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -255,6 +285,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_BEF3E748713E4A6F80714E7C462D741A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_BFE6AFAA10604B51BF074BAB58778E3A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -286,6 +322,12 @@
         "Entry"
         {
         "MsmKey" = "8:_C59FD9427C8F491ABDE5FA3715CDC2C8"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C9896521DBEC4A5396904DA4F4C1C47B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -351,6 +393,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_DBC5DF4C640A4F98ABC24A09D14D42F4"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_DBF533F5467E4957B243716D0C68C7DC"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -393,6 +441,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_E685A762FF1444D092290B8F15CB8B2A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_F27BC3FA3D654C93A98000235765FFFB"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -406,6 +460,12 @@
         "Entry"
         {
         "MsmKey" = "8:_F47A812AFDB7458EBE83F9D2839882F2"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F76C950FD9F745D7BB1F233EC7ADE65F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -602,6 +662,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_14B16FAE03884B75922A57E7465C3C9D"
+            {
+            "SourcePath" = "8:..\\Sounds\\uh_oh.wav"
+            "TargetName" = "8:uh_oh.wav"
+            "Tag" = "8:"
+            "Folder" = "8:_F58AB6274D164AE799F186007A25BBE9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_150432E33138434BB3F4CAA758689AF2"
             {
             "SourcePath" = "8:..\\Textures\\light_square_cycle_icon.bmp"
@@ -702,6 +782,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_23FFC25CD753429CABAC99D38A124FF7"
+            {
+            "SourcePath" = "8:..\\Sounds\\fatality.wav"
+            "TargetName" = "8:fatality.wav"
+            "Tag" = "8:"
+            "Folder" = "8:_F58AB6274D164AE799F186007A25BBE9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2E296D7D30E54E21A0AAAE0C7DAD5455"
             {
             "SourcePath" = "8:..\\Help\\fig11.png"
@@ -748,6 +848,26 @@
             "TargetName" = "8:dark_square_1.png"
             "Tag" = "8:"
             "Folder" = "8:_935A560E01144C918BADD179F9566330"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_36F235DC0DD64F16BBE000153646B51B"
+            {
+            "SourcePath" = "8:..\\Sounds\\get_to_the_choppa.wav"
+            "TargetName" = "8:get_to_the_choppa.wav"
+            "Tag" = "8:"
+            "Folder" = "8:_F58AB6274D164AE799F186007A25BBE9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -962,6 +1082,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_67FD5602B85B49749F2054499F4DE681"
+            {
+            "SourcePath" = "8:..\\Sounds\\oh_yeah.wav"
+            "TargetName" = "8:oh_yeah.wav"
+            "Tag" = "8:"
+            "Folder" = "8:_F58AB6274D164AE799F186007A25BBE9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6B1430DA598A4AE2801A2F239E4A13ED"
             {
             "SourcePath" = "8:..\\Textures\\a.png"
@@ -1048,6 +1188,26 @@
             "TargetName" = "8:8.png"
             "Tag" = "8:"
             "Folder" = "8:_935A560E01144C918BADD179F9566330"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_86A4472A6C3543AD9EB253209C772D3C"
+            {
+            "SourcePath" = "8:..\\Sounds\\the_pain.wav"
+            "TargetName" = "8:the_pain.wav"
+            "Tag" = "8:"
+            "Folder" = "8:_F58AB6274D164AE799F186007A25BBE9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1302,6 +1462,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BEF3E748713E4A6F80714E7C462D741A"
+            {
+            "SourcePath" = "8:..\\Sounds\\plop.wav"
+            "TargetName" = "8:plop.wav"
+            "Tag" = "8:"
+            "Folder" = "8:_F58AB6274D164AE799F186007A25BBE9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BFE6AFAA10604B51BF074BAB58778E3A"
             {
             "SourcePath" = "8:..\\Textures\\d.png"
@@ -1408,6 +1588,26 @@
             "TargetName" = "8:fig20.png"
             "Tag" = "8:"
             "Folder" = "8:_5FE36E7972A64F2A947A5E217CC95CAA"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C9896521DBEC4A5396904DA4F4C1C47B"
+            {
+            "SourcePath" = "8:..\\Sounds\\that_queen_looks_pretty_hot.wav"
+            "TargetName" = "8:that_queen_looks_pretty_hot.wav"
+            "Tag" = "8:"
+            "Folder" = "8:_F58AB6274D164AE799F186007A25BBE9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1582,6 +1782,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DBC5DF4C640A4F98ABC24A09D14D42F4"
+            {
+            "SourcePath" = "8:..\\Sounds\\he_is_the_quizzats_haderact.wav"
+            "TargetName" = "8:he_is_the_quizzats_haderact.wav"
+            "Tag" = "8:"
+            "Folder" = "8:_F58AB6274D164AE799F186007A25BBE9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DBF533F5467E4957B243716D0C68C7DC"
             {
             "SourcePath" = "8:..\\Help\\how_to_play_chess.html"
@@ -1722,6 +1942,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E685A762FF1444D092290B8F15CB8B2A"
+            {
+            "SourcePath" = "8:..\\Sounds\\better_luck_next_time.wav"
+            "TargetName" = "8:better_luck_next_time.wav"
+            "Tag" = "8:"
+            "Folder" = "8:_F58AB6274D164AE799F186007A25BBE9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F27BC3FA3D654C93A98000235765FFFB"
             {
             "SourcePath" = "8:..\\Textures\\6.png"
@@ -1768,6 +2008,26 @@
             "TargetName" = "8:black_bishop.png"
             "Tag" = "8:"
             "Folder" = "8:_935A560E01144C918BADD179F9566330"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F76C950FD9F745D7BB1F233EC7ADE65F"
+            {
+            "SourcePath" = "8:..\\Sounds\\sac_the_queen_brugh.wav"
+            "TargetName" = "8:sac_the_queen_brugh.wav"
+            "Tag" = "8:"
+            "Folder" = "8:_F58AB6274D164AE799F186007A25BBE9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1836,6 +2096,17 @@
                     "Condition" = "8:"
                     "Transitive" = "11:FALSE"
                     "Property" = "8:_7127D16029934291AC832DE85A45D861"
+                        "Folders"
+                        {
+                        }
+                    }
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_F58AB6274D164AE799F186007A25BBE9"
+                    {
+                    "Name" = "8:Sounds"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_9BADE33123FA458B8AA2875515EE8E0E"
                         "Folders"
                         {
                         }
