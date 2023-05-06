@@ -32,6 +32,7 @@ public:
 	virtual bool Initialize();
 	virtual bool Shutdown();
 	virtual bool PlaySoundEvent(Event event);
+	virtual bool SoundStillPlaying();
 
 	bool PlaySoundEventForGameState(ChessEngine::ChessGame* game);
 
@@ -53,6 +54,7 @@ public:
 	virtual bool Initialize() override;
 	virtual bool Shutdown() override;
 	virtual bool PlaySoundEvent(Event event) override;
+	virtual bool SoundStillPlaying() override;
 
 private:
 	IDirectSound8* device;
@@ -64,6 +66,8 @@ private:
 
 	typedef std::map<Event, SoundEffect*> SoundEffectMap;
 	SoundEffectMap* sfxMap;
+
+	Event lastPlayedEvent;
 };
 
 #endif //__WXMSW__

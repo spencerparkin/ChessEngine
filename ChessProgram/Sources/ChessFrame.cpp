@@ -428,7 +428,12 @@ void ChessFrame::OnTimerTick(wxTimerEvent& event)
 	this->inTimerTick = true;
 
 	if (wxGetApp().GetCurrentPlayerType() == ChessApp::PlayerType::COMPUTER && !this->canvas->IsAnimating())
-		this->ComputerTakesTurn();
+	{
+		if (!wxGetApp().sound->enabled || !wxGetApp().sound->SoundStillPlaying())
+		{
+			this->ComputerTakesTurn();
+		}
+	}
 
 	double deltaTimeSeconds = double(this->timer.GetInterval()) / 1000.0;
 	this->canvas->Animate(deltaTimeSeconds);
