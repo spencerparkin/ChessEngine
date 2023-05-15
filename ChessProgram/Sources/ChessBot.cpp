@@ -68,7 +68,7 @@ ChessBotInterface::ChessBotInterface()
 
 /*virtual*/ void ChessBotInterface::SetDifficulty(Difficulty difficulty)
 {
-	this->difficulty = Difficulty::MEDIUM;
+	this->difficulty = difficulty;
 }
 
 /*virtual*/ ChessBotInterface::Difficulty ChessBotInterface::GetDifficulty()

@@ -74,11 +74,28 @@ ChessApp::ChessApp() : config("Chess")
 		// Don't let this be a fatal error.  Continue on...
 	}
 
+	this->sound->enabled = this->config.ReadBool("soundFX", false);
+
+	this->playerType[0] = (PlayerType)this->config.ReadLong("playerType[0]", long(PlayerType::HUMAN));
+	this->playerType[1] = (PlayerType)this->config.ReadLong("playerType[1]", long(PlayerType::HUMAN));
+	
+	dynamic_cast<ChessBotInterface*>(this->bot)->SetDifficulty((ChessBotInterface::Difficulty)this->config.ReadLong("botDifficulty", long(ChessBotInterface::Difficulty::EASY)));
+
 	return true;
 }
 
 /*virtual*/ int ChessApp::OnExit(void)
 {
+	this->config.Write("soundFX", this->sound->enabled);
+
+	long pt = (long)this->playerType[0];
+	this->config.Write("playerType[0]", pt);
+
+	pt = (long)this->playerType[1];
+	this->config.Write("playerType[1]", pt);
+
+	this->config.Write("botDifficulty", long(dynamic_cast<ChessBotInterface*>(this->bot)->GetDifficulty()));
+
 	this->sound->Shutdown();
 
 	wxFileName fileName(wxStandardPaths::Get().GetTempDir() + "/last_game.chess");
