@@ -100,7 +100,7 @@ ChessMinimaxAI::ChessMinimaxAI(int maxDepth)
 
 	int numMoves = game->GetNumMoves();
 
-	int score = 0;
+	Score score{ 0, -1 };
 	bool success = this->Minimax(Goal::MAXIMIZE, favoredColor, favoredColor, game, 0, score);
 
 	assert(numMoves == game->GetNumMoves());
@@ -119,11 +119,12 @@ ChessMinimaxAI::ChessMinimaxAI(int maxDepth)
 	return chosenMove;
 }
 
-bool ChessMinimaxAI::Minimax(Goal goal, ChessColor favoredColor, ChessColor whoseTurn, ChessGame* game, int depth, int& score, int* currentSuperScore /*= nullptr*/)
+bool ChessMinimaxAI::Minimax(Goal goal, ChessColor favoredColor, ChessColor whoseTurn, ChessGame* game, int depth, Score& score, Score* currentSuperScore /*= nullptr*/)
 {
 	if (depth >= this->maxDepth)
 	{
-		score = this->EvaluationFunction(favoredColor, game);
+		score.value = this->EvaluationFunction(favoredColor, game);
+		score.depth = depth;
 		return true;
 	}
 
@@ -133,12 +134,14 @@ bool ChessMinimaxAI::Minimax(Goal goal, ChessColor favoredColor, ChessColor whos
 	{
 		case GameResult::CheckMate:
 		{
-			score = (whoseTurn == favoredColor) ? -10000 : 10000;
+			score.value = (whoseTurn == favoredColor) ? -10000 : 10000;
+			score.depth = depth;
 			return true;
 		}
 		case GameResult::StaleMate:
 		{
-			score = -10000;
+			score.value = -10000;
+			score.depth = depth;
 			return true;
 		}
 	}
@@ -148,17 +151,18 @@ bool ChessMinimaxAI::Minimax(Goal goal, ChessColor favoredColor, ChessColor whos
 		return moveA->GetSortKey() > moveB->GetSortKey();
 	});
 
-	score = 0;
+	score.value = 0;
+	score.depth = depth;
 	switch (goal)
 	{
 		case Goal::MINIMIZE:
 		{
-			score = INT_MAX;
+			score.value = INT_MAX;
 			break;
 		}
 		case Goal::MAXIMIZE:
 		{
-			score = INT_MIN;
+			score.value = INT_MIN;
 			break;
 		}
 		default:
@@ -178,7 +182,7 @@ bool ChessMinimaxAI::Minimax(Goal goal, ChessColor favoredColor, ChessColor whos
 		ChessColor otherColor = (whoseTurn == ChessColor::Black) ? ChessColor::White : ChessColor::Black;
 		Goal opponentGoal = (goal == Goal::MAXIMIZE) ? Goal::MINIMIZE : Goal::MAXIMIZE;
 
-		int subScore = 0;
+		Score subScore{ 0, -1 };
 		success = this->Minimax(opponentGoal, favoredColor, otherColor, game, depth + 1, subScore, &score);
 
 		game->PopMove();
@@ -186,7 +190,9 @@ bool ChessMinimaxAI::Minimax(Goal goal, ChessColor favoredColor, ChessColor whos
 		if (!success)
 			break;
 
-		if ((goal == Goal::MINIMIZE && score > subScore) || (goal == Goal::MAXIMIZE && score < subScore))
+		if ((goal == Goal::MINIMIZE && score.value > subScore.value) ||
+			(goal == Goal::MAXIMIZE && score.value < subScore.value) ||
+			(score.value == subScore.value && score.depth > subScore.depth))
 		{
 			score = subScore;
 
@@ -195,13 +201,13 @@ bool ChessMinimaxAI::Minimax(Goal goal, ChessColor favoredColor, ChessColor whos
 				this->bestMoveArray->clear();
 				this->bestMoveArray->push_back(legalMove);
 			}
-			else if ((goal == Goal::MINIMIZE && score < *currentSuperScore) || (goal == Goal::MAXIMIZE && score > *currentSuperScore))
+			else if ((goal == Goal::MINIMIZE && score.value < currentSuperScore->value) || (goal == Goal::MAXIMIZE && score.value > currentSuperScore->value))
 			{
 				// This is the so-called "alpha-beta" prune case.
 				break;
 			}
 		}
-		else if (depth == 0 && score == subScore)
+		else if (depth == 0 && score.value == subScore.value && score.depth == subScore.depth)
 		{
 			this->bestMoveArray->push_back(legalMove);
 		}

@@ -52,7 +52,13 @@ namespace ChessEngine
 			MAXIMIZE
 		};
 
-		bool Minimax(Goal goal, ChessColor favoredColor, ChessColor whoseTurn, ChessGame* game, int depth, int& score, int* currentSuperScore = nullptr);
+		struct Score
+		{
+			int value;
+			int depth;
+		};
+
+		bool Minimax(Goal goal, ChessColor favoredColor, ChessColor whoseTurn, ChessGame* game, int depth, Score& score, Score* currentSuperScore = nullptr);
 
 		ChessMoveArray* bestMoveArray;
 		int maxDepth;
