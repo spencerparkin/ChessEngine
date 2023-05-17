@@ -619,10 +619,10 @@ void ChessFrame::OnAbout(wxCommandEvent& event)
 	wxAboutDialogInfo aboutDialogInfo;
 
 	aboutDialogInfo.SetName("Chess");
-	aboutDialogInfo.SetVersion("1.0");
+	aboutDialogInfo.SetVersion("1.3");
 	aboutDialogInfo.SetDescription(
 		"This is a simple Chess program.\n\n"
-		"Art credit: JohnPablok's improved Cburnett chess set.  (License: CC BY-SA 3.0)\n\n"
+		"Art credit: John Pablok's improved Cburnett chess set.  (License: CC BY-SA 3.0)\n\n"
 		"This program uses audio code by Adam Stark, and wxWidgets by Julian Smart, Robert Roebling, Vadim Zeitlin, et. al.");
 	aboutDialogInfo.SetCopyright("Copyright (C) 2023 -- Spencer T. Parkin <SpencerTParkin@gmail.com>");
 
