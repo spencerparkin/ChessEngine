@@ -7,6 +7,7 @@ namespace ChessEngine
 {
 	class ChessPiece;
 	class ChessMove;
+	class Castle;
 
 	class CHESS_ENGINE_API ChessGame : public ChessObject
 	{
@@ -49,6 +50,7 @@ namespace ChessEngine
 		void Clear();
 
 		bool IsColorInCheck(ChessColor color);
+		bool KingMovesAcrossThreatenedSquare(const Castle* castle);
 
 		ChessPiece* boardMatrix[CHESS_BOARD_FILES][CHESS_BOARD_RANKS];
 		ChessMoveArray* chessMoveStack;

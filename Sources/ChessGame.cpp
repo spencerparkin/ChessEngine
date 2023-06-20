@@ -267,17 +267,27 @@ GameResult ChessGame::GenerateAllLegalMovesForColor(ChessColor color, ChessMoveA
 
 		this->PushMove(move);
 
+		const Castle* castle = dynamic_cast<Castle*>(move);
+
 		// We cannot make a move that puts us in check.
 		if (this->IsColorInCheck(color))
 			canDoMove = false;
-		else
+		else if (castle)
 		{
-			// Special case: You cannot castle out of check.
-			if (inCheck && dynamic_cast<Castle*>(move))
+			if (inCheck)
+			{
+				// Special case: You cannot castle out of check.
 				canDoMove = false;
+			}
 		}
 
 		this->PopMove();
+
+		if (castle && this->KingMovesAcrossThreatenedSquare(castle))
+		{
+			// Special case: You cannot castle across a threatened square.
+			canDoMove = false;
+		}
 
 		if (canDoMove)
 			moveArray.push_back(move);
@@ -297,6 +307,38 @@ GameResult ChessGame::GenerateAllLegalMovesForColor(ChessColor color, ChessMoveA
 		return GameResult::Check;
 
 	return GameResult::None;
+}
+
+bool ChessGame::KingMovesAcrossThreatenedSquare(const Castle* castle)
+{
+	bool indeed = false;
+
+	ChessPiece* piece = this->GetSquareOccupant(castle->sourceLocation);
+	assert(piece->GetName() == "King");
+
+	ChessColor opposingColor = (piece->color == ChessColor::White) ? ChessColor::Black : ChessColor::White;
+	ChessMoveArray moveArray;
+	this->GatherAllMovesForColor(opposingColor, moveArray);
+
+	for (ChessMove* move : moveArray)
+	{
+		if (move->destinationLocation.rank == castle->sourceLocation.rank)
+		{
+			if (castle->sourceLocation.file < move->destinationLocation.file && move->destinationLocation.file < castle->destinationLocation.file)
+			{
+				indeed = true;
+				break;
+			}
+			else if (castle->destinationLocation.file < move->destinationLocation.file && move->destinationLocation.file < castle->sourceLocation.file)
+			{
+				indeed = true;
+				break;
+			}
+		}
+	}
+
+	DeleteMoveArray(moveArray);
+	return indeed;
 }
 
 bool ChessGame::IsColorInCheck(ChessColor color)
